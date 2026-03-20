@@ -5,7 +5,15 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+import AppLayout from './components/layout/AppLayout';
+import Landing from './pages/Landing';
+import Dashboard from './pages/Dashboard';
+import Investments from './pages/Investments';
+import Deposit from './pages/Deposit';
+import Withdraw from './pages/Withdraw';
+import Referrals from './pages/Referrals';
+import AdminPanel from './pages/admin/AdminPanel';
+import Terms from './pages/Terms';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -33,7 +41,16 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route element={<AppLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/investments" element={<Investments />} />
+        <Route path="/deposit" element={<Deposit />} />
+        <Route path="/withdraw" element={<Withdraw />} />
+        <Route path="/referrals" element={<Referrals />} />
+        <Route path="/admin" element={<AdminPanel />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
