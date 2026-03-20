@@ -33,7 +33,7 @@ export default function AppLayout() {
       }
     };
     loadUser();
-  }, [];
+  }, []);
 
   if (!profileComplete && user) {
     return <ProfileGate user={user} onComplete={() => setProfileComplete(true)} />;
