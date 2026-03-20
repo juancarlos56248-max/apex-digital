@@ -74,9 +74,67 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
   if (!config) return null;
   const Icon = config.icon;
 
+  const rangeLabel = config.maxDeposit
+    ? `$${config.minDeposit.toLocaleString()} – $${config.maxDeposit.toLocaleString()} USDT`
+    : `Desde $${config.minDeposit.toLocaleString()} USDT`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay }}
+      className={`relative overflow-hidden rounded-xl border border-border bg-card p-6 group transition-all duration-300 ${config.borderColor}`}
+    >
+      <div className={`absolute inset-0 bg-gradient-to-br ${config.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+      
+      <div className="relative">
+        <div className="flex items-start justify-between mb-4">
+          <div className={`w-12 h-12 rounded-xl ${config.iconBg} flex items-center justify-center`}>
+            <Icon className={`w-6 h-6 ${config.iconColor}`} />
+          </div>
+          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider ${config.badgeColor}`}>
+            +{config.dailyReturn} / día
+          </span>
+        </div>
+
+        <h3 className="text-lg font-bold mb-0.5">{config.name}</h3>
+        <p className="text-xs text-muted-foreground mb-1">{config.subtitle}</p>
+        <p className="text-xs font-mono text-gold mb-4">{rangeLabel}</p>
+
+        {/* Node capacity bar */}
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Capacidad del Nodo</span>
+            <span className="text-[10px] font-mono text-success">En línea</span>
+          </div>
+          <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+            <div
+              className={`h-full rounded-full bg-gradient-to-r ${config.iconColor === 'text-gold' ? 'from-gold to-gold-light' : config.iconColor === 'text-emerald-400' ? 'from-emerald-500 to-emerald-400' : config.iconColor === 'text-blue-400' ? 'from-blue-500 to-blue-400' : 'from-purple-500 to-purple-400'}`}
+              style={{ width: `${60 + Math.random() * 30}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2.5 mb-6">
+          {config.features.map((f, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Check className={`w-3.5 h-3.5 ${config.iconColor} flex-shrink-0`} />
+              <span>{f}</span>
+            </div>
+          ))}
+        </div>
+
+        <Button
+          onClick={() => onSubscribe(tier, config.minDeposit, config)}
+          className="w-full bg-gold hover:bg-gold-dark text-black font-semibold"
+          disabled={hasActive}
+        >
+          {hasActive ? "Nodo Activo" : "Activar Contrato"}
+        </Button>
+      </div>
+    </motion.div>
+  );
+}}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay }}
       className={`relative overflow-hidden rounded-xl border border-border bg-card p-6 group transition-all duration-300 ${config.borderColor}`}
