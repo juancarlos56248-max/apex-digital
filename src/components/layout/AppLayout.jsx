@@ -3,10 +3,12 @@ import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "./Sidebar";
+import ProfileGate from "./ProfileGate";
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [profileComplete, setProfileComplete] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -25,9 +27,17 @@ export default function AppLayout() {
         me.total_earned = 0;
       }
       setUser(me);
+      // Check if profile is complete
+      if (!me.dni || !me.phone) {
+        setProfileComplete(false);
+      }
     };
     loadUser();
-  }, []);
+  }, [];
+
+  if (!profileComplete && user) {
+    return <ProfileGate user={user} onComplete={() => setProfileComplete(true)} />;
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
