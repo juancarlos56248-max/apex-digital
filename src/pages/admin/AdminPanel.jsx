@@ -6,6 +6,7 @@ import { Shield, ArrowDownToLine, ArrowUpFromLine, Users } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
 import UserConsole from "../../components/admin/UserConsole";
+import AnnouncementManager from "../../components/admin/AnnouncementManager";
 
 export default function AdminPanel() {
   const { user } = useOutletContext();
@@ -41,6 +42,10 @@ export default function AdminPanel() {
             <Users className="w-3.5 h-3.5" />
             Usuarios
           </TabsTrigger>
+          <TabsTrigger value="announcements" className="gap-2 data-[state=active]:bg-gold/10 data-[state=active]:text-gold">
+            <Shield className="w-3.5 h-3.5" />
+            Anuncios
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="deposits">
@@ -51,6 +56,9 @@ export default function AdminPanel() {
         </TabsContent>
         <TabsContent value="users">
           <UserConsole />
+        </TabsContent>
+        <TabsContent value="announcements">
+          <AnnouncementManager />
         </TabsContent>
       </Tabs>
     </div>
