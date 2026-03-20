@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from "@/components/ui/dialog";
+import { Shield, Zap, Download } from "lucide-react";
 
 export default function Investments() {
   const { user } = useOutletContext();
@@ -17,9 +18,13 @@ export default function Investments() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState(null);
+  const [selectedConfig, setSelectedConfig] = useState(null);
   const [selectedDeposit, setSelectedDeposit] = useState(0);
+  const [customAmount, setCustomAmount] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [certData, setCertData] = useState(null);
+  const [certOpen, setCertOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -29,14 +34,59 @@ export default function Investments() {
     });
   }, [user]);
 
-  const handleSubscribe = (tier, deposit) => {
+  const handleSubscribe = (tier, deposit, config) => {
     setSelectedTier(tier);
     setSelectedDeposit(deposit);
+    setSelectedConfig(config);
+    setCustomAmount(String(deposit));
     setDialogOpen(true);
+  };
+
+  const downloadCertificate = () => {
+    if (!certData) return;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+      body{font-family:Georgia,serif;background:#050505;color:#c5a059;margin:0;padding:40px;}
+      .cert{border:2px solid #c5a059;border-radius:12px;padding:48px;max-width:700px;margin:auto;text-align:center;background:linear-gradient(135deg,#0a0a0a,#111);}
+      h1{font-size:28px;letter-spacing:4px;margin-bottom:4px;color:#e8c97a;}
+      .sub{font-size:11px;letter-spacing:8px;color:#888;margin-bottom:32px;}
+      .divider{border:none;border-top:1px solid #c5a059;margin:24px 0;opacity:0.4;}
+      p{font-size:14px;line-height:1.8;color:#d4b87a;}
+      .highlight{color:#e8c97a;font-weight:bold;font-size:16px;}
+      .footer{font-size:11px;color:#555;margin-top:32px;letter-spacing:2px;}
+    </style></head><body><div class="cert">
+      <h1>APEX DIGITAL</h1>
+      <div class="sub">CERTIFICADO DE CUSTODIA DE ACTIVOS</div>
+      <hr class="divider">
+      <p>Apex Digital certifica que el usuario</p>
+      <p class="highlight">${certData.name}</p>
+      <p>posee una participación activa en el</p>
+      <p class="highlight">Nodo de Liquidez ${certData.asset}</p>
+      <p>con una tasa de devengo diario de <span class="highlight">${certData.rate}</span>,<br>
+      bajo los protocolos de seguridad de la división<br>de activos digitales de Singapur.</p>
+      <hr class="divider">
+      <p style="font-size:12px;color:#666;">Monto invertido: <b style="color:#c5a059">$${certData.amount} USDT</b> &nbsp;|&nbsp; Fecha: ${certData.date}</p>
+      <div class="footer">APEX DIGITAL ASSET MANAGEMENT — SINGAPORE DIVISION — ID: ${certData.id}</div>
+    </div></body></html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `Apex_Certificado_${certData.asset}.html`;
+    a.click(); URL.revokeObjectURL(url);
   };
 
   const confirmSubscription = async () => {
     setSubmitting(true);
+    const amount = parseFloat(customAmount);
+    if (!amount || isNaN(amount)) {
+      toast.error("Ingresa un monto válido."); setSubmitting(false); return;
+    }
+    if (selectedConfig?.minDeposit && amount < selectedConfig.minDeposit) {
+      toast.error(`El monto mínimo para este nodo es $${selectedConfig.minDeposit.toLocaleString()} USDT.`); setSubmitting(false); return;
+    }
+    if (selectedConfig?.maxDeposit && amount > selectedConfig.maxDeposit) {
+      toast.error(`El monto máximo para este nodo es $${selectedConfig.maxDeposit.toLocaleString()} USDT.`); setSubmitting(false); return;
+    }
+    const selectedDeposit = amount;
     // Check balance
     if ((user.balance || 0) < selectedDeposit) {
       toast.error("Balance insuficiente. Realiza un depósito primero.");
@@ -86,16 +136,26 @@ export default function Investments() {
     }
 
     await base44.entities.Investment.create(investmentData);
-    // Deduct balance
     await base44.auth.updateMe({
       balance: (user.balance || 0) - selectedDeposit,
       total_invested: (user.total_invested || 0) + selectedDeposit,
     });
 
+    // Prepare certificate data
+    const cert = {
+      name: user.full_name || user.email,
+      asset: selectedConfig?.subtitle || selectedTier,
+      rate: selectedConfig?.dailyReturn || "N/A",
+      amount: selectedDeposit.toLocaleString(),
+      date: new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" }),
+      id: Math.random().toString(36).substring(2, 10).toUpperCase(),
+    };
+    setCertData(cert);
+
     toast.success(`Nodo ${selectedTier.toUpperCase()} activado exitosamente`);
     setDialogOpen(false);
+    setCertOpen(true);
     setReferralCode("");
-    // Refresh
     const updatedInvs = await base44.entities.Investment.filter({ user_email: user.email });
     setInvestments(updatedInvs);
     setSubmitting(false);
@@ -110,6 +170,7 @@ export default function Investments() {
   }
 
   const activeTiers = investments.filter(i => i.status === "active").map(i => i.tier);
+  const tierKeys = ["starter", "advance", "elite", "institutional"];
 
   return (
     <div className="space-y-6">
@@ -121,7 +182,7 @@ export default function Investments() {
       </motion.div>
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        {["starter", "pro", "elite", "institutional"].map((tier, i) => (
+        {tierKeys.map((tier, i) => (
           <TierCard
             key={tier}
             tier={tier}
@@ -134,16 +195,48 @@ export default function Investments() {
 
       {/* Subscription Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-card border-border">
+        <DialogContent className="bg-card border-border max-w-lg">
           <DialogHeader>
-            <DialogTitle>Activar Nodo {selectedTier?.toUpperCase()}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-gold" />
+              Activar Contrato — {selectedConfig?.name}
+            </DialogTitle>
             <DialogDescription>
-              Se deducirán ${selectedDeposit?.toLocaleString()} USDT de tu balance disponible.
-              Balance actual: <span className="text-gold font-mono">${(user.balance || 0).toLocaleString()}</span>
+              {selectedConfig?.subtitle} &bull; Rendimiento diario: <span className="text-gold font-mono font-bold">{selectedConfig?.dailyReturn}</span>
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="space-y-4 py-2">
+
+          {/* Tech copywriting */}
+          <div className="rounded-lg border border-gold/20 bg-gold/5 p-4 text-xs leading-relaxed text-muted-foreground">
+            <div className="flex items-center gap-2 mb-2">
+              <Shield className="w-3.5 h-3.5 text-gold" />
+              <span className="text-gold font-semibold text-[11px] uppercase tracking-wider">Estrategia de Ejecución Algorítmica: Apex HFT</span>
+            </div>
+            <p>Al activar este nodo, integras tu capital en nuestro motor de <strong className="text-foreground">Arbitraje Cuántico</strong>. Nuestra tecnología escanea diferencias de precios en las bolsas de Nueva York y Singapur en milisegundos, utilizando apalancamiento institucional para maximizar el retorno diario, protegiendo el capital base mediante órdenes <strong className="text-foreground">Stop-Loss</strong> automatizadas.</p>
+            <ul className="mt-2 space-y-0.5">
+              <li>• <strong className="text-foreground">Liquidación Diaria</strong> — Dividendos cada 24 horas sin excepción.</li>
+              <li>• <strong className="text-foreground">Gestión de Riesgo</strong> — 1 retiro permitido por ciclo de 24h.</li>
+              <li>• <strong className="text-foreground">Transparencia Total</strong> — Rastrea el crecimiento en tu Dashboard.</li>
+            </ul>
+          </div>
+
+          <div className="space-y-3 py-1">
+            <div>
+              <Label className="text-xs text-muted-foreground">Monto a Invertir (USDT)</Label>
+              <Input
+                type="number"
+                placeholder={`Mín. $${selectedConfig?.minDeposit?.toLocaleString()}`}
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                className="mt-1.5 bg-secondary border-border font-mono"
+              />
+              {selectedConfig && (
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Rango: ${selectedConfig.minDeposit?.toLocaleString()} – {selectedConfig.maxDeposit ? `$${selectedConfig.maxDeposit?.toLocaleString()}` : "Sin límite"} USDT
+                  &nbsp;&bull;&nbsp; Balance: <span className="text-gold font-mono">${(user.balance || 0).toLocaleString()}</span>
+                </p>
+              )}
+            </div>
             <div>
               <Label className="text-xs text-muted-foreground">Código de Referido (opcional)</Label>
               <Input
@@ -156,15 +249,35 @@ export default function Investments() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button
-              onClick={confirmSubscription}
-              disabled={submitting}
-              className="bg-gold hover:bg-gold-dark text-black font-semibold"
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={confirmSubscription} disabled={submitting} className="bg-gold hover:bg-gold-dark text-black font-semibold">
               {submitting ? "Procesando..." : "Confirmar Activación"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Certificate Dialog */}
+      <Dialog open={certOpen} onOpenChange={setCertOpen}>
+        <DialogContent className="bg-card border-gold/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-gold">Certificado de Custodia Listo</DialogTitle>
+            <DialogDescription>Tu nodo ha sido activado. Descarga tu certificado oficial de participación.</DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg border border-gold/20 bg-gold/5 p-5 text-center space-y-2">
+            <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto">
+              <Download className="w-5 h-5 text-gold" />
+            </div>
+            <p className="text-sm font-semibold">{certData?.name}</p>
+            <p className="text-xs text-muted-foreground">Nodo: <span className="text-gold">{certData?.asset}</span></p>
+            <p className="text-xs text-muted-foreground">Rendimiento diario: <span className="text-success font-mono">{certData?.rate}</span></p>
+            <p className="text-xs text-muted-foreground">Monto: <span className="font-mono">${certData?.amount} USDT</span></p>
+            <p className="text-[10px] text-muted-foreground/60 mt-1">Bajo los protocolos de seguridad de la división de activos digitales de Singapur.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCertOpen(false)}>Cerrar</Button>
+            <Button onClick={downloadCertificate} className="bg-gold hover:bg-gold-dark text-black font-semibold gap-2">
+              <Download className="w-4 h-4" /> Descargar Certificado
             </Button>
           </DialogFooter>
         </DialogContent>
