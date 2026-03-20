@@ -20,7 +20,7 @@ export default function ProfileGate({ user, onComplete }) {
       return;
     }
     setSaving(true);
-    await base44.auth.updateMe({ dni: dni.trim(), phone: phone.trim() });
+    await base44.auth.updateMe({ full_name: fullName.trim(), dni: dni.trim(), phone: phone.trim() });
     toast.success("Perfil completado. ¡Bienvenido a Apex Digital!");
     onComplete();
   };
@@ -60,9 +60,7 @@ export default function ProfileGate({ user, onComplete }) {
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Ej: Juan Carlos Pérez"
                 className="bg-secondary border-border"
-                disabled
               />
-              <p className="text-[10px] text-muted-foreground mt-1">Tomado de tu cuenta registrada.</p>
             </div>
 
             <div>
