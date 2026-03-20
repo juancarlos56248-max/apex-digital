@@ -8,7 +8,7 @@ import ProfileGate from "./ProfileGate";
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [profileComplete, setProfileComplete] = useState(true);
+  const [profileComplete, setProfileComplete] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -28,12 +28,19 @@ export default function AppLayout() {
       }
       setUser(me);
       // Check if profile is complete
-      if (!me.dni || !me.phone) {
-        setProfileComplete(false);
-      }
+      setProfileComplete(!!(me.dni && me.phone));
     };
     loadUser();
   }, []);
+
+  // Still loading
+  if (profileComplete === null) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!profileComplete && user) {
     return <ProfileGate user={user} onComplete={() => setProfileComplete(true)} />;
