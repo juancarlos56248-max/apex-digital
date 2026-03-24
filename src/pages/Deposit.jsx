@@ -10,15 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Copy, Shield, AlertTriangle } from "lucide-react";
 
 const WALLET_ADDRESSES = {
-  TRC20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
-  ERC20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
-  BEP20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
   USDT: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
 };
 
 export default function Deposit() {
   const { user } = useOutletContext();
-  const [network, setNetwork] = useState("TRC20");
+  const [network, setNetwork] = useState("USDT");
   const [amount, setAmount] = useState("");
   const [txid, setTxid] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -93,9 +90,6 @@ export default function Deposit() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="TRC20">TRON (TRC20) — Comisión baja</SelectItem>
-              <SelectItem value="ERC20">Ethereum (ERC20)</SelectItem>
-              <SelectItem value="BEP20">BSC (BEP20)</SelectItem>
               <SelectItem value="USDT">USDT Nativo</SelectItem>
             </SelectContent>
           </Select>
