@@ -10,9 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Copy, Shield, AlertTriangle } from "lucide-react";
 
 const WALLET_ADDRESSES = {
-  TRC20: "TXkB9v2xN7E3a5pQ8mUwJzY4dC6nL1hM0R",
-  ERC20: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD68",
-  BEP20: "0x9A8f2e7B3c4D5e6F1a0B9C8d7E6f5A4b3C2d1E0F",
+  TRC20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
+  ERC20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
+  BEP20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
 };
 
 export default function Deposit() {
