@@ -125,9 +125,9 @@ export default function Deposit() {
           </div>
 
           <div>
-            <Label className="text-xs text-muted-foreground">Hash de Transacción (TXID)</Label>
+            <Label className="text-xs text-muted-foreground">Hash de Transacción USDT (TXID)</Label>
             <Input
-              placeholder="Pega aquí el hash de tu transacción"
+              placeholder="Pega aquí el hash de tu transacción USDT"
               value={txid}
               onChange={(e) => setTxid(e.target.value)}
               className="mt-1.5 bg-secondary border-border font-mono text-xs"
