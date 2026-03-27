@@ -52,19 +52,6 @@ export default function AppLayout() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
       
       <main className="flex-1 overflow-y-auto">
-        {/* Mobile header */}
-        <div className="lg:hidden sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setSidebarOpen(true)} className="text-foreground">
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
-              <span className="text-black font-bold text-sm">A</span>
-            </div>
-            <span className="text-gold font-bold text-sm">APEX</span>
-          </div>
-        </div>
-
         <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
           <Outlet context={{ user, setUser }} />
         </div>
