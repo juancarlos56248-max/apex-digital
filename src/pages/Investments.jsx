@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import TierCard from "../components/investments/TierCard";
+import ActivePortfolio from "../components/investments/ActivePortfolio";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -87,14 +88,12 @@ export default function Investments() {
       toast.error(`El monto máximo para este nodo es $${selectedConfig.maxDeposit.toLocaleString()} USDT.`); setSubmitting(false); return;
     }
     const selectedDeposit = amount;
-    // Check balance
     if ((user.balance || 0) < selectedDeposit) {
       toast.error("Balance insuficiente. Realiza un depósito primero.");
       setSubmitting(false);
       return;
     }
 
-    // Create investment
     const investmentData = {
       user_email: user.email,
       tier: selectedTier,
@@ -106,7 +105,6 @@ export default function Investments() {
 
     if (referralCode && referralCode !== user.referral_code) {
       investmentData.referral_code_used = referralCode;
-      // Find referrer and create referral record
       const users = await base44.entities.User.filter({ referral_code: referralCode });
       if (users.length > 0) {
         const bonusMap = { starter: 5, pro: 25, elite: 50, institutional: 100 };
@@ -119,12 +117,10 @@ export default function Investments() {
           investment_tier: selectedTier,
           status: "credited",
         });
-        // Credit referrer
         await base44.entities.User.update(users[0].id, {
           balance: (users[0].balance || 0) + bonus,
           total_earned: (users[0].total_earned || 0) + bonus,
         });
-        // Create transaction for referrer
         await base44.entities.Transaction.create({
           user_email: users[0].email,
           type: "referral_bonus",
@@ -141,7 +137,6 @@ export default function Investments() {
       total_invested: (user.total_invested || 0) + selectedDeposit,
     });
 
-    // Prepare certificate data
     const cert = {
       name: user.full_name || user.email,
       asset: selectedConfig?.subtitle || selectedTier,
@@ -169,7 +164,8 @@ export default function Investments() {
     );
   }
 
-  const activeTiers = investments.filter(i => i.status === "active").map(i => i.tier);
+  const activeInvestments = investments.filter(i => i.status === "active");
+  const activeTiers = activeInvestments.map(i => i.tier);
   const tierKeys = ["starter", "advance", "elite", "institutional"];
 
   return (
@@ -180,6 +176,10 @@ export default function Investments() {
           Suscríbete a estrategias algorítmicas de alto rendimiento
         </p>
       </motion.div>
+
+      {activeInvestments.length > 0 && (
+        <ActivePortfolio investments={activeInvestments} />
+      )}
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {tierKeys.map((tier, i) => (
@@ -206,7 +206,6 @@ export default function Investments() {
             </DialogDescription>
           </DialogHeader>
 
-          {/* Tech copywriting */}
           <div className="rounded-lg border border-gold/20 bg-gold/5 p-4 text-xs leading-relaxed text-muted-foreground">
             <div className="flex items-center gap-2 mb-2">
               <Shield className="w-3.5 h-3.5 text-gold" />
