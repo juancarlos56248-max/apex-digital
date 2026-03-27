@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import Sidebar from "./Sidebar";
+import BottomNav from "./BottomNav";
 import ProfileGate from "./ProfileGate";
 
 export default function AppLayout() {
@@ -64,10 +65,11 @@ export default function AppLayout() {
           </div>
         </div>
 
-        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
           <Outlet context={{ user, setUser }} />
         </div>
       </main>
+      <BottomNav />
     </div>
   );
 }
