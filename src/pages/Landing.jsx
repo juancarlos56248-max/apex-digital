@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Shield, TrendingUp, Clock, Zap, ArrowRight, Lock, Globe } from "lucide-react";
@@ -11,6 +12,15 @@ const features = [
 ];
 
 export default function Landing() {
+  // Capture referral code from URL on landing
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get("ref");
+    if (refCode) {
+      localStorage.setItem("apex_ref_code", refCode);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
