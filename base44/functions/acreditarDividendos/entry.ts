@@ -22,11 +22,11 @@ Deno.serve(async (req) => {
     const lastDate = inv.last_dividend_date ? new Date(inv.last_dividend_date) : new Date(inv.created_date);
     const hoursElapsed = (now - lastDate) / (1000 * 60 * 60);
 
-    // Credit every hour (1/24 of daily rate per hour)
-    if (hoursElapsed < 1) continue;
+    // Only credit after 24 full hours
+    if (hoursElapsed < 24) continue;
 
-    const cycles = Math.floor(hoursElapsed);
-    const dividend = inv.amount * (dailyRate / 24) * cycles;
+    const cycles = Math.floor(hoursElapsed / 24);
+    const dividend = inv.amount * dailyRate * cycles;
 
     if (dividend <= 0) continue;
 
