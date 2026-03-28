@@ -12,6 +12,7 @@ const tierConfig = {
     dailyReturn: "5%",
     totalReturn: "150%",
     duration: "30 días",
+    exampleEarning: "+$75 (sobre $50)",
     features: ["Algoritmo HFT de bajo riesgo", "Respaldado por acciones Apple", "Liquidación cada 24 horas"],
     color: "from-emerald-500/20 to-emerald-600/5",
     borderColor: "hover:border-emerald-500/30",
@@ -29,6 +30,7 @@ const tierConfig = {
     dailyReturn: "10%",
     totalReturn: "600%",
     duration: "60 días",
+    exampleEarning: "+$3,000 (sobre $500)",
     features: ["Arbitraje cuántico activo", "Respaldado por acciones Amazon", "Liquidación cada 24 horas"],
     color: "from-blue-500/20 to-blue-600/5",
     borderColor: "hover:border-blue-500/30",
@@ -46,6 +48,7 @@ const tierConfig = {
     dailyReturn: "15%",
     totalReturn: "1,350%",
     duration: "90 días",
+    exampleEarning: "+$27,000 (sobre $2,000)",
     features: ["Motor de IA de alta frecuencia", "Respaldado por acciones NVIDIA", "Liquidación cada 24 horas"],
     color: "from-purple-500/20 to-purple-600/5",
     borderColor: "hover:border-purple-500/30",
@@ -63,6 +66,7 @@ const tierConfig = {
     dailyReturn: "20%",
     totalReturn: "2,400%",
     duration: "120 días",
+    exampleEarning: "+$240,000 (sobre $10,000)",
     features: ["Acceso institucional exclusivo", "Respaldado por el índice S&P 500", "Liquidación cada 24 horas"],
     color: "from-gold/20 to-gold-dark/5",
     borderColor: "hover:border-gold/30",
@@ -104,9 +108,19 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
         <h3 className="text-lg font-bold mb-0.5">{config.name}</h3>
         <p className="text-xs text-muted-foreground mb-1">{config.subtitle}</p>
         <p className="text-xs font-mono text-gold mb-2">{rangeLabel}</p>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-[11px] text-muted-foreground">Ganancia total:</span>
-          <span className="text-sm font-bold font-mono text-success">{config.totalReturn}</span>
+        <div className="flex flex-col gap-1 mb-4 p-3 rounded-lg bg-secondary/50 border border-border/50">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-muted-foreground">Rendimiento diario</span>
+            <span className="text-xs font-bold font-mono text-gold">{config.dailyReturn}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-muted-foreground">Duración</span>
+            <span className="text-xs font-mono text-foreground">{config.duration}</span>
+          </div>
+          <div className="flex items-center justify-between border-t border-border/50 pt-1 mt-1">
+            <span className="text-[11px] text-muted-foreground">Ganancia mínima est.</span>
+            <span className="text-sm font-bold font-mono text-success">{config.exampleEarning}</span>
+          </div>
         </div>
 
         <div className="mb-5">
