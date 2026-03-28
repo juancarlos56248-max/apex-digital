@@ -7,7 +7,7 @@ const tierConfig = {
     name: "Apex Starter",
     subtitle: "Apple Inc. (AAPL)",
     icon: Zap,
-    minDeposit: 50,
+    minDeposit: 10,
     maxDeposit: 499,
     dailyReturn: "10%",
     totalReturn: "300%",
