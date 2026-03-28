@@ -10,6 +10,7 @@ const tierConfig = {
     minDeposit: 50,
     maxDeposit: 499,
     dailyReturn: "5%",
+    totalReturn: "150%",
     duration: "30 días",
     features: ["Algoritmo HFT de bajo riesgo", "Respaldado por acciones Apple", "Liquidación cada 24 horas"],
     color: "from-emerald-500/20 to-emerald-600/5",
@@ -26,6 +27,7 @@ const tierConfig = {
     minDeposit: 500,
     maxDeposit: 1999,
     dailyReturn: "10%",
+    totalReturn: "600%",
     duration: "60 días",
     features: ["Arbitraje cuántico activo", "Respaldado por acciones Amazon", "Liquidación cada 24 horas"],
     color: "from-blue-500/20 to-blue-600/5",
@@ -42,6 +44,7 @@ const tierConfig = {
     minDeposit: 2000,
     maxDeposit: 9999,
     dailyReturn: "15%",
+    totalReturn: "1,350%",
     duration: "90 días",
     features: ["Motor de IA de alta frecuencia", "Respaldado por acciones NVIDIA", "Liquidación cada 24 horas"],
     color: "from-purple-500/20 to-purple-600/5",
@@ -58,6 +61,7 @@ const tierConfig = {
     minDeposit: 10000,
     maxDeposit: null,
     dailyReturn: "20%",
+    totalReturn: "2,400%",
     duration: "120 días",
     features: ["Acceso institucional exclusivo", "Respaldado por el índice S&P 500", "Liquidación cada 24 horas"],
     color: "from-gold/20 to-gold-dark/5",
@@ -99,7 +103,11 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
 
         <h3 className="text-lg font-bold mb-0.5">{config.name}</h3>
         <p className="text-xs text-muted-foreground mb-1">{config.subtitle}</p>
-        <p className="text-xs font-mono text-gold mb-4">{rangeLabel}</p>
+        <p className="text-xs font-mono text-gold mb-2">{rangeLabel}</p>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-[11px] text-muted-foreground">Ganancia total:</span>
+          <span className="text-sm font-bold font-mono text-success">{config.totalReturn}</span>
+        </div>
 
         <div className="mb-5">
           <div className="flex items-center justify-between mb-1.5">
