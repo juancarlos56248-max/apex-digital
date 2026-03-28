@@ -36,7 +36,7 @@ function LiveTicker({ value }) {
 export default function ActivePortfolio({ investments }) {
   const [liveValues, setLiveValues] = useState({});
 
-  // Simulate live price movements every 2 seconds
+  // Simulate tiny live market fluctuations on top of real earned dividends
   useEffect(() => {
     const init = {};
     investments.forEach(inv => {
@@ -48,11 +48,9 @@ export default function ActivePortfolio({ investments }) {
       setLiveValues(prev => {
         const next = { ...prev };
         investments.forEach(inv => {
-          const cfg = tierConfig[inv.tier] || tierConfig.starter;
-          // Small random fluctuation simulating live market
-          const fluctuation = (Math.random() - 0.48) * inv.amount * 0.0008;
           const base = inv.amount + (inv.total_earned || 0);
-          next[inv.id] = Math.max(base * 0.99, (prev[inv.id] || base) + fluctuation);
+          const fluctuation = (Math.random() - 0.48) * inv.amount * 0.0003;
+          next[inv.id] = Math.max(base * 0.999, (prev[inv.id] || base) + fluctuation);
         });
         return next;
       });
@@ -62,9 +60,9 @@ export default function ActivePortfolio({ investments }) {
   }, [investments]);
 
   const totalInvested = investments.reduce((s, i) => s + i.amount, 0);
+  const totalEarned = investments.reduce((s, i) => s + (i.total_earned || 0), 0);
   const totalLive = Object.values(liveValues).reduce((s, v) => s + v, 0);
-  const totalChange = totalLive - totalInvested;
-  const totalChangePct = totalInvested > 0 ? (totalChange / totalInvested) * 100 : 0;
+  const totalChangePct = totalInvested > 0 ? (totalEarned / totalInvested) * 100 : 0;
 
   return (
     <motion.div
@@ -84,7 +82,7 @@ export default function ActivePortfolio({ investments }) {
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground">Valor total</p>
-          <p className="text-sm font-bold font-mono">${totalLive.toFixed(2)}</p>
+          <p className="text-sm font-bold font-mono">${totalLive.toFixed(4)}</p>
         </div>
       </div>
 
@@ -95,16 +93,16 @@ export default function ActivePortfolio({ investments }) {
           <p className="text-sm font-mono font-semibold">${totalInvested.toLocaleString()} USDT</p>
         </div>
         <div className="text-center">
-          <p className="text-[11px] text-muted-foreground">Ganancia acumulada</p>
-          <p className={`text-sm font-mono font-bold ${totalChange >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-            {totalChange >= 0 ? "+" : ""}${totalChange.toFixed(4)}
+          <p className="text-[11px] text-muted-foreground">Dividendos ganados</p>
+          <p className="text-sm font-mono font-bold text-emerald-400">
+            +${totalEarned.toFixed(4)} USDT
           </p>
         </div>
         <div className="text-right">
           <p className="text-[11px] text-muted-foreground">Rendimiento</p>
-          <div className={`flex items-center gap-1 justify-end ${totalChangePct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-            {totalChangePct >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-            <span className="text-sm font-mono font-bold">{totalChangePct >= 0 ? "+" : ""}{totalChangePct.toFixed(3)}%</span>
+          <div className="flex items-center gap-1 justify-end text-emerald-400">
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span className="text-sm font-mono font-bold">+{totalChangePct.toFixed(3)}%</span>
           </div>
         </div>
       </div>
@@ -132,9 +130,8 @@ export default function ActivePortfolio({ investments }) {
               </div>
               <div className="text-right">
                 <LiveTicker value={liveVal} />
-                <div className={`flex items-center gap-0.5 justify-end text-[11px] font-mono ${isUp ? "text-emerald-400" : "text-red-400"}`}>
-                  {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {isUp ? "+" : ""}{changePct.toFixed(3)}%
+                <div className="text-[11px] font-mono text-emerald-400">
+                  Dividendos: <span className="font-bold">+${(inv.total_earned || 0).toFixed(4)}</span>
                 </div>
               </div>
             </div>
