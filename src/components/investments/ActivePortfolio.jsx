@@ -8,6 +8,7 @@ const tierConfig = {
     icon: Zap,
     dailyRate: 0.05,
     holdingHours: 4,
+    holdingDays: 7,
     stocks: [
       { symbol: "AAPL", name: "Apple Inc.", basePrice: 189.5 },
       { symbol: "MSFT", name: "Microsoft Corp.", basePrice: 415.2 },
@@ -18,6 +19,7 @@ const tierConfig = {
     icon: TrendingUp,
     dailyRate: 0.10,
     holdingHours: 8,
+    holdingDays: 14,
     stocks: [
       { symbol: "TSLA", name: "Tesla Inc.", basePrice: 248.3 },
       { symbol: "NVDA", name: "NVIDIA Corp.", basePrice: 875.6 },
@@ -28,6 +30,7 @@ const tierConfig = {
     icon: TrendingUp,
     dailyRate: 0.10,
     holdingHours: 8,
+    holdingDays: 14,
     stocks: [
       { symbol: "TSLA", name: "Tesla Inc.", basePrice: 248.3 },
       { symbol: "NVDA", name: "NVIDIA Corp.", basePrice: 875.6 },
@@ -38,6 +41,7 @@ const tierConfig = {
     icon: BarChart3,
     dailyRate: 0.15,
     holdingHours: 12,
+    holdingDays: 21,
     stocks: [
       { symbol: "AMZN", name: "Amazon.com Inc.", basePrice: 198.4 },
       { symbol: "GOOGL", name: "Alphabet Inc.", basePrice: 172.8 },
@@ -49,6 +53,7 @@ const tierConfig = {
     icon: Building2,
     dailyRate: 0.20,
     holdingHours: 24,
+    holdingDays: 30,
     stocks: [
       { symbol: "BRK.B", name: "Berkshire Hathaway", basePrice: 456.1 },
       { symbol: "JPM", name: "JPMorgan Chase", basePrice: 218.7 },
@@ -135,8 +140,9 @@ function InvestmentCard({ inv }) {
         <Clock className="w-3.5 h-3.5 text-gold flex-shrink-0" />
         <span className="text-[11px] text-muted-foreground">Tiempo en posición:</span>
         <span className="text-[11px] font-mono text-gold font-semibold">{elapsed}</span>
-        <span className="ml-auto text-[10px] text-muted-foreground">
-          Ciclo: {cfg.holdingHours}h
+        <span className="ml-auto flex items-center gap-2 text-[10px] text-muted-foreground">
+          <span>Ciclo: {cfg.holdingHours}h</span>
+          <span className="px-1.5 py-0.5 rounded bg-gold/10 text-gold font-semibold">{cfg.holdingDays} días</span>
         </span>
       </div>
 
