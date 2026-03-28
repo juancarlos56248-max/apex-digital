@@ -231,8 +231,8 @@ export default function Investments() {
               />
               {selectedConfig && (
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Rango: ${selectedConfig.minDeposit?.toLocaleString()} – {selectedConfig.maxDeposit ? `$${selectedConfig.maxDeposit?.toLocaleString()}` : "Sin límite"} USDT
-                  &nbsp;&bull;&nbsp; Balance: <span className="text-gold font-mono">${(user.balance || 0).toLocaleString()}</span>
+                  Rango: ${selectedConfig.minDeposit?.toLocaleString("en-US")} – {selectedConfig.maxDeposit ? `$${selectedConfig.maxDeposit?.toLocaleString("en-US")}` : "Sin límite"} USDT
+                  &nbsp;&bull;&nbsp; Balance: <span className="text-gold font-mono">${(user.balance || 0).toFixed(2)}</span>
                 </p>
               )}
             </div>
