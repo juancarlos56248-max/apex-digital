@@ -105,30 +105,11 @@ export default function Investments() {
 
     if (referralCode && referralCode !== user.referral_code) {
       investmentData.referral_code_used = referralCode;
-      const users = await base44.entities.User.filter({ referral_code: referralCode });
-      if (users.length > 0) {
-        const bonusMap = { starter: 5, advance: 25, elite: 50, institutional: 100 };
-        const bonus = bonusMap[selectedTier] || 5;
-        await base44.entities.Referral.create({
-          referrer_email: users[0].email,
-          referred_email: user.email,
-          referral_code: referralCode,
-          bonus_amount: bonus,
-          investment_tier: selectedTier,
-          status: "credited",
-        });
-        await base44.entities.User.update(users[0].id, {
-          balance: (users[0].balance || 0) + bonus,
-          total_earned: (users[0].total_earned || 0) + bonus,
-        });
-        await base44.entities.Transaction.create({
-          user_email: users[0].email,
-          type: "referral_bonus",
-          amount: bonus,
-          status: "completed",
-          notes: `Bono por referido ${user.email} - ${selectedTier}`,
-        });
-      }
+      await base44.functions.invoke('procesarReferido', {
+        referral_code: referralCode,
+        tier: selectedTier,
+        referred_email: user.email,
+      });
     }
 
     await base44.entities.Investment.create(investmentData);
