@@ -206,7 +206,7 @@ export default function Investments() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="rounded-lg border border-gold/20 bg-gold/5 p-3 text-[11px] leading-relaxed text-muted-foreground max-h-40 overflow-y-auto">
+          <div className="rounded-lg border border-gold/20 bg-gold/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
             <div className="flex items-center gap-1.5 mb-1.5">
               <Shield className="w-3 h-3 text-gold" />
               <span className="text-gold font-semibold text-[10px] uppercase tracking-wider">Estrategia Apex HFT</span>
