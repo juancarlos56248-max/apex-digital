@@ -12,6 +12,13 @@ export default function AppLayout() {
   const [profileComplete, setProfileComplete] = useState(null);
 
   useEffect(() => {
+    // Capture referral code from URL and persist it
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get("ref");
+    if (refCode) {
+      localStorage.setItem("apex_ref_code", refCode);
+    }
+
     const loadUser = async () => {
       const me = await base44.auth.me();
       // Generate referral code if not exists

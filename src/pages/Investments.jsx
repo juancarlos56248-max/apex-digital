@@ -22,7 +22,7 @@ export default function Investments() {
   const [selectedConfig, setSelectedConfig] = useState(null);
   const [selectedDeposit, setSelectedDeposit] = useState(0);
   const [customAmount, setCustomAmount] = useState("");
-  const [referralCode, setReferralCode] = useState("");
+  const [referralCode] = useState(() => localStorage.getItem("apex_ref_code") || "");
   const [submitting, setSubmitting] = useState(false);
   const [certData, setCertData] = useState(null);
   const [certOpen, setCertOpen] = useState(false);
@@ -150,7 +150,7 @@ export default function Investments() {
     toast.success(`✅ ¡Compra Exitosa! Nodo ${selectedConfig?.name || selectedTier.toUpperCase()} activado correctamente.`);
     setDialogOpen(false);
     setCertOpen(true);
-    setReferralCode("");
+    localStorage.removeItem("apex_ref_code");
     const updatedInvs = await base44.entities.Investment.filter({ user_email: user.email });
     setInvestments(updatedInvs);
     setSubmitting(false);
@@ -236,15 +236,12 @@ export default function Investments() {
                 </p>
               )}
             </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Código de Referido (opcional)</Label>
-              <Input
-                placeholder="Ej: APEX1B3K9Z"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                className="mt-1.5 bg-secondary border-border font-mono"
-              />
-            </div>
+            {referralCode && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/5 border border-gold/20">
+                <span className="text-[11px] text-muted-foreground">Referido aplicado:</span>
+                <span className="text-[11px] font-mono font-bold text-gold">{referralCode}</span>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
