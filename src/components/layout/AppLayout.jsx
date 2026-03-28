@@ -53,6 +53,12 @@ export default function AppLayout() {
       
       <main className="flex-1 overflow-y-auto">
         <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden mb-4 p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
           <Outlet context={{ user, setUser }} />
         </div>
       </main>

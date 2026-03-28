@@ -107,7 +107,7 @@ export default function Investments() {
       investmentData.referral_code_used = referralCode;
       const users = await base44.entities.User.filter({ referral_code: referralCode });
       if (users.length > 0) {
-        const bonusMap = { starter: 5, pro: 25, elite: 50, institutional: 100 };
+        const bonusMap = { starter: 5, advance: 25, elite: 50, institutional: 100 };
         const bonus = bonusMap[selectedTier] || 5;
         await base44.entities.Referral.create({
           referrer_email: users[0].email,
