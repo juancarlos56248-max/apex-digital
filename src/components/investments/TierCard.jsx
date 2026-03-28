@@ -99,8 +99,7 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
 
         <h3 className="text-lg font-bold mb-0.5">{config.name}</h3>
         <p className="text-xs text-muted-foreground mb-1">{config.subtitle}</p>
-        <p className="text-xs font-mono text-gold mb-1">{rangeLabel}</p>
-        <p className="text-xs text-muted-foreground mb-4">⏱ Duración: <span className="text-foreground font-medium">{config.duration}</span></p>
+        <p className="text-xs font-mono text-gold mb-4">{rangeLabel}</p>
 
         <div className="mb-5">
           <div className="flex items-center justify-between mb-1.5">
@@ -122,6 +121,10 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
               <span>{f}</span>
             </div>
           ))}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Check className={`w-3.5 h-3.5 ${config.iconColor} flex-shrink-0`} />
+            <span>Duración del contrato: <span className="text-foreground font-medium">{config.duration}</span></span>
+          </div>
         </div>
 
         <Button
