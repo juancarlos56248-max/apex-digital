@@ -1,11 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const DAILY_RATES = {
-  starter: 0.05,      // 5% diario
-  advance: 0.10,      // 10% diario
+  starter: 0.10,
+  advance: 0.10,
   pro: 0.10,
-  elite: 0.15,        // 15% diario
-  institutional: 0.20 // 20% diario
+  elite: 0.10,
+  institutional: 0.10
 };
 
 Deno.serve(async (req) => {
@@ -18,16 +18,15 @@ Deno.serve(async (req) => {
   const now = new Date();
 
   for (const inv of activeInvestments) {
-    const dailyRate = DAILY_RATES[inv.tier] || 0.05;
+    const dailyRate = DAILY_RATES[inv.tier] || 0.10;
     const lastDate = inv.last_dividend_date ? new Date(inv.last_dividend_date) : new Date(inv.created_date);
     const hoursElapsed = (now - lastDate) / (1000 * 60 * 60);
 
-    // Only credit if at least 24 hours have passed
-    if (hoursElapsed < 24) continue;
+    // Credit every hour (1/24 of daily rate per hour)
+    if (hoursElapsed < 1) continue;
 
-    // Calculate how many full 24h cycles have passed
-    const cycles = Math.floor(hoursElapsed / 24);
-    const dividend = inv.amount * dailyRate * cycles;
+    const cycles = Math.floor(hoursElapsed);
+    const dividend = inv.amount * (dailyRate / 24) * cycles;
 
     if (dividend <= 0) continue;
 
