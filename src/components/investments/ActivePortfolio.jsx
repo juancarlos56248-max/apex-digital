@@ -109,10 +109,30 @@ function LivePrice({ base }) {
   );
 }
 
+function useLiveEarnings(inv) {
+  const [liveEarned, setLiveEarned] = useState(inv.total_earned || 0);
+
+  useEffect(() => {
+    const dailyRate = 0.10;
+    const perSecond = (inv.amount * dailyRate) / (24 * 3600);
+    const base = inv.total_earned || 0;
+    const baseTime = inv.last_dividend_date ? new Date(inv.last_dividend_date) : new Date(inv.created_date);
+
+    const t = setInterval(() => {
+      const secondsElapsed = (new Date() - baseTime) / 1000;
+      setLiveEarned(base + perSecond * secondsElapsed);
+    }, 100);
+    return () => clearInterval(t);
+  }, [inv.id, inv.total_earned, inv.last_dividend_date]);
+
+  return liveEarned;
+}
+
 function InvestmentCard({ inv }) {
   const cfg = tierConfig[inv.tier] || tierConfig.starter;
   const Icon = cfg.icon;
   const elapsed = useElapsedTime(inv.created_date);
+  const liveEarned = useLiveEarnings(inv);
 
   return (
     <div className="px-5 py-4 space-y-3">
@@ -129,9 +149,12 @@ function InvestmentCard({ inv }) {
         </div>
         <div className="text-right">
           <p className="text-sm font-mono font-bold text-emerald-400">
-            +${(inv.total_earned || 0).toFixed(4)}
+            +${liveEarned.toFixed(6)}
           </p>
-          <p className="text-[10px] text-muted-foreground">dividendos</p>
+          <p className="text-[10px] text-emerald-500 flex items-center gap-1 justify-end">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+            en vivo
+          </p>
         </div>
       </div>
 
@@ -163,9 +186,32 @@ function InvestmentCard({ inv }) {
   );
 }
 
+function useTotalLiveEarnings(investments) {
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      const now = new Date();
+      let sum = 0;
+      for (const inv of investments) {
+        const dailyRate = 0.10;
+        const perSecond = (inv.amount * dailyRate) / (24 * 3600);
+        const base = inv.total_earned || 0;
+        const baseTime = inv.last_dividend_date ? new Date(inv.last_dividend_date) : new Date(inv.created_date);
+        const secondsElapsed = (now - baseTime) / 1000;
+        sum += base + perSecond * secondsElapsed;
+      }
+      setTotal(sum);
+    }, 100);
+    return () => clearInterval(t);
+  }, [investments]);
+
+  return total;
+}
+
 export default function ActivePortfolio({ investments }) {
   const totalInvested = investments.reduce((s, i) => s + i.amount, 0);
-  const totalEarned = investments.reduce((s, i) => s + (i.total_earned || 0), 0);
+  const totalEarned = useTotalLiveEarnings(investments);
   const totalChangePct = totalInvested > 0 ? (totalEarned / totalInvested) * 100 : 0;
 
   return (
@@ -186,7 +232,7 @@ export default function ActivePortfolio({ investments }) {
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground">Dividendos totales</p>
-          <p className="text-sm font-bold font-mono text-emerald-400">+${totalEarned.toFixed(4)}</p>
+          <p className="text-sm font-bold font-mono text-emerald-400">+${totalEarned.toFixed(6)}</p>
         </div>
       </div>
 
@@ -198,7 +244,7 @@ export default function ActivePortfolio({ investments }) {
         </div>
         <div className="text-center">
           <p className="text-[11px] text-muted-foreground">Ganado</p>
-          <p className="text-sm font-mono font-bold text-emerald-400">+${totalEarned.toFixed(4)} USDT</p>
+          <p className="text-sm font-mono font-bold text-emerald-400">+${totalEarned.toFixed(6)} USDT</p>
         </div>
         <div className="text-right">
           <p className="text-[11px] text-muted-foreground">Rendimiento</p>
