@@ -26,7 +26,7 @@ export default function Referrals() {
   };
 
   const copyLink = () => {
-    const link = `${window.location.origin}/?ref=${user?.referral_code}`;
+    const link = `https://pristineapex.pro/?ref=${user?.referral_code}`;
     navigator.clipboard.writeText(link);
     toast.success("Enlace de referido copiado");
   };
