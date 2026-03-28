@@ -11,7 +11,7 @@ import { Clock, Shield, AlertCircle } from "lucide-react";
 
 export default function Withdraw() {
   const { user, setUser } = useOutletContext();
-  const [network, setNetwork] = useState("TRC20");
+  const [network, setNetwork] = useState("USDT");
   const [amount, setAmount] = useState("");
   const [wallet, setWallet] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -132,9 +132,7 @@ export default function Withdraw() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="TRC20">TRON (TRC20)</SelectItem>
-              <SelectItem value="ERC20">Ethereum (ERC20)</SelectItem>
-              <SelectItem value="BEP20">BSC (BEP20)</SelectItem>
+              <SelectItem value="USDT">USDT Nativo</SelectItem>
             </SelectContent>
           </Select>
         </div>
