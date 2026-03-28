@@ -89,7 +89,7 @@ export default function Investments() {
     }
     const selectedDeposit = amount;
     if ((user.balance || 0) < selectedDeposit) {
-      toast.error("Balance insuficiente. Realiza un depósito primero.");
+      toast.error("⚠️ Fondos Insuficientes. Por favor recargue su cuenta.");
       setSubmitting(false);
       return;
     }
@@ -147,7 +147,7 @@ export default function Investments() {
     };
     setCertData(cert);
 
-    toast.success(`Nodo ${selectedTier.toUpperCase()} activado exitosamente`);
+    toast.success(`✅ ¡Compra Exitosa! Nodo ${selectedConfig?.name || selectedTier.toUpperCase()} activado correctamente.`);
     setDialogOpen(false);
     setCertOpen(true);
     setReferralCode("");
