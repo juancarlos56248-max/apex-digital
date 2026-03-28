@@ -10,6 +10,7 @@ const tierConfig = {
     minDeposit: 50,
     maxDeposit: 499,
     dailyReturn: "5%",
+    duration: "7 días",
     features: ["Algoritmo HFT de bajo riesgo", "Respaldado por acciones Apple", "Liquidación cada 24 horas"],
     color: "from-emerald-500/20 to-emerald-600/5",
     borderColor: "hover:border-emerald-500/30",
@@ -25,6 +26,7 @@ const tierConfig = {
     minDeposit: 500,
     maxDeposit: 1999,
     dailyReturn: "10%",
+    duration: "14 días",
     features: ["Arbitraje cuántico activo", "Respaldado por acciones Amazon", "Liquidación cada 24 horas"],
     color: "from-blue-500/20 to-blue-600/5",
     borderColor: "hover:border-blue-500/30",
@@ -40,6 +42,7 @@ const tierConfig = {
     minDeposit: 2000,
     maxDeposit: 9999,
     dailyReturn: "15%",
+    duration: "21 días",
     features: ["Motor de IA de alta frecuencia", "Respaldado por acciones NVIDIA", "Liquidación cada 24 horas"],
     color: "from-purple-500/20 to-purple-600/5",
     borderColor: "hover:border-purple-500/30",
@@ -55,6 +58,7 @@ const tierConfig = {
     minDeposit: 10000,
     maxDeposit: null,
     dailyReturn: "20%",
+    duration: "1 mes",
     features: ["Acceso institucional exclusivo", "Respaldado por el índice S&P 500", "Liquidación cada 24 horas"],
     color: "from-gold/20 to-gold-dark/5",
     borderColor: "hover:border-gold/30",
@@ -95,7 +99,8 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
 
         <h3 className="text-lg font-bold mb-0.5">{config.name}</h3>
         <p className="text-xs text-muted-foreground mb-1">{config.subtitle}</p>
-        <p className="text-xs font-mono text-gold mb-4">{rangeLabel}</p>
+        <p className="text-xs font-mono text-gold mb-1">{rangeLabel}</p>
+        <p className="text-xs text-muted-foreground mb-4">⏱ Duración: <span className="text-foreground font-medium">{config.duration}</span></p>
 
         <div className="mb-5">
           <div className="flex items-center justify-between mb-1.5">
