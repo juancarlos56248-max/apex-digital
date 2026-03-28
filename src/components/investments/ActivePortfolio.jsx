@@ -1,67 +1,165 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, TrendingDown, Activity, Zap, BarChart3, Building2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { TrendingUp, TrendingDown, Activity, Zap, BarChart3, Building2, Clock } from "lucide-react";
 
 const tierConfig = {
-  starter: { name: "Apex Starter", icon: Zap, dailyRate: 0.05, color: "text-emerald-400" },
-  advance: { name: "Apex Advance", icon: TrendingUp, dailyRate: 0.10, color: "text-blue-400" },
-  pro: { name: "Apex Pro", icon: TrendingUp, dailyRate: 0.10, color: "text-blue-400" },
-  elite: { name: "Apex Elite", icon: BarChart3, dailyRate: 0.15, color: "text-purple-400" },
-  institutional: { name: "Apex Institutional", icon: Building2, dailyRate: 0.20, color: "text-gold" },
+  starter: {
+    name: "Apex Starter",
+    icon: Zap,
+    dailyRate: 0.05,
+    holdingHours: 4,
+    stocks: [
+      { symbol: "AAPL", name: "Apple Inc.", basePrice: 189.5 },
+      { symbol: "MSFT", name: "Microsoft Corp.", basePrice: 415.2 },
+    ],
+  },
+  advance: {
+    name: "Apex Advance",
+    icon: TrendingUp,
+    dailyRate: 0.10,
+    holdingHours: 8,
+    stocks: [
+      { symbol: "TSLA", name: "Tesla Inc.", basePrice: 248.3 },
+      { symbol: "NVDA", name: "NVIDIA Corp.", basePrice: 875.6 },
+    ],
+  },
+  pro: {
+    name: "Apex Pro",
+    icon: TrendingUp,
+    dailyRate: 0.10,
+    holdingHours: 8,
+    stocks: [
+      { symbol: "TSLA", name: "Tesla Inc.", basePrice: 248.3 },
+      { symbol: "NVDA", name: "NVIDIA Corp.", basePrice: 875.6 },
+    ],
+  },
+  elite: {
+    name: "Apex Elite",
+    icon: BarChart3,
+    dailyRate: 0.15,
+    holdingHours: 12,
+    stocks: [
+      { symbol: "AMZN", name: "Amazon.com Inc.", basePrice: 198.4 },
+      { symbol: "GOOGL", name: "Alphabet Inc.", basePrice: 172.8 },
+      { symbol: "META", name: "Meta Platforms", basePrice: 512.3 },
+    ],
+  },
+  institutional: {
+    name: "Apex Institutional",
+    icon: Building2,
+    dailyRate: 0.20,
+    holdingHours: 24,
+    stocks: [
+      { symbol: "BRK.B", name: "Berkshire Hathaway", basePrice: 456.1 },
+      { symbol: "JPM", name: "JPMorgan Chase", basePrice: 218.7 },
+      { symbol: "GS", name: "Goldman Sachs", basePrice: 512.9 },
+      { symbol: "MSFT", name: "Microsoft Corp.", basePrice: 415.2 },
+    ],
+  },
 };
 
-function LiveTicker({ value }) {
-  const [display, setDisplay] = useState(value);
-  const [flash, setFlash] = useState(null);
-  const prevRef = useState(value);
+function useElapsedTime(createdDate) {
+  const [elapsed, setElapsed] = useState("");
 
   useEffect(() => {
-    if (value !== display) {
-      setFlash(value > display ? "up" : "down");
-      setDisplay(value);
-      const t = setTimeout(() => setFlash(null), 600);
-      return () => clearTimeout(t);
-    }
-  }, [value]);
+    const update = () => {
+      const start = new Date(createdDate);
+      const now = new Date();
+      const diffMs = now - start;
+      const h = Math.floor(diffMs / 3600000);
+      const m = Math.floor((diffMs % 3600000) / 60000);
+      const s = Math.floor((diffMs % 60000) / 1000);
+      setElapsed(`${h}h ${m}m ${s}s`);
+    };
+    update();
+    const t = setInterval(update, 1000);
+    return () => clearInterval(t);
+  }, [createdDate]);
+
+  return elapsed;
+}
+
+function LivePrice({ base }) {
+  const [price, setPrice] = useState(base);
+  const [flash, setFlash] = useState(null);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setPrice(prev => {
+        const next = prev + (Math.random() - 0.48) * prev * 0.002;
+        setFlash(next >= prev ? "up" : "down");
+        setTimeout(() => setFlash(null), 500);
+        return parseFloat(next.toFixed(2));
+      });
+    }, 2500);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <span className={`font-mono font-bold transition-colors duration-300 ${
-      flash === "up" ? "text-emerald-400" : flash === "down" ? "text-red-400" : "text-foreground"
+    <span className={`font-mono text-xs font-bold transition-colors duration-300 ${
+      flash === "up" ? "text-emerald-400" : flash === "down" ? "text-red-400" : "text-muted-foreground"
     }`}>
-      ${display.toFixed(4)}
+      ${price.toFixed(2)}
     </span>
   );
 }
 
+function InvestmentCard({ inv }) {
+  const cfg = tierConfig[inv.tier] || tierConfig.starter;
+  const Icon = cfg.icon;
+  const elapsed = useElapsedTime(inv.created_date);
+
+  return (
+    <div className="px-5 py-4 space-y-3">
+      {/* Nodo header */}
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0">
+          <Icon className="w-4 h-4 text-gold" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold">{cfg.name}</p>
+          <p className="text-[11px] text-muted-foreground font-mono">
+            Capital: ${inv.amount.toLocaleString()} USDT &bull; +{(cfg.dailyRate * 100).toFixed(0)}%/día
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-mono font-bold text-emerald-400">
+            +${(inv.total_earned || 0).toFixed(4)}
+          </p>
+          <p className="text-[10px] text-muted-foreground">dividendos</p>
+        </div>
+      </div>
+
+      {/* Holding time */}
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/60 border border-border/50">
+        <Clock className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+        <span className="text-[11px] text-muted-foreground">Tiempo en posición:</span>
+        <span className="text-[11px] font-mono text-gold font-semibold">{elapsed}</span>
+        <span className="ml-auto text-[10px] text-muted-foreground">
+          Ciclo: {cfg.holdingHours}h
+        </span>
+      </div>
+
+      {/* Stocks */}
+      <div className="space-y-1.5">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground px-1">Posiciones activas</p>
+        {cfg.stocks.map((stock) => (
+          <div key={stock.symbol} className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-secondary/40 border border-border/30">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold text-gold">{stock.symbol}</span>
+              <span className="text-[11px] text-muted-foreground">{stock.name}</span>
+            </div>
+            <LivePrice base={stock.basePrice} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ActivePortfolio({ investments }) {
-  const [liveValues, setLiveValues] = useState({});
-
-  // Simulate tiny live market fluctuations on top of real earned dividends
-  useEffect(() => {
-    const init = {};
-    investments.forEach(inv => {
-      init[inv.id] = inv.amount + (inv.total_earned || 0);
-    });
-    setLiveValues(init);
-
-    const interval = setInterval(() => {
-      setLiveValues(prev => {
-        const next = { ...prev };
-        investments.forEach(inv => {
-          const base = inv.amount + (inv.total_earned || 0);
-          const fluctuation = (Math.random() - 0.48) * inv.amount * 0.0003;
-          next[inv.id] = Math.max(base * 0.999, (prev[inv.id] || base) + fluctuation);
-        });
-        return next;
-      });
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [investments]);
-
   const totalInvested = investments.reduce((s, i) => s + i.amount, 0);
   const totalEarned = investments.reduce((s, i) => s + (i.total_earned || 0), 0);
-  const totalLive = Object.values(liveValues).reduce((s, v) => s + v, 0);
   const totalChangePct = totalInvested > 0 ? (totalEarned / totalInvested) * 100 : 0;
 
   return (
@@ -81,22 +179,20 @@ export default function ActivePortfolio({ investments }) {
           </span>
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">Valor total</p>
-          <p className="text-sm font-bold font-mono">${totalLive.toFixed(4)}</p>
+          <p className="text-xs text-muted-foreground">Dividendos totales</p>
+          <p className="text-sm font-bold font-mono text-emerald-400">+${totalEarned.toFixed(4)}</p>
         </div>
       </div>
 
-      {/* Portfolio summary bar */}
+      {/* Summary */}
       <div className="px-5 py-3 bg-secondary/30 flex items-center justify-between border-b border-border">
         <div>
           <p className="text-[11px] text-muted-foreground">Capital invertido</p>
           <p className="text-sm font-mono font-semibold">${totalInvested.toLocaleString()} USDT</p>
         </div>
         <div className="text-center">
-          <p className="text-[11px] text-muted-foreground">Dividendos ganados</p>
-          <p className="text-sm font-mono font-bold text-emerald-400">
-            +${totalEarned.toFixed(4)} USDT
-          </p>
+          <p className="text-[11px] text-muted-foreground">Ganado</p>
+          <p className="text-sm font-mono font-bold text-emerald-400">+${totalEarned.toFixed(4)} USDT</p>
         </div>
         <div className="text-right">
           <p className="text-[11px] text-muted-foreground">Rendimiento</p>
@@ -107,36 +203,11 @@ export default function ActivePortfolio({ investments }) {
         </div>
       </div>
 
-      {/* Individual assets */}
+      {/* Individual investments */}
       <div className="divide-y divide-border">
-        {investments.map((inv) => {
-          const cfg = tierConfig[inv.tier] || tierConfig.starter;
-          const Icon = cfg.icon;
-          const liveVal = liveValues[inv.id] || inv.amount;
-          const change = liveVal - inv.amount;
-          const changePct = (change / inv.amount) * 100;
-          const isUp = change >= 0;
-
-          return (
-            <div key={inv.id} className="px-5 py-3 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0">
-                <Icon className="w-4 h-4 text-gold" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold">{cfg.name}</p>
-                <p className="text-[11px] text-muted-foreground font-mono">
-                  Capital: ${inv.amount.toLocaleString()} USDT &bull; +{(cfg.dailyRate * 100).toFixed(0)}%/día
-                </p>
-              </div>
-              <div className="text-right">
-                <LiveTicker value={liveVal} />
-                <div className="text-[11px] font-mono text-emerald-400">
-                  Dividendos: <span className="font-bold">+${(inv.total_earned || 0).toFixed(4)}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {investments.map((inv) => (
+          <InvestmentCard key={inv.id} inv={inv} />
+        ))}
       </div>
     </motion.div>
   );
