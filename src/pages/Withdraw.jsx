@@ -9,12 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Clock, Shield, AlertCircle } from "lucide-react";
 
+const COMMISSION_RATE = 0.08;
+
 export default function Withdraw() {
   const { user, setUser } = useOutletContext();
   const [network, setNetwork] = useState("USDT");
   const [amount, setAmount] = useState("");
   const [wallet, setWallet] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const amtNum = parseFloat(amount) || 0;
+  const commission = amtNum * COMMISSION_RATE;
+  const netAmount = amtNum - commission;
 
   // Check 24h restriction
   const canWithdraw = () => {
@@ -163,6 +169,23 @@ export default function Withdraw() {
             Retirar todo
           </button>
         </div>
+
+        {amtNum > 0 && (
+          <div className="rounded-lg border border-border bg-secondary/40 p-3 space-y-1.5 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Monto bruto</span>
+              <span className="font-mono">${amtNum.toFixed(2)} USDT</span>
+            </div>
+            <div className="flex items-center justify-between text-destructive">
+              <span>Comisión de red (8%)</span>
+              <span className="font-mono">-${commission.toFixed(2)} USDT</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-border pt-1.5 text-emerald-400 font-semibold">
+              <span>Total a recibir</span>
+              <span className="font-mono">${netAmount.toFixed(2)} USDT</span>
+            </div>
+          </div>
+        )}
 
         <Button
           onClick={handleSubmit}
