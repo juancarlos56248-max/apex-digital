@@ -195,7 +195,7 @@ export default function Investments() {
 
       {/* Subscription Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-card border-border max-w-lg">
+        <DialogContent className="bg-card border-border max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-gold" />
