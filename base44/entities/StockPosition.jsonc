@@ -1,0 +1,38 @@
+{
+  "name": "StockPosition",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "buy_price": {
+      "type": "number"
+    },
+    "total_invested": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "sold"
+      ],
+      "default": "open"
+    }
+  },
+  "required": [
+    "user_email",
+    "symbol",
+    "quantity",
+    "buy_price"
+  ]
+}

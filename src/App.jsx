@@ -14,6 +14,7 @@ import Withdraw from './pages/Withdraw';
 import Referrals from './pages/Referrals';
 import AdminPanel from './pages/admin/AdminPanel';
 import Terms from './pages/Terms';
+import Market from './pages/Market';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +53,7 @@ const AuthenticatedApp = () => {
         <Route path="/deposit" element={<Deposit />} />
         <Route path="/withdraw" element={<Withdraw />} />
         <Route path="/referrals" element={<Referrals />} />
+        <Route path="/market" element={<Market />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
