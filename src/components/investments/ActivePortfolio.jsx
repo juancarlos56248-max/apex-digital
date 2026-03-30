@@ -172,7 +172,10 @@ function InvestmentCard({ inv }) {
       {/* Stocks */}
       <div className="space-y-1.5">
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground px-1">Posiciones activas</p>
-        {cfg.stocks.map((stock) => (
+        {(inv.custom_stocks?.length > 0
+          ? inv.custom_stocks.map(sym => ({ symbol: sym, name: sym, basePrice: 100 + Math.random() * 400 }))
+          : cfg.stocks
+        ).map((stock) => (
           <div key={stock.symbol} className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-secondary/40 border border-border/30">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono font-bold text-gold">{stock.symbol}</span>

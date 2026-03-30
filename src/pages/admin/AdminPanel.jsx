@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useOutletContext, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, ArrowDownToLine, ArrowUpFromLine, Users } from "lucide-react";
+import { Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
 import UserConsole from "../../components/admin/UserConsole";
 import AnnouncementManager from "../../components/admin/AnnouncementManager";
+import BalanceManager from "../../components/admin/BalanceManager";
 
 export default function AdminPanel() {
   const { user } = useOutletContext();
@@ -42,6 +43,10 @@ export default function AdminPanel() {
             <Users className="w-3.5 h-3.5" />
             Usuarios
           </TabsTrigger>
+          <TabsTrigger value="balances" className="gap-2 data-[state=active]:bg-gold/10 data-[state=active]:text-gold">
+            <Wallet className="w-3.5 h-3.5" />
+            Saldos
+          </TabsTrigger>
           <TabsTrigger value="announcements" className="gap-2 data-[state=active]:bg-gold/10 data-[state=active]:text-gold">
             <Shield className="w-3.5 h-3.5" />
             Anuncios
@@ -56,6 +61,9 @@ export default function AdminPanel() {
         </TabsContent>
         <TabsContent value="users">
           <UserConsole />
+        </TabsContent>
+        <TabsContent value="balances">
+          <BalanceManager />
         </TabsContent>
         <TabsContent value="announcements">
           <AnnouncementManager />

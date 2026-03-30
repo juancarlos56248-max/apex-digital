@@ -23,6 +23,7 @@ export default function Investments() {
   const [selectedDeposit, setSelectedDeposit] = useState(0);
   const [customAmount, setCustomAmount] = useState("");
   const [referralCode] = useState(() => localStorage.getItem("apex_ref_code") || "");
+  const [selectedStocks, setSelectedStocks] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [certData, setCertData] = useState(null);
   const [certOpen, setCertOpen] = useState(false);
@@ -35,12 +36,34 @@ export default function Investments() {
     });
   }, [user]);
 
+  const POPULAR_STOCKS = [
+    { symbol: "AAPL", name: "Apple" },
+    { symbol: "MSFT", name: "Microsoft" },
+    { symbol: "TSLA", name: "Tesla" },
+    { symbol: "NVDA", name: "NVIDIA" },
+    { symbol: "AMZN", name: "Amazon" },
+    { symbol: "GOOGL", name: "Alphabet" },
+    { symbol: "META", name: "Meta" },
+    { symbol: "JPM", name: "JPMorgan" },
+    { symbol: "BRK.B", name: "Berkshire" },
+    { symbol: "GS", name: "Goldman" },
+    { symbol: "NFLX", name: "Netflix" },
+    { symbol: "AMD", name: "AMD" },
+  ];
+
   const handleSubscribe = (tier, deposit, config) => {
     setSelectedTier(tier);
     setSelectedDeposit(deposit);
     setSelectedConfig(config);
     setCustomAmount(String(deposit));
+    setSelectedStocks([]);
     setDialogOpen(true);
+  };
+
+  const toggleStock = (symbol) => {
+    setSelectedStocks(prev =>
+      prev.includes(symbol) ? prev.filter(s => s !== symbol) : prev.length < 4 ? [...prev, symbol] : prev
+    );
   };
 
   const downloadCertificate = () => {
@@ -101,6 +124,7 @@ export default function Investments() {
       status: "active",
       total_earned: 0,
       last_dividend_date: new Date().toISOString(),
+      custom_stocks: selectedStocks.length > 0 ? selectedStocks : undefined,
     };
 
     if (referralCode && referralCode !== user.referral_code) {
@@ -217,6 +241,28 @@ export default function Investments() {
                 </p>
               )}
             </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Elige hasta 4 acciones para tu nodo (opcional)</p>
+              <div className="flex flex-wrap gap-1.5">
+                {POPULAR_STOCKS.map(s => (
+                  <button
+                    key={s.symbol}
+                    onClick={() => toggleStock(s.symbol)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold border transition-all ${
+                      selectedStocks.includes(s.symbol)
+                        ? "bg-gold/20 border-gold/50 text-gold"
+                        : "bg-secondary border-border text-muted-foreground hover:border-gold/30"
+                    }`}
+                  >
+                    {s.symbol}
+                  </button>
+                ))}
+              </div>
+              {selectedStocks.length > 0 && (
+                <p className="text-[11px] text-gold mt-1.5">Seleccionadas: {selectedStocks.join(", ")}</p>
+              )}
+            </div>
+
             {referralCode && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/5 border border-gold/20">
                 <span className="text-[11px] text-muted-foreground">Referido aplicado:</span>
