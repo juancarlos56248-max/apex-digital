@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Copy, Shield, AlertTriangle } from "lucide-react";
+import { Copy, Shield, AlertTriangle, Gift } from "lucide-react";
 
 const WALLET_ADDRESSES = {
   USDT: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
@@ -58,6 +58,21 @@ export default function Deposit() {
         <p className="text-sm text-muted-foreground mt-1">
           Transfiere USDT a nuestra wallet corporativa y registra el hash de transacción
         </p>
+      </motion.div>
+
+      {/* Promo Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-xl border border-gold/40 bg-gradient-to-r from-gold/10 to-gold/5 p-4 flex gap-3"
+      >
+        <Gift className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="font-semibold text-gold text-sm">🎁 ¡Bono del 20% — Solo hoy 9 de Abril!</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Todos los depósitos realizados hoy recibirán un <strong className="text-foreground">20% extra</strong> sobre el monto depositado, acreditado directamente a tu balance.
+          </p>
+        </div>
       </motion.div>
 
       {/* Warning */}

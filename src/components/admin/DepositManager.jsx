@@ -19,16 +19,33 @@ export default function DepositManager() {
   useEffect(() => { loadDeposits(); }, []);
 
   const handleApprove = async (deposit) => {
-    // Approve deposit and credit user balance
     await base44.entities.Transaction.update(deposit.id, { status: "approved" });
-    // Find user and credit
     const users = await base44.entities.User.filter({ email: deposit.user_email });
     if (users.length > 0) {
-      await base44.entities.User.update(users[0].id, {
-        balance: (users[0].balance || 0) + deposit.amount,
+      const u = users[0];
+      // Check if deposit was made on April 9, 2026 (Lima time)
+      const depositDate = new Date(deposit.created_date);
+      const isPromoDay = depositDate.getFullYear() === 2026 &&
+        depositDate.getMonth() === 3 && // April = 3
+        depositDate.getDate() === 9;
+      const bonus = isPromoDay ? deposit.amount * 0.20 : 0;
+      const total = deposit.amount + bonus;
+      await base44.entities.User.update(u.id, {
+        balance: (u.balance || 0) + total,
       });
+      if (bonus > 0) {
+        await base44.entities.Transaction.create({
+          user_email: deposit.user_email,
+          type: "dividend",
+          amount: parseFloat(bonus.toFixed(2)),
+          status: "completed",
+          notes: "🎁 Bono promocional 20% — 9 de Abril",
+        });
+        toast.success(`✅ Depósito aprobado + Bono 20% ($${bonus.toFixed(2)}) acreditado a ${deposit.user_email}`);
+      } else {
+        toast.success(`Depósito de $${deposit.amount} acreditado a ${deposit.user_email}`);
+      }
     }
-    toast.success(`Depósito de $${deposit.amount} acreditado a ${deposit.user_email}`);
     loadDeposits();
   };
 
