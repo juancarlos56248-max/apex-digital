@@ -27,12 +27,20 @@ export default function AppLayout() {
         await base44.auth.updateMe({ referral_code: code });
         me.referral_code = code;
       }
-      // Initialize defaults
+      // Initialize defaults + welcome bonus
       if (me.balance === undefined) {
-        await base44.auth.updateMe({ balance: 0, total_invested: 0, total_earned: 0 });
-        me.balance = 0;
+        const WELCOME_BONUS = 5;
+        await base44.auth.updateMe({ balance: WELCOME_BONUS, total_invested: 0, total_earned: 0 });
+        me.balance = WELCOME_BONUS;
         me.total_invested = 0;
         me.total_earned = 0;
+        await base44.entities.Transaction.create({
+          user_email: me.email,
+          type: "dividend",
+          amount: WELCOME_BONUS,
+          status: "completed",
+          notes: "🎉 Bono de bienvenida Apex Digital",
+        });
       }
       setUser(me);
       // Check if profile is complete
