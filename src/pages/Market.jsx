@@ -50,28 +50,30 @@ function useLivePrice(base) {
 }
 
 function useLivePositionPrice(buyPrice) {
-  // Simula crecimiento positivo desde el precio de compra (entre +0.1% y +0.5% por tick)
+  // Simula pérdida severa: baja entre 89% y 100% del precio de compra
+  const targetLossPct = 0.89 + Math.random() * 0.11; // 89%-100% de pérdida
+  const targetPrice = buyPrice * (1 - targetLossPct);
   const [price, setPrice] = useState(buyPrice);
 
   useEffect(() => {
     const t = setInterval(() => {
       setPrice(prev => {
-        const drift = prev * (0.001 + Math.random() * 0.004); // positivo
-        const noise = (Math.random() - 0.3) * prev * 0.001;
-        return parseFloat((prev + drift + noise).toFixed(4));
+        if (prev <= targetPrice + 0.001) return Math.max(targetPrice, 0.001);
+        const drop = prev * (0.008 + Math.random() * 0.012); // caída rápida
+        return parseFloat(Math.max(prev - drop, targetPrice, 0.001).toFixed(4));
       });
-    }, 3000);
+    }, 2000);
     return () => clearInterval(t);
   }, []);
 
-  const gain = price - buyPrice;
-  const gainPct = ((gain / buyPrice) * 100).toFixed(3);
-  return { currentPrice: price, gain, gainPct };
+  const loss = price - buyPrice;
+  const lossPct = ((loss / buyPrice) * 100).toFixed(2);
+  return { currentPrice: price, loss, lossPct };
 }
 
 function PositionRow({ pos, onSell }) {
-  const { currentPrice, gain, gainPct } = useLivePositionPrice(pos.buy_price);
-  const sellValue = pos.quantity * currentPrice;
+  const { currentPrice, loss, lossPct } = useLivePositionPrice(pos.buy_price);
+  const sellValue = Math.max(pos.quantity * currentPrice, 0);
 
   return (
     <div className="flex items-center justify-between px-4 py-3">
@@ -85,15 +87,15 @@ function PositionRow({ pos, onSell }) {
         </p>
       </div>
       <div className="text-right mr-3">
-        <p className="text-sm font-mono font-bold text-emerald-400">+${gain.toFixed(4)}</p>
-        <p className="text-[11px] text-emerald-500">+{gainPct}% &bull; ${sellValue.toFixed(2)}</p>
+        <p className="text-sm font-mono font-bold text-red-400">{lossPct}%</p>
+        <p className="text-[11px] text-red-500">${loss.toFixed(2)} &bull; Valor: ${sellValue.toFixed(2)}</p>
       </div>
       <Button
         size="sm"
         onClick={() => onSell(pos, currentPrice)}
-        className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold h-8 px-3"
+        className="bg-red-700 hover:bg-red-800 text-white text-xs font-semibold h-8 px-3"
       >
-        <DollarSign className="w-3.5 h-3.5 mr-1" /> Vender
+        <DollarSign className="w-3.5 h-3.5 mr-1" /> Liquidar
       </Button>
     </div>
   );
@@ -139,15 +141,20 @@ function StockRow({ stock, onBuy }) {
 export default function Market() {
   const { user, setUser } = useOutletContext();
   const [positions, setPositions] = useState([]);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [buyDialog, setBuyDialog] = useState(null); // { stock, price }
+  const [buyDialog, setBuyDialog] = useState(null);
   const [quantity, setQuantity] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const loadPositions = async () => {
     if (!user) return;
-    const p = await base44.entities.StockPosition.filter({ user_email: user.email, status: "open" }, "-created_date");
-    setPositions(p);
+    const [open, closed] = await Promise.all([
+      base44.entities.StockPosition.filter({ user_email: user.email, status: "open" }, "-created_date"),
+      base44.entities.StockPosition.filter({ user_email: user.email, status: "sold" }, "-updated_date", 20),
+    ]);
+    setPositions(open);
+    setHistory(closed);
     setLoading(false);
   };
 
@@ -201,17 +208,16 @@ export default function Market() {
   const totalInvested = positions.reduce((s, p) => s + (p.total_invested || 0), 0);
 
   const sellPosition = async (pos, currentPrice) => {
-    const sellValue = pos.quantity * currentPrice;
+    const sellValue = Math.max(pos.quantity * currentPrice, 0);
+    const loss = sellValue - (pos.total_invested || 0);
     await base44.entities.StockPosition.update(pos.id, {
       status: "sold",
       sell_price: currentPrice,
     });
     await base44.auth.updateMe({ balance: (user.balance || 0) + sellValue });
     setUser(prev => ({ ...prev, balance: (prev.balance || 0) + sellValue }));
-    const profit = sellValue - (pos.total_invested || 0);
-    toast.success(`✅ Vendiste ${pos.quantity} ${pos.symbol} — Ganancia: +$${profit.toFixed(2)} USDT`);
-    const updated = await base44.entities.StockPosition.filter({ user_email: user.email, status: "open" }, "-created_date");
-    setPositions(updated);
+    toast.error(`⚠️ Liquidaste ${pos.quantity} ${pos.symbol} — Pérdida: $${loss.toFixed(2)} USDT`);
+    loadPositions();
   };
 
   if (!user) return null;
@@ -254,6 +260,39 @@ export default function Market() {
             {positions.map(p => (
               <PositionRow key={p.id} pos={p} onSell={sellPosition} />
             ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Historial de posiciones cerradas */}
+      {history.length > 0 && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+            <TrendingDown className="w-4 h-4 text-red-400" />
+            <span className="text-sm font-semibold">Historial de Pérdidas</span>
+          </div>
+          <div className="divide-y divide-border">
+            {history.map(p => {
+              const invested = p.total_invested || 0;
+              const recovered = (p.quantity || 0) * (p.sell_price || 0);
+              const lost = recovered - invested;
+              const lostPct = invested > 0 ? ((lost / invested) * 100).toFixed(1) : "0.0";
+              return (
+                <div key={p.id} className="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold font-mono text-muted-foreground">{p.symbol}</p>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400">LIQUIDADA</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{p.quantity} acciones @ ${p.buy_price?.toFixed(2)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-mono font-bold text-red-400">{lostPct}%</p>
+                    <p className="text-[11px] text-muted-foreground">${invested.toFixed(2)} → <span className="text-red-400">${recovered.toFixed(2)}</span></p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </motion.div>
       )}
