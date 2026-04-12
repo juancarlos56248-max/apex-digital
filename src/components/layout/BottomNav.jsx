@@ -13,8 +13,8 @@ export default function BottomNav() {
   const location = useLocation();
 
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border">
-      <div className="flex items-center justify-around px-2 py-2 pb-safe">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-sidebar border-t border-sidebar-border" style={{paddingBottom: 'env(safe-area-inset-bottom, 0px)'}}>
+      <div className="flex items-center justify-around px-2 py-2">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
           return (
