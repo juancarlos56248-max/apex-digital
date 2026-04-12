@@ -72,7 +72,7 @@ function CandlestickChart({ history }) {
       <svg width="100%" height="100%" viewBox={`0 0 ${candles.length * 10} ${H}`} preserveAspectRatio="none">
         {candles.map((c, i) => {
           const isUp = c.close >= c.open;
-          const color = isUp ? "#26a69a" : "#ef5350";
+          const color = isUp ? "#00e676" : "#ff1744";
           const x = i * 10 + 5;
           const bodyTop = toY(Math.max(c.open, c.close));
           const bodyBot = toY(Math.min(c.open, c.close));
