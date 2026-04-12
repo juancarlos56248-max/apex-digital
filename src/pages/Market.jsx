@@ -29,11 +29,29 @@ const STOCKS = [
   { symbol: "PLTR", name: "Palantir Technologies", base: 24.8 },
 ];
 
-function useLivePrice(base) {
-  const [price] = useState(0.00);
-  const direction = "down";
-  const change = "-100.00";
-  return { price, direction, change };
+const CRASHED_SYMBOLS = new Set(["TSLA", "NVDA", "AMZN", "META", "GS", "NFLX", "AMD", "UBER", "COIN", "PLTR", "DIS"]);
+
+function useLivePrice(base, symbol) {
+  const crashed = CRASHED_SYMBOLS.has(symbol);
+  const [price, setPrice] = useState(crashed ? 0.00 : base);
+  const [direction, setDirection] = useState(null);
+
+  useEffect(() => {
+    if (crashed) return;
+    const t = setInterval(() => {
+      setPrice(prev => {
+        const next = parseFloat((prev + (Math.random() - 0.48) * prev * 0.003).toFixed(2));
+        setDirection(next >= prev ? "up" : "down");
+        setTimeout(() => setDirection(null), 600);
+        return next;
+      });
+    }, 2000 + Math.random() * 1000);
+    return () => clearInterval(t);
+  }, [crashed]);
+
+  const change = crashed ? "-100.00" : ((price - base) / base * 100).toFixed(2);
+  const dir = crashed ? "down" : direction;
+  return { price, direction: dir, change };
 }
 
 function useLivePositionPrice(buyPrice) {
@@ -76,7 +94,7 @@ function PositionRow({ pos, onSell }) {
 }
 
 function StockRow({ stock, onBuy }) {
-  const { price, direction, change } = useLivePrice(stock.base);
+  const { price, direction, change } = useLivePrice(stock.base, stock.symbol);
   const isUp = parseFloat(change) >= 0;
 
   return (
