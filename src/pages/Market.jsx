@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign } from "lucide-react";
-import { LineChart, Line, AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
+import { ResponsiveContainer } from "recharts";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
@@ -40,6 +40,64 @@ const FIXED_PRICES = {
   "JPM": 10.00,
   "BRK.B": 5.00,
 };
+
+function generateCandles(history) {
+  const candles = [];
+  const chunk = Math.max(1, Math.floor(history.length / 20));
+  for (let i = 0; i < history.length - chunk; i += chunk) {
+    const slice = history.slice(i, i + chunk).map(h => h.v);
+    const open = slice[0];
+    const close = slice[slice.length - 1];
+    const high = Math.max(...slice) * (1 + Math.random() * 0.002);
+    const low = Math.min(...slice) * (1 - Math.random() * 0.002);
+    candles.push({ open, close, high, low });
+  }
+  return candles;
+}
+
+function CandlestickChart({ history }) {
+  const candles = generateCandles(history);
+  const allValues = candles.flatMap(c => [c.high, c.low]);
+  const minVal = Math.min(...allValues);
+  const maxVal = Math.max(...allValues);
+  const range = maxVal - minVal || 1;
+  const H = 140;
+  const W_TOTAL = 100;
+  const candleW = Math.floor(W_TOTAL / candles.length);
+
+  const toY = (v) => ((maxVal - v) / range) * H;
+
+  return (
+    <div className="w-full h-40 rounded-lg bg-[#0d1117] border border-border overflow-hidden px-2 py-2">
+      <svg width="100%" height="100%" viewBox={`0 0 ${candles.length * 10} ${H}`} preserveAspectRatio="none">
+        {candles.map((c, i) => {
+          const isUp = c.close >= c.open;
+          const color = isUp ? "#26a69a" : "#ef5350";
+          const x = i * 10 + 5;
+          const bodyTop = toY(Math.max(c.open, c.close));
+          const bodyBot = toY(Math.min(c.open, c.close));
+          const bodyH = Math.max(1, bodyBot - bodyTop);
+          return (
+            <g key={i}>
+              {/* wick */}
+              <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth={1} />
+              {/* body */}
+              <rect x={x - 3} y={bodyTop} width={6} height={bodyH} fill={color} rx={0.5} />
+            </g>
+          );
+        })}
+        {/* current price line */}
+        {candles.length > 0 && (
+          <line
+            x1={0} y1={toY(candles[candles.length - 1].close)}
+            x2={candles.length * 10} y2={toY(candles[candles.length - 1].close)}
+            stroke="hsl(40 52% 56%)" strokeWidth={0.8} strokeDasharray="3 2"
+          />
+        )}
+      </svg>
+    </div>
+  );
+}
 
 function useLivePrice(base, symbol) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
@@ -353,30 +411,9 @@ export default function Market() {
             <DialogTitle>Comprar {buyDialog?.stock.symbol}</DialogTitle>
             <DialogDescription>{buyDialog?.stock.name} — Precio actual: <span className="text-gold font-mono font-bold">${buyDialog?.price.toFixed(2)}</span></DialogDescription>
           </DialogHeader>
-          {/* Trading chart */}
+          {/* Candlestick chart */}
           {buyDialog?.history?.length > 0 && (
-            <div className="w-full h-32 rounded-lg overflow-hidden bg-secondary/40 border border-border">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={buyDialog.history} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
-                  <defs>
-                    <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(40 52% 56%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(40 52% 56%)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="v" dot={false} stroke="hsl(40 52% 56%)" strokeWidth={1.5} fill="url(#priceGrad)" isAnimationActive={false} />
-                  <Tooltip
-                    content={({ active, payload }) =>
-                      active && payload?.length ? (
-                        <div className="bg-card border border-border rounded px-2 py-1 text-[10px] font-mono text-foreground">
-                          ${payload[0].value?.toFixed(4)}
-                        </div>
-                      ) : null
-                    }
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            <CandlestickChart history={buyDialog.history} />
           )}
           <div className="space-y-3 py-1">
             <div>
