@@ -29,8 +29,16 @@ const STOCKS = [
   { symbol: "PLTR", name: "Palantir Technologies", base: 24.8 },
 ];
 
-const CRASHED_SYMBOLS = new Set(["NVDA", "AMZN", "META", "GS", "NFLX", "AMD", "UBER", "COIN", "PLTR", "DIS"]);
-const FIXED_PRICES = { "TSLA": 2.50 };
+const CRASHED_SYMBOLS = new Set(["AMZN", "META", "GS", "NFLX", "COIN", "PLTR"]);
+const FIXED_PRICES = {
+  "TSLA": 2.50,
+  "NVDA": 8.10,
+  "AMD": 10.40,
+  "DIS": 20.75,
+  "UBER": 5.30,
+  "JPM": 60.20,
+  "BRK.B": 45.80,
+};
 
 function useLivePrice(base, symbol) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
