@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign } from "lucide-react";
-import { ResponsiveContainer } from "recharts";
+
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
@@ -193,7 +193,6 @@ function PositionRow({ pos, onSell }) {
 function StockRow({ stock, onBuy }) {
   const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol);
   const isUp = parseFloat(change) >= 0;
-  const lineColor = isUp ? "#34d399" : "#f87171";
 
   return (
     <div className="flex items-center justify-between px-4 py-3 hover:bg-secondary/30 transition-colors">
