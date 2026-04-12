@@ -43,11 +43,23 @@ const FIXED_PRICES = {
 function useLivePrice(base, symbol) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
   const fixed = FIXED_PRICES[symbol];
-  const [price, setPrice] = useState(fixed !== undefined ? fixed : crashed ? 0.00 : base);
+  const [price, setPrice] = useState(fixed !== undefined ? fixed : crashed ? 0.01 : base);
   const [direction, setDirection] = useState(null);
 
   useEffect(() => {
-    if (crashed || fixed !== undefined) return;
+    if (fixed !== undefined) return;
+    if (crashed) {
+      // Recuperación lenta: sube ~0.2% del base cada 10 segundos (simula recuperación horaria)
+      const t = setInterval(() => {
+        setPrice(prev => {
+          const next = parseFloat(Math.min(prev + base * 0.002, base * 0.15).toFixed(4));
+          setDirection("up");
+          setTimeout(() => setDirection(null), 600);
+          return next;
+        });
+      }, 10000);
+      return () => clearInterval(t);
+    }
     const t = setInterval(() => {
       setPrice(prev => {
         const next = parseFloat((prev + (Math.random() - 0.48) * prev * 0.003).toFixed(2));
@@ -57,10 +69,12 @@ function useLivePrice(base, symbol) {
       });
     }, 2000 + Math.random() * 1000);
     return () => clearInterval(t);
-  }, [crashed]);
+  }, [crashed, fixed, base]);
 
-  const change = crashed ? "-100.00" : fixed !== undefined ? ((fixed - base) / base * 100).toFixed(2) : ((price - base) / base * 100).toFixed(2);
-  const dir = (crashed || fixed !== undefined) ? "down" : direction;
+  const change = fixed !== undefined
+    ? ((fixed - base) / base * 100).toFixed(2)
+    : ((price - base) / base * 100).toFixed(2);
+  const dir = fixed !== undefined ? "down" : direction;
   return { price, direction: dir, change };
 }
 
