@@ -30,22 +30,9 @@ const STOCKS = [
 ];
 
 function useLivePrice(base) {
-  const [price, setPrice] = useState(base);
-  const [direction, setDirection] = useState(null);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setPrice(prev => {
-        const next = parseFloat((prev + (Math.random() - 0.48) * prev * 0.003).toFixed(2));
-        setDirection(next >= prev ? "up" : "down");
-        setTimeout(() => setDirection(null), 600);
-        return next;
-      });
-    }, 2000 + Math.random() * 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const change = ((price - base) / base * 100).toFixed(2);
+  const [price] = useState(0.00);
+  const direction = "down";
+  const change = "-100.00";
   return { price, direction, change };
 }
 
