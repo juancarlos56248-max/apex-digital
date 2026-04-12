@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign } from "lucide-react";
+import { LineChart, Line, ResponsiveContainer, Tooltip } from "recharts";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
@@ -43,29 +44,31 @@ const FIXED_PRICES = {
 function useLivePrice(base, symbol) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
   const fixed = FIXED_PRICES[symbol];
-  const [price, setPrice] = useState(fixed !== undefined ? fixed : crashed ? 0.01 : base);
+  const initPrice = fixed !== undefined ? fixed : crashed ? 0.01 : base;
+  const [price, setPrice] = useState(initPrice);
   const [direction, setDirection] = useState(null);
+  const [history, setHistory] = useState(() => Array.from({ length: 20 }, () => ({ v: initPrice })));
 
   useEffect(() => {
     if (fixed !== undefined) {
-      // Fluctúa ±0.05% alrededor del precio fijo cada 2s
       const t = setInterval(() => {
         setPrice(prev => {
           const next = parseFloat((fixed + (Math.random() - 0.5) * fixed * 0.001).toFixed(4));
           setDirection(next >= prev ? "up" : "down");
           setTimeout(() => setDirection(null), 600);
+          setHistory(h => [...h.slice(-49), { v: next }]);
           return next;
         });
       }, 2000);
       return () => clearInterval(t);
     }
     if (crashed) {
-      // Recuperación gradual: sube 0.05% del precio actual cada 3 segundos
       const t = setInterval(() => {
         setPrice(prev => {
           const next = parseFloat(Math.min(prev + prev * 0.0005, base * 0.20).toFixed(4));
           setDirection("up");
           setTimeout(() => setDirection(null), 600);
+          setHistory(h => [...h.slice(-49), { v: next }]);
           return next;
         });
       }, 3000);
@@ -76,6 +79,7 @@ function useLivePrice(base, symbol) {
         const next = parseFloat((prev + (Math.random() - 0.48) * prev * 0.003).toFixed(2));
         setDirection(next >= prev ? "up" : "down");
         setTimeout(() => setDirection(null), 600);
+        setHistory(h => [...h.slice(-49), { v: next }]);
         return next;
       });
     }, 2000 + Math.random() * 1000);
@@ -86,7 +90,7 @@ function useLivePrice(base, symbol) {
     ? ((fixed - base) / base * 100).toFixed(2)
     : ((price - base) / base * 100).toFixed(2);
   const dir = fixed !== undefined ? "down" : direction;
-  return { price, direction: dir, change };
+  return { price, direction: dir, change, history };
 }
 
 function useLivePositionPrice(buyPrice) {
@@ -129,8 +133,9 @@ function PositionRow({ pos, onSell }) {
 }
 
 function StockRow({ stock, onBuy }) {
-  const { price, direction, change } = useLivePrice(stock.base, stock.symbol);
+  const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol);
   const isUp = parseFloat(change) >= 0;
+  const lineColor = isUp ? "#34d399" : "#f87171";
 
   return (
     <div className="flex items-center justify-between px-4 py-3 hover:bg-secondary/30 transition-colors">
@@ -144,6 +149,23 @@ function StockRow({ stock, onBuy }) {
         </div>
       </div>
       <div className="flex items-center gap-4">
+        {/* Mini sparkline */}
+        <div className="w-24 h-10 hidden sm:block">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={history}>
+              <Line type="monotone" dataKey="v" dot={false} stroke={lineColor} strokeWidth={1.5} isAnimationActive={false} />
+              <Tooltip
+                content={({ active, payload }) =>
+                  active && payload?.length ? (
+                    <div className="bg-card border border-border rounded px-2 py-1 text-[10px] font-mono text-foreground">
+                      ${payload[0].value?.toFixed(2)}
+                    </div>
+                  ) : null
+                }
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
         <div className="text-right">
           <p className={`text-sm font-mono font-bold transition-colors duration-300 ${
             direction === "up" ? "text-emerald-400" : direction === "down" ? "text-red-400" : "text-foreground"
