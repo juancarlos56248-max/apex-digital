@@ -287,8 +287,8 @@ export default function Market() {
                     <p className="text-[11px] text-muted-foreground">{p.quantity} acciones @ ${p.buy_price?.toFixed(2)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-mono font-bold text-red-400">{lostPct}%</p>
-                    <p className="text-[11px] text-muted-foreground">${invested.toFixed(2)} → <span className="text-red-400">${recovered.toFixed(2)}</span></p>
+                    <p className="text-sm font-mono font-bold text-red-400">-${Math.abs(lost).toFixed(2)} USDT</p>
+                    <p className="text-[11px] text-muted-foreground">Invertido: <span className="text-foreground font-mono">${invested.toFixed(2)}</span> &bull; {lostPct}%</p>
                   </div>
                 </div>
               );
