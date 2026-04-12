@@ -57,43 +57,42 @@ function generateCandles(history) {
 
 function CandlestickChart({ history }) {
   const candles = generateCandles(history);
+  if (candles.length === 0) return null;
+
   const allValues = candles.flatMap(c => [c.high, c.low]);
   const minVal = Math.min(...allValues);
   const maxVal = Math.max(...allValues);
-  const range = maxVal - minVal || 1;
-  const H = 140;
-  const W_TOTAL = 100;
-  const candleW = Math.floor(W_TOTAL / candles.length);
-
-  const toY = (v) => ((maxVal - v) / range) * H;
+  const padding = (maxVal - minVal) * 0.1 || 1;
+  const lo = minVal - padding;
+  const hi = maxVal + padding;
+  const range = hi - lo;
+  const H = 160;
+  const totalW = candles.length * 12;
+  const toY = (v) => ((hi - v) / range) * H;
 
   return (
-    <div className="w-full h-40 rounded-lg bg-[#0d1117] border border-border overflow-hidden px-2 py-2">
-      <svg width="100%" height="100%" viewBox={`0 0 ${candles.length * 10} ${H}`} preserveAspectRatio="none">
+    <div className="w-full rounded-xl overflow-hidden border border-border" style={{ background: '#fff', height: 180 }}>
+      <svg width="100%" height="100%" viewBox={`0 0 ${totalW} ${H}`} preserveAspectRatio="none">
         {candles.map((c, i) => {
           const isUp = c.close >= c.open;
-          const color = isUp ? "#00e676" : "#ff1744";
-          const x = i * 10 + 5;
+          const bullColor = "#26a69a";
+          const bearColor = "#ef5350";
+          const color = isUp ? bullColor : bearColor;
+          const x = i * 12 + 6;
           const bodyTop = toY(Math.max(c.open, c.close));
           const bodyBot = toY(Math.min(c.open, c.close));
-          const bodyH = Math.max(1, bodyBot - bodyTop);
+          const bodyH = Math.max(1.5, bodyBot - bodyTop);
           return (
             <g key={i}>
-              {/* wick */}
-              <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth={1} />
-              {/* body */}
-              <rect x={x - 3} y={bodyTop} width={6} height={bodyH} fill={color} rx={0.5} />
+              {/* Upper wick */}
+              <line x1={x} y1={toY(c.high)} x2={x} y2={bodyTop} stroke={color} strokeWidth={1.2} />
+              {/* Lower wick */}
+              <line x1={x} y1={bodyBot} x2={x} y2={toY(c.low)} stroke={color} strokeWidth={1.2} />
+              {/* Body */}
+              <rect x={x - 4} y={bodyTop} width={8} height={bodyH} fill={color} rx={1} />
             </g>
           );
         })}
-        {/* current price line */}
-        {candles.length > 0 && (
-          <line
-            x1={0} y1={toY(candles[candles.length - 1].close)}
-            x2={candles.length * 10} y2={toY(candles[candles.length - 1].close)}
-            stroke="hsl(40 52% 56%)" strokeWidth={0.8} strokeDasharray="3 2"
-          />
-        )}
       </svg>
     </div>
   );
