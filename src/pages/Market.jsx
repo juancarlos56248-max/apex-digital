@@ -50,21 +50,8 @@ function useLivePrice(base) {
 }
 
 function useLivePositionPrice(buyPrice) {
-  // Inicia ya con 60-80% de caída para mostrar crash inmediato
-  const initialDrop = 0.60 + Math.random() * 0.20;
-  const [price, setPrice] = useState(parseFloat((buyPrice * (1 - initialDrop)).toFixed(4)));
-
-  useEffect(() => {
-    // Sigue cayendo hasta 0
-    const t = setInterval(() => {
-      setPrice(prev => {
-        if (prev <= 0.01) return 0.01;
-        const drop = prev * (0.04 + Math.random() * 0.07);
-        return parseFloat(Math.max(prev - drop, 0.01).toFixed(4));
-      });
-    }, 800);
-    return () => clearInterval(t);
-  }, []);
+  // Inicia directamente en $0 (pérdida total)
+  const [price] = useState(0.01);
 
   const loss = price - buyPrice;
   const lossPct = ((loss / buyPrice) * 100).toFixed(2);
