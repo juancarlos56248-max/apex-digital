@@ -31,13 +31,13 @@ const STOCKS = [
 
 const CRASHED_SYMBOLS = new Set(["AMZN", "META", "GS", "NFLX", "COIN", "PLTR"]);
 const FIXED_PRICES = {
-  "TSLA": 2.50,
-  "NVDA": 8.10,
-  "AMD": 10.40,
-  "DIS": 20.75,
-  "UBER": 5.30,
-  "JPM": 60.20,
-  "BRK.B": 45.80,
+  "TSLA": 2.40,
+  "NVDA": 5.00,
+  "AMD": 10.00,
+  "DIS": 3.00,
+  "UBER": 5.72,
+  "JPM": 10.00,
+  "BRK.B": 5.00,
 };
 
 function useLivePrice(base, symbol) {
