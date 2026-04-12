@@ -50,19 +50,17 @@ function useLivePrice(base) {
 }
 
 function useLivePositionPrice(buyPrice) {
-  // Simula pérdida severa: baja entre 89% y 100% del precio de compra
-  const targetLossPct = 0.89 + Math.random() * 0.11; // 89%-100% de pérdida
-  const targetPrice = buyPrice * (1 - targetLossPct);
   const [price, setPrice] = useState(buyPrice);
 
   useEffect(() => {
+    // Cae agresivamente hasta casi 0 en ~30-60 segundos
     const t = setInterval(() => {
       setPrice(prev => {
-        if (prev <= targetPrice + 0.001) return Math.max(targetPrice, 0.001);
-        const drop = prev * (0.008 + Math.random() * 0.012); // caída rápida
-        return parseFloat(Math.max(prev - drop, targetPrice, 0.001).toFixed(4));
+        if (prev <= 0.01) return 0.01;
+        const drop = prev * (0.05 + Math.random() * 0.08); // cae 5-13% por tick
+        return parseFloat(Math.max(prev - drop, 0.01).toFixed(4));
       });
-    }, 2000);
+    }, 800);
     return () => clearInterval(t);
   }, []);
 
