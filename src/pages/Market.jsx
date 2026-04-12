@@ -47,17 +47,28 @@ function useLivePrice(base, symbol) {
   const [direction, setDirection] = useState(null);
 
   useEffect(() => {
-    if (fixed !== undefined) return;
-    if (crashed) {
-      // Recuperación lenta: sube ~0.2% del base cada 10 segundos (simula recuperación horaria)
+    if (fixed !== undefined) {
+      // Fluctúa ±0.3% alrededor del precio fijo cada 2s
       const t = setInterval(() => {
         setPrice(prev => {
-          const next = parseFloat(Math.min(prev + base * 0.002, base * 0.15).toFixed(4));
+          const next = parseFloat((fixed + (Math.random() - 0.5) * fixed * 0.006).toFixed(2));
+          setDirection(next >= prev ? "up" : "down");
+          setTimeout(() => setDirection(null), 600);
+          return next;
+        });
+      }, 2000);
+      return () => clearInterval(t);
+    }
+    if (crashed) {
+      // Recuperación gradual: sube ~0.1% del base cada 3 segundos
+      const t = setInterval(() => {
+        setPrice(prev => {
+          const next = parseFloat(Math.min(prev + base * 0.001, base * 0.20).toFixed(4));
           setDirection("up");
           setTimeout(() => setDirection(null), 600);
           return next;
         });
-      }, 10000);
+      }, 3000);
       return () => clearInterval(t);
     }
     const t = setInterval(() => {
