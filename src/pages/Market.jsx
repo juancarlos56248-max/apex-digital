@@ -67,7 +67,7 @@ function CandlestickChart({ history }) {
   const hi = maxVal + padding;
   const range = hi - lo;
   const H = 160;
-  const totalW = candles.length * 12;
+  const totalW = candles.length * 14;
   const toY = (v) => ((hi - v) / range) * H;
 
   return (
@@ -78,7 +78,7 @@ function CandlestickChart({ history }) {
           const bullColor = "#26a69a";
           const bearColor = "#ef5350";
           const color = isUp ? bullColor : bearColor;
-          const x = i * 12 + 6;
+          const x = i * 14 + 7;
           const bodyTop = toY(Math.max(c.open, c.close));
           const bodyBot = toY(Math.min(c.open, c.close));
           const bodyH = Math.max(1.5, bodyBot - bodyTop);
@@ -89,7 +89,7 @@ function CandlestickChart({ history }) {
               {/* Lower wick */}
               <line x1={x} y1={bodyBot} x2={x} y2={toY(c.low)} stroke={color} strokeWidth={1.2} />
               {/* Body */}
-              <rect x={x - 4} y={bodyTop} width={8} height={bodyH} fill={color} rx={1} />
+              <rect x={x - 5.5} y={bodyTop} width={11} height={bodyH} fill={color} rx={1.5} />
             </g>
           );
         })}
