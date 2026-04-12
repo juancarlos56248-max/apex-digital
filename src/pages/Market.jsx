@@ -144,13 +144,27 @@ export default function Market() {
   const [quantity, setQuantity] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
+  const loadPositions = async () => {
     if (!user) return;
-    base44.entities.StockPosition.filter({ user_email: user.email, status: "open" }, "-created_date").then(p => {
-      setPositions(p);
-      setLoading(false);
-    });
+    const p = await base44.entities.StockPosition.filter({ user_email: user.email, status: "open" }, "-created_date");
+    setPositions(p);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadPositions();
   }, [user]);
+
+  // Suscripción en tiempo real para detectar crash de mercado
+  useEffect(() => {
+    const unsub = base44.entities.StockPosition.subscribe((event) => {
+      if (event.type === "update" && event.data?.status === "sold") {
+        setPositions(prev => prev.filter(p => p.id !== event.id));
+        toast.error("⚠️ Posición liquidada por caída de mercado");
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const openBuy = (stock, price) => {
     setBuyDialog({ stock, price });
