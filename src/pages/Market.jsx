@@ -150,7 +150,7 @@ function StockRow({ stock, onBuy }) {
       </div>
       <div className="flex items-center gap-4">
         {/* Mini sparkline */}
-        <div className="w-24 h-10 hidden sm:block">
+        <div className="w-20 h-10">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={history}>
               <Line type="monotone" dataKey="v" dot={false} stroke={lineColor} strokeWidth={1.5} isAnimationActive={false} />
