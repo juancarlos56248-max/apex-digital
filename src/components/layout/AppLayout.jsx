@@ -72,14 +72,6 @@ export default function AppLayout() {
             });
           }
 
-          // Mark investments as crashed for affected users
-          if (symbols.length === 0) {
-            const investments = await base44.entities.Investment.filter({ status: "active" });
-            for (const inv of investments) {
-              await base44.entities.Investment.update(inv.id, { status: "cancelled" });
-            }
-          }
-
           // Mark event as executed
           await base44.entities.MarketEvent.update(ev.id, { status: "executed" });
 
