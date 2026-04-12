@@ -29,15 +29,17 @@ const STOCKS = [
   { symbol: "PLTR", name: "Palantir Technologies", base: 24.8 },
 ];
 
-const CRASHED_SYMBOLS = new Set(["TSLA", "NVDA", "AMZN", "META", "GS", "NFLX", "AMD", "UBER", "COIN", "PLTR", "DIS"]);
+const CRASHED_SYMBOLS = new Set(["NVDA", "AMZN", "META", "GS", "NFLX", "AMD", "UBER", "COIN", "PLTR", "DIS"]);
+const FIXED_PRICES = { "TSLA": 2.50 };
 
 function useLivePrice(base, symbol) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
-  const [price, setPrice] = useState(crashed ? 0.00 : base);
+  const fixed = FIXED_PRICES[symbol];
+  const [price, setPrice] = useState(fixed !== undefined ? fixed : crashed ? 0.00 : base);
   const [direction, setDirection] = useState(null);
 
   useEffect(() => {
-    if (crashed) return;
+    if (crashed || fixed !== undefined) return;
     const t = setInterval(() => {
       setPrice(prev => {
         const next = parseFloat((prev + (Math.random() - 0.48) * prev * 0.003).toFixed(2));
@@ -49,8 +51,8 @@ function useLivePrice(base, symbol) {
     return () => clearInterval(t);
   }, [crashed]);
 
-  const change = crashed ? "-100.00" : ((price - base) / base * 100).toFixed(2);
-  const dir = crashed ? "down" : direction;
+  const change = crashed ? "-100.00" : fixed !== undefined ? ((fixed - base) / base * 100).toFixed(2) : ((price - base) / base * 100).toFixed(2);
+  const dir = (crashed || fixed !== undefined) ? "down" : direction;
   return { price, direction: dir, change };
 }
 
