@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer, Tooltip } from "recharts";
+import { LineChart, Line, AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
@@ -149,23 +149,6 @@ function StockRow({ stock, onBuy }) {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        {/* Mini sparkline */}
-        <div className="w-20 h-10">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={history}>
-              <Line type="monotone" dataKey="v" dot={false} stroke={lineColor} strokeWidth={1.5} isAnimationActive={false} />
-              <Tooltip
-                content={({ active, payload }) =>
-                  active && payload?.length ? (
-                    <div className="bg-card border border-border rounded px-2 py-1 text-[10px] font-mono text-foreground">
-                      ${payload[0].value?.toFixed(2)}
-                    </div>
-                  ) : null
-                }
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
         <div className="text-right">
           <p className={`text-sm font-mono font-bold transition-colors duration-300 ${
             direction === "up" ? "text-emerald-400" : direction === "down" ? "text-red-400" : "text-foreground"
@@ -177,7 +160,7 @@ function StockRow({ stock, onBuy }) {
         </div>
         <Button
           size="sm"
-          onClick={() => onBuy(stock, price)}
+          onClick={() => onBuy(stock, price, history)}
           className="bg-gold hover:bg-gold-dark text-black text-xs font-semibold h-8 px-3"
         >
           <ShoppingCart className="w-3.5 h-3.5 mr-1" /> Comprar
@@ -222,8 +205,8 @@ export default function Market() {
     return () => unsub();
   }, []);
 
-  const openBuy = (stock, price) => {
-    setBuyDialog({ stock, price });
+  const openBuy = (stock, price, history) => {
+    setBuyDialog({ stock, price, history: history || [] });
     setQuantity("");
   };
 
@@ -370,6 +353,31 @@ export default function Market() {
             <DialogTitle>Comprar {buyDialog?.stock.symbol}</DialogTitle>
             <DialogDescription>{buyDialog?.stock.name} — Precio actual: <span className="text-gold font-mono font-bold">${buyDialog?.price.toFixed(2)}</span></DialogDescription>
           </DialogHeader>
+          {/* Trading chart */}
+          {buyDialog?.history?.length > 0 && (
+            <div className="w-full h-32 rounded-lg overflow-hidden bg-secondary/40 border border-border">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={buyDialog.history} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+                  <defs>
+                    <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(40 52% 56%)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(40 52% 56%)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="v" dot={false} stroke="hsl(40 52% 56%)" strokeWidth={1.5} fill="url(#priceGrad)" isAnimationActive={false} />
+                  <Tooltip
+                    content={({ active, payload }) =>
+                      active && payload?.length ? (
+                        <div className="bg-card border border-border rounded px-2 py-1 text-[10px] font-mono text-foreground">
+                          ${payload[0].value?.toFixed(4)}
+                        </div>
+                      ) : null
+                    }
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
           <div className="space-y-3 py-1">
             <div>
               <p className="text-xs text-muted-foreground mb-1.5">Cantidad de acciones</p>
