@@ -300,7 +300,7 @@ export default function Market() {
           </div>
           <div className="divide-y divide-border">
             {history.map(p => {
-              const invested = p.total_invested || 0;
+              const invested = (p.quantity || 0) * (p.buy_price || 0);
               const recovered = (p.quantity || 0) * (p.sell_price || 0);
               const lost = recovered - invested;
               const lostPct = invested > 0 ? ((lost / invested) * 100).toFixed(1) : "0.0";
@@ -311,11 +311,16 @@ export default function Market() {
                       <p className="text-sm font-bold font-mono text-muted-foreground">{p.symbol}</p>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400">LIQUIDADA</span>
                     </div>
-                    <p className="text-[11px] text-muted-foreground">{p.quantity} acciones @ ${p.buy_price?.toFixed(2)}</p>
+                    <p className="text-[11px] text-muted-foreground">{p.name}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {p.quantity} acciones @ <span className="text-foreground font-mono">${p.buy_price?.toFixed(2)}</span>
+                      {" "}&bull; Invertido: <span className="text-foreground font-mono">${invested.toFixed(2)}</span>
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-mono font-bold text-red-400">-${Math.abs(lost).toFixed(2)} USDT</p>
-                    <p className="text-[11px] text-muted-foreground">Invertido: <span className="text-foreground font-mono">${invested.toFixed(2)}</span> &bull; {lostPct}%</p>
+                    <p className="text-sm font-mono font-bold text-red-400">{lostPct}%</p>
+                    <p className="text-[11px] text-red-500">-${Math.abs(lost).toFixed(2)} USDT</p>
+                    <p className="text-[11px] text-muted-foreground">Recuperado: <span className="font-mono">${recovered.toFixed(2)}</span></p>
                   </div>
                 </div>
               );
