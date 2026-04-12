@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useOutletContext, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet } from "lucide-react";
+import { Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet, TrendingDown } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
 import UserConsole from "../../components/admin/UserConsole";
 import AnnouncementManager from "../../components/admin/AnnouncementManager";
 import BalanceManager from "../../components/admin/BalanceManager";
+import MarketCrashManager from "../../components/admin/MarketCrashManager";
 
 export default function AdminPanel() {
   const { user } = useOutletContext();
@@ -51,6 +52,10 @@ export default function AdminPanel() {
             <Shield className="w-3.5 h-3.5" />
             Anuncios
           </TabsTrigger>
+          <TabsTrigger value="market" className="gap-2 data-[state=active]:bg-destructive/10 data-[state=active]:text-destructive">
+            <TrendingDown className="w-3.5 h-3.5" />
+            Mercado
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="deposits">
@@ -67,6 +72,9 @@ export default function AdminPanel() {
         </TabsContent>
         <TabsContent value="announcements">
           <AnnouncementManager />
+        </TabsContent>
+        <TabsContent value="market">
+          <MarketCrashManager />
         </TabsContent>
       </Tabs>
     </div>

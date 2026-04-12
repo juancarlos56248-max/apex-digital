@@ -1,0 +1,40 @@
+{
+  "name": "MarketEvent",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "crash"
+      ],
+      "default": "crash"
+    },
+    "affected_symbols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Stock symbols affected (empty = all)"
+    },
+    "crash_time": {
+      "type": "string",
+      "description": "ISO datetime when crash occurs"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "executed"
+      ],
+      "default": "scheduled"
+    },
+    "message": {
+      "type": "string",
+      "description": "Message shown to users"
+    }
+  },
+  "required": [
+    "type",
+    "crash_time"
+  ]
+}

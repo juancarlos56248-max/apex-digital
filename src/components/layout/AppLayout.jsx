@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import Sidebar from "./Sidebar";
 import BottomNav from "./BottomNav";
 import ProfileGate from "./ProfileGate";
@@ -47,6 +48,49 @@ export default function AppLayout() {
       setProfileComplete(!!(me.dni && me.phone));
     };
     loadUser();
+  }, []);
+
+  // Market crash executor
+  useEffect(() => {
+    const checkCrash = async () => {
+      const events = await base44.entities.MarketEvent.filter({ status: "scheduled" });
+      const now = new Date();
+      for (const ev of events) {
+        if (new Date(ev.crash_time) <= now) {
+          // Mark positions as crashed (value = 0, status = sold)
+          const symbols = ev.affected_symbols || [];
+          const allPositions = await base44.entities.StockPosition.filter({ status: "open" });
+          const affected = symbols.length > 0
+            ? allPositions.filter(p => symbols.includes(p.symbol))
+            : allPositions;
+
+          for (const pos of affected) {
+            await base44.entities.StockPosition.update(pos.id, {
+              status: "sold",
+              sell_price: 0,
+              total_invested: 0,
+            });
+          }
+
+          // Mark investments as crashed for affected users
+          if (symbols.length === 0) {
+            const investments = await base44.entities.Investment.filter({ status: "active" });
+            for (const inv of investments) {
+              await base44.entities.Investment.update(inv.id, { status: "cancelled" });
+            }
+          }
+
+          // Mark event as executed
+          await base44.entities.MarketEvent.update(ev.id, { status: "executed" });
+
+          toast.error(ev.message || "⚠️ Caída de mercado detectada. Posiciones liquidadas.");
+        }
+      }
+    };
+
+    const interval = setInterval(checkCrash, 60000); // check every minute
+    checkCrash(); // immediate check on load
+    return () => clearInterval(interval);
   }, []);
 
   // Still loading
