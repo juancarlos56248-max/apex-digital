@@ -9,8 +9,9 @@ function generateMarketData() {
   for (let i = 30; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
-    const change = (Math.random() - 0.35) * 400;
-    value = Math.max(8000, value + change);
+    // Tendencia bajista: bias negativo fuerte
+    const change = (Math.random() - 0.72) * 500;
+    value = Math.max(2000, value + change);
     data.push({
       date: date.toLocaleDateString("es", { day: "2-digit", month: "short" }),
       value: Math.round(value * 100) / 100,
@@ -27,7 +28,7 @@ export default function PerformanceChart() {
     const interval = setInterval(() => {
       setData(prev => {
         const last = prev[prev.length - 1];
-        const newVal = last.value + (Math.random() - 0.4) * 100;
+        const newVal = last.value + (Math.random() - 0.7) * 150;
         return [...prev.slice(1), {
           date: new Date().toLocaleDateString("es", { day: "2-digit", month: "short" }),
           value: Math.round(Math.max(8000, newVal) * 100) / 100,
@@ -69,8 +70,8 @@ export default function PerformanceChart() {
           <AreaChart data={data}>
             <defs>
               <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(40, 52%, 56%)" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="hsl(40, 52%, 56%)" stopOpacity={0} />
+                <stop offset="0%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis 
@@ -97,7 +98,7 @@ export default function PerformanceChart() {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="hsl(40, 52%, 56%)"
+              stroke="hsl(0, 72%, 51%)"
               strokeWidth={2}
               fill="url(#goldGradient)"
             />
