@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TrendingUp, TrendingDown, ShoppingCart, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
@@ -47,6 +47,56 @@ function useLivePrice(base) {
 
   const change = ((price - base) / base * 100).toFixed(2);
   return { price, direction, change };
+}
+
+function useLivePositionPrice(buyPrice) {
+  // Simula crecimiento positivo desde el precio de compra (entre +0.1% y +0.5% por tick)
+  const [price, setPrice] = useState(buyPrice);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setPrice(prev => {
+        const drift = prev * (0.001 + Math.random() * 0.004); // positivo
+        const noise = (Math.random() - 0.3) * prev * 0.001;
+        return parseFloat((prev + drift + noise).toFixed(4));
+      });
+    }, 3000);
+    return () => clearInterval(t);
+  }, []);
+
+  const gain = price - buyPrice;
+  const gainPct = ((gain / buyPrice) * 100).toFixed(3);
+  return { currentPrice: price, gain, gainPct };
+}
+
+function PositionRow({ pos, onSell }) {
+  const { currentPrice, gain, gainPct } = useLivePositionPrice(pos.buy_price);
+  const sellValue = pos.quantity * currentPrice;
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-bold font-mono text-gold">{pos.symbol}</p>
+          <p className="text-[11px] text-muted-foreground">{pos.name}</p>
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-0.5">
+          {pos.quantity} acciones @ ${pos.buy_price?.toFixed(2)} = <span className="text-foreground">${pos.total_invested?.toFixed(2)}</span>
+        </p>
+      </div>
+      <div className="text-right mr-3">
+        <p className="text-sm font-mono font-bold text-emerald-400">+${gain.toFixed(4)}</p>
+        <p className="text-[11px] text-emerald-500">+{gainPct}% &bull; ${sellValue.toFixed(2)}</p>
+      </div>
+      <Button
+        size="sm"
+        onClick={() => onSell(pos, currentPrice)}
+        className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold h-8 px-3"
+      >
+        <DollarSign className="w-3.5 h-3.5 mr-1" /> Vender
+      </Button>
+    </div>
+  );
 }
 
 function StockRow({ stock, onBuy }) {
@@ -136,6 +186,20 @@ export default function Market() {
 
   const totalInvested = positions.reduce((s, p) => s + (p.total_invested || 0), 0);
 
+  const sellPosition = async (pos, currentPrice) => {
+    const sellValue = pos.quantity * currentPrice;
+    await base44.entities.StockPosition.update(pos.id, {
+      status: "sold",
+      sell_price: currentPrice,
+    });
+    await base44.auth.updateMe({ balance: (user.balance || 0) + sellValue });
+    setUser(prev => ({ ...prev, balance: (prev.balance || 0) + sellValue }));
+    const profit = sellValue - (pos.total_invested || 0);
+    toast.success(`✅ Vendiste ${pos.quantity} ${pos.symbol} — Ganancia: +$${profit.toFixed(2)} USDT`);
+    const updated = await base44.entities.StockPosition.filter({ user_email: user.email, status: "open" }, "-created_date");
+    setPositions(updated);
+  };
+
   if (!user) return null;
 
   return (
@@ -167,19 +231,14 @@ export default function Market() {
           <div className="px-4 py-3 border-b border-border flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-gold" />
             <span className="text-sm font-semibold">Mis Posiciones</span>
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 ml-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] text-emerald-400 font-medium">EN VIVO</span>
+            </span>
           </div>
           <div className="divide-y divide-border">
             {positions.map(p => (
-              <div key={p.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm font-bold font-mono text-gold">{p.symbol}</p>
-                  <p className="text-[11px] text-muted-foreground">{p.name}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-mono">{p.quantity} acciones</p>
-                  <p className="text-[11px] text-muted-foreground">@ ${p.buy_price?.toFixed(2)} = <span className="text-foreground font-semibold">${p.total_invested?.toFixed(2)}</span></p>
-                </div>
-              </div>
+              <PositionRow key={p.id} pos={p} onSell={sellPosition} />
             ))}
           </div>
         </motion.div>
