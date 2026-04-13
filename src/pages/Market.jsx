@@ -133,7 +133,7 @@ function useLivePrice(base, symbol) {
     }
     const t = setInterval(() => {
       setPrice(prev => {
-        const next = parseFloat((prev + (Math.random() - 0.48) * prev * 0.003).toFixed(2));
+        const next = parseFloat((prev + prev * 0.0005 + (Math.random() - 0.5) * prev * 0.002).toFixed(2));
         setDirection(next >= prev ? "up" : "down");
         setTimeout(() => setDirection(null), 600);
         setHistory(h => [...h.slice(-49), { v: next }]);
