@@ -160,8 +160,11 @@ function useLivePositionPrice(buyPrice) {
 }
 
 function PositionRow({ pos, onSell }) {
-  const { currentPrice, loss, lossPct } = useLivePositionPrice(pos.buy_price);
-  const sellValue = Math.max(pos.quantity * currentPrice, 0);
+  const { price: currentPrice } = useLivePrice(pos.buy_price, pos.symbol);
+  const pnl = (currentPrice - pos.buy_price) * pos.quantity;
+  const pnlPct = ((currentPrice - pos.buy_price) / pos.buy_price * 100).toFixed(2);
+  const sellValue = pos.quantity * currentPrice;
+  const isProfit = pnl >= 0;
 
   return (
     <div className="flex items-center justify-between px-4 py-3">
@@ -175,8 +178,8 @@ function PositionRow({ pos, onSell }) {
         </p>
       </div>
       <div className="text-right mr-3">
-        <p className="text-sm font-mono font-bold text-red-400">{lossPct}%</p>
-        <p className="text-[11px] text-red-500">${loss.toFixed(2)} &bull; Valor: ${sellValue.toFixed(2)}</p>
+        <p className={`text-sm font-mono font-bold ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>{isProfit ? '+' : ''}{pnlPct}%</p>
+        <p className={`text-[11px] ${isProfit ? 'text-emerald-500' : 'text-red-500'}`}>{isProfit ? '+' : ''}${pnl.toFixed(2)} &bull; Valor: ${sellValue.toFixed(2)}</p>
       </div>
       <Button
         size="sm"
