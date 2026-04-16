@@ -12,12 +12,12 @@ import {
 const TOAST_DURATION = 3000;
 
 function AutoDismissToast({ id, title, description, action, dismiss, ...props }) {
-  const timerRef = useRef(null);
-
   useEffect(() => {
-    timerRef.current = setTimeout(() => dismiss(id), TOAST_DURATION);
-    return () => clearTimeout(timerRef.current);
-  }, [id]);
+    const timer = setTimeout(() => {
+      dismiss(id);
+    }, TOAST_DURATION);
+    return () => clearTimeout(timer);
+  }, []); // eslint-disable-line
 
   return (
     <Toast {...props}>
