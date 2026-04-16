@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Toast,
@@ -9,36 +9,44 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 
-const TOAST_DURATION = 8000; // 8 segundos
+const TOAST_DURATION = 8000;
+
+function AutoDismissToast({ id, title, description, action, dismiss, ...props }) {
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    timerRef.current = setTimeout(() => dismiss(id), TOAST_DURATION);
+    return () => clearTimeout(timerRef.current);
+  }, [id]);
+
+  return (
+    <Toast {...props}>
+      <div className="grid gap-1">
+        {title && <ToastTitle>{title}</ToastTitle>}
+        {description && <ToastDescription>{description}</ToastDescription>}
+      </div>
+      {action}
+      <ToastClose />
+    </Toast>
+  );
+}
 
 export function Toaster() {
   const { toasts, dismiss } = useToast();
 
-  useEffect(() => {
-    toasts.forEach((t) => {
-      if (t.open) {
-        const timer = setTimeout(() => dismiss(t.id), TOAST_DURATION);
-        return () => clearTimeout(timer);
-      }
-    });
-  }, [toasts]);
-
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            {action}
-            <ToastClose />
-          </Toast>
-        );
-      })}
+      {toasts.map(({ id, title, description, action, ...props }) => (
+        <AutoDismissToast
+          key={id}
+          id={id}
+          title={title}
+          description={description}
+          action={action}
+          dismiss={dismiss}
+          {...props}
+        />
+      ))}
       <ToastViewport />
     </ToastProvider>
   );
