@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import TierCard from "../components/investments/TierCard";
 import ActivePortfolio from "../components/investments/ActivePortfolio";
@@ -15,6 +15,7 @@ import { Shield, Zap, Download } from "lucide-react";
 
 export default function Investments() {
   const { user } = useOutletContext();
+  const { toast } = useToast();
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -102,22 +103,22 @@ export default function Investments() {
     setSubmitting(true);
     const amount = parseFloat(customAmount);
     if (!amount || isNaN(amount)) {
-      toast.error("Ingresa un monto válido."); setSubmitting(false); return;
+      toast({ title: "Ingresa un monto válido.", variant: "destructive" }); setSubmitting(false); return;
     }
     if (selectedConfig?.minDeposit && amount < selectedConfig.minDeposit) {
-      toast.error(`El monto mínimo para este nodo es $${selectedConfig.minDeposit.toLocaleString()} USDT.`); setSubmitting(false); return;
+      toast({ title: `El monto mínimo para este nodo es $${selectedConfig.minDeposit.toLocaleString()} USDT.`, variant: "destructive" }); setSubmitting(false); return;
     }
     if (selectedConfig?.maxDeposit && amount > selectedConfig.maxDeposit) {
-      toast.error(`El monto máximo para este nodo es $${selectedConfig.maxDeposit.toLocaleString()} USDT.`); setSubmitting(false); return;
+      toast({ title: `El monto máximo para este nodo es $${selectedConfig.maxDeposit.toLocaleString()} USDT.`, variant: "destructive" }); setSubmitting(false); return;
     }
     const selectedDeposit = amount;
     if ((user.balance || 0) <= 0) {
-      toast.error("⚠️ Sin fondos disponibles. Tu balance es $0. Realiza un depósito para activar este contrato.");
+      toast({ title: "⚠️ Sin fondos disponibles", description: "Tu balance es $0. Realiza un depósito para activar este contrato.", variant: "destructive" });
       setSubmitting(false);
       return;
     }
     if ((user.balance || 0) < amount) {
-      toast.error(`⚠️ Fondos Insuficientes. Tu balance ($${(user.balance || 0).toFixed(2)}) es menor al monto ingresado.`);
+      toast({ title: "⚠️ Fondos Insuficientes", description: `Tu balance ($${(user.balance || 0).toFixed(2)} USDT) es menor al monto ingresado.`, variant: "destructive" });
       setSubmitting(false);
       return;
     }
@@ -157,7 +158,7 @@ export default function Investments() {
     };
     setCertData(cert);
 
-    toast.success(`✅ ¡Compra Exitosa! Nodo ${selectedConfig?.name || selectedTier.toUpperCase()} activado correctamente.`);
+    toast({ title: `✅ ¡Compra Exitosa!`, description: `Nodo ${selectedConfig?.name || selectedTier.toUpperCase()} activado correctamente.` });
     setDialogOpen(false);
     setCertOpen(true);
     localStorage.removeItem("apex_ref_code");
