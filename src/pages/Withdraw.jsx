@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Clock, Shield, AlertCircle } from "lucide-react";
+import WithdrawalTicker from "../components/landing/WithdrawalTicker";
 
 const COMMISSION_RATE = 0.08;
 
@@ -92,6 +93,8 @@ export default function Withdraw() {
 
   const timeRemaining = getTimeRemaining();
   const withdrawAllowed = canWithdraw();
+
+
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -199,6 +202,12 @@ export default function Withdraw() {
           <Shield className="w-3.5 h-3.5 text-gold" />
           <span>Los retiros pasan por auditoría de cumplimiento (Pending Compliance) antes de la ejecución</span>
         </div>
+      </motion.div>
+
+      {/* Retiros recientes de otros usuarios */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <h2 className="text-sm font-semibold text-muted-foreground mb-3">Retiros recientes de la comunidad</h2>
+        <WithdrawalTicker />
       </motion.div>
     </div>
   );

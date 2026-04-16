@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Shield, TrendingUp, Clock, Zap, ArrowRight, Lock, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
-import WithdrawalTicker from "../components/landing/WithdrawalTicker";
 
 const features = [
   { icon: Shield, title: "Seguridad Bancaria", desc: "Protocolos de cumplimiento de grado institucional con auditoría en tiempo real." },
@@ -70,8 +69,6 @@ export default function Landing() {
             <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed px-2">
               En Apex Digital, protegemos la estabilidad de nuestro ecosistema mediante protocolos de liquidez de última generación.
             </p>
-
-            <WithdrawalTicker />
 
             <div className="flex flex-col gap-3 px-2">
               <Link to="/dashboard" className="w-full">
