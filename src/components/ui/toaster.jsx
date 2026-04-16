@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Toast,
@@ -8,8 +9,19 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 
+const TOAST_DURATION = 8000; // 8 segundos
+
 export function Toaster() {
-  const { toasts } = useToast();
+  const { toasts, dismiss } = useToast();
+
+  useEffect(() => {
+    toasts.forEach((t) => {
+      if (t.open) {
+        const timer = setTimeout(() => dismiss(t.id), TOAST_DURATION);
+        return () => clearTimeout(timer);
+      }
+    });
+  }, [toasts]);
 
   return (
     <ToastProvider>
@@ -30,4 +42,4 @@ export function Toaster() {
       <ToastViewport />
     </ToastProvider>
   );
-} 
+}
