@@ -112,7 +112,7 @@ export default function Investments() {
     }
     const selectedDeposit = amount;
     if ((user.balance || 0) < selectedDeposit) {
-      toast.error("⚠️ Fondos Insuficientes. Por favor recargue su cuenta.");
+      toast.error("⚠️ Fondos Insuficientes. Por favor realice un depósito para activar este contrato.");
       setSubmitting(false);
       return;
     }
@@ -223,6 +223,16 @@ export default function Investments() {
               <li>• <strong className="text-foreground">Transparencia Total</strong> — Rastrea el crecimiento en tu Dashboard.</li>
             </ul>
           </div>
+
+          {(user.balance || 0) <= 0 && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
+              <span className="text-destructive text-lg">⚠️</span>
+              <div>
+                <p className="text-xs font-semibold text-destructive">Sin fondos disponibles</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Tu balance es $0. Realiza un depósito para poder activar este contrato.</p>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-3 py-1">
             <div>
