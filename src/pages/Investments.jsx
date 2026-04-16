@@ -111,8 +111,13 @@ export default function Investments() {
       toast.error(`El monto máximo para este nodo es $${selectedConfig.maxDeposit.toLocaleString()} USDT.`); setSubmitting(false); return;
     }
     const selectedDeposit = amount;
-    if ((user.balance || 0) < selectedDeposit) {
-      toast.error("⚠️ Fondos Insuficientes. Por favor realice un depósito para activar este contrato.");
+    if ((user.balance || 0) <= 0) {
+      toast.error("⚠️ Sin fondos disponibles. Tu balance es $0. Realiza un depósito para activar este contrato.");
+      setSubmitting(false);
+      return;
+    }
+    if ((user.balance || 0) < amount) {
+      toast.error(`⚠️ Fondos Insuficientes. Tu balance ($${(user.balance || 0).toFixed(2)}) es menor al monto ingresado.`);
       setSubmitting(false);
       return;
     }
@@ -229,45 +234,7 @@ export default function Investments() {
             </ul>
           </div>
 
-          {(() => {
-            const balance = user.balance || 0;
-            const amt = parseFloat(customAmount) || 0;
-            const minDep = selectedConfig?.minDeposit || 0;
-            if (balance <= 0) {
-              return (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
-                  <span className="text-destructive text-lg">⚠️</span>
-                  <div>
-                    <p className="text-xs font-semibold text-destructive">Sin fondos disponibles</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Tu balance es $0. Realiza un depósito para poder activar este contrato.</p>
-                  </div>
-                </div>
-              );
-            }
-            if (amt > 0 && amt > balance) {
-              return (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
-                  <span className="text-destructive text-lg">⚠️</span>
-                  <div>
-                    <p className="text-xs font-semibold text-destructive">Fondos Insuficientes</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Tu balance (<span className="text-foreground font-mono">${balance.toFixed(2)}</span>) es menor al monto ingresado. Realiza un depósito.</p>
-                  </div>
-                </div>
-              );
-            }
-            if (balance < minDep) {
-              return (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
-                  <span className="text-destructive text-lg">⚠️</span>
-                  <div>
-                    <p className="text-xs font-semibold text-destructive">Fondos Insuficientes</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Necesitas mínimo <span className="text-foreground font-mono">${minDep.toLocaleString()} USDT</span> para activar este nodo. Tu balance: <span className="text-foreground font-mono">${balance.toFixed(2)}</span>.</p>
-                  </div>
-                </div>
-              );
-            }
-            return null;
-          })()}
+
 
           <div className="space-y-3 py-1">
             <div>
