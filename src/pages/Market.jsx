@@ -415,10 +415,7 @@ export default function Market() {
             <DialogTitle>Comprar {buyDialog?.stock.symbol}</DialogTitle>
             <DialogDescription>{buyDialog?.stock.name} — Precio actual: <span className="text-gold font-mono font-bold">${buyDialog?.price.toFixed(2)}</span></DialogDescription>
           </DialogHeader>
-          {/* Candlestick chart */}
-          {buyDialog?.history?.length > 0 && (
-            <CandlestickChart history={buyDialog.history} />
-          )}
+
           <div className="space-y-3 py-1">
             <div>
               <p className="text-xs text-muted-foreground mb-1.5">Cantidad de acciones</p>
