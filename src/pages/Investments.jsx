@@ -208,6 +208,11 @@ export default function Investments() {
             </DialogTitle>
             <DialogDescription>
               {selectedConfig?.subtitle} &bull; Rendimiento diario: <span className="text-gold font-mono font-bold">{selectedConfig?.dailyReturn}</span>
+              {selectedConfig && (
+                <span className="ml-2 text-muted-foreground">
+                  &bull; Mín. inversión: <span className="text-gold font-mono font-bold">${selectedConfig.minDeposit?.toLocaleString()} USDT</span>
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
 
