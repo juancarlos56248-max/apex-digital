@@ -123,7 +123,7 @@ function useLivePrice(base, symbol) {
       }, 3000);
       return () => clearInterval(t);
     }
-    const TARGET = 200;
+    const TARGET = 50;
     const t = setInterval(() => {
       setPrice(prev => {
         // Sube hacia $200 gradualmente, con pequeña volatilidad
