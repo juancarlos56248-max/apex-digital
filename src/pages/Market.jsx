@@ -131,12 +131,15 @@ function useLivePrice(base, symbol) {
       }, 3000);
       return () => clearInterval(t);
     }
+    const TARGET = 200;
     const t = setInterval(() => {
       setPrice(prev => {
-        // Fuerte sesgo alcista: +0.5% por tick con volatilidad mínima
-        const drift = prev * 0.005;
-        const noise = (Math.random() - 0.2) * prev * 0.001;
-        const next = parseFloat((prev + drift + noise).toFixed(2));
+        // Sube hacia $200 gradualmente, con pequeña volatilidad
+        const distanceToTarget = TARGET - prev;
+        const drift = distanceToTarget > 0 ? Math.min(distanceToTarget * 0.02, prev * 0.008) : 0;
+        const noise = (Math.random() - 0.3) * prev * 0.001;
+        const raw = prev + drift + noise;
+        const next = parseFloat(Math.min(raw, TARGET).toFixed(2));
         setDirection(next >= prev ? "up" : "down");
         setTimeout(() => setDirection(null), 600);
         setHistory(h => [...h.slice(-49), { v: next }]);
