@@ -26,7 +26,7 @@ function AutoDismissToast({ id, title, description, action, dismiss, ...props })
         {description && <ToastDescription>{description}</ToastDescription>}
       </div>
       {action}
-      <ToastClose />
+      <ToastClose onClick={() => dismiss(id)} />
     </Toast>
   );
 }
