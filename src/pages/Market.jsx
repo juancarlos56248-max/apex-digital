@@ -123,7 +123,7 @@ function useLivePrice(base, symbol, stock) {
       }, 3000);
       return () => clearInterval(t);
     }
-    const TARGET = stock?.target || base * 1.05;
+    const TARGET = base + 50;
     const t = setInterval(() => {
       setPrice(prev => {
         const distanceToTarget = TARGET - prev;
