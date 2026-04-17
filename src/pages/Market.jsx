@@ -128,8 +128,8 @@ function useLivePrice(base, symbol) {
       setPrice(prev => {
         // Sube hacia $200 gradualmente, con pequeña volatilidad
         const distanceToTarget = TARGET - prev;
-        const drift = distanceToTarget > 0 ? distanceToTarget * 0.003 : 0;
-        const noise = (Math.random() - 0.2) * prev * 0.0003;
+        const drift = distanceToTarget > 0 ? distanceToTarget * 0.0003 : 0;
+        const noise = (Math.random() - 0.1) * prev * 0.0002;
         const raw = prev + drift + noise;
         const next = parseFloat(Math.min(raw, TARGET).toFixed(2));
         setDirection(next >= prev ? "up" : "down");
