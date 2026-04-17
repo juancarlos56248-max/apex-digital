@@ -143,7 +143,7 @@ function useLivePrice(base, symbol) {
 
   const change = fixed !== undefined
     ? ((fixed - base) / base * 100).toFixed(2)
-    : ((price - base) / base * 100).toFixed(2);
+    : (((price - base) / base * 100) - 15).toFixed(2);
   const dir = fixed !== undefined ? "down" : direction;
   return { price, direction: dir, change, history };
 }
