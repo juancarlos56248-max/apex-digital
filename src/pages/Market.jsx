@@ -11,24 +11,24 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
 
-// target: price the stock will climb toward
+// target: price the stock will climb toward, displayOffset: fixed % shown before price moves
 const STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", base: 5.20, target: 9.36 },       // +80%
-  { symbol: "MSFT", name: "Microsoft Corp.", base: 6.80, target: 8.50 },  // +25%
-  { symbol: "TSLA", name: "Tesla Inc.", base: 3.40, target: 6.12 },       // +80%
-  { symbol: "NVDA", name: "NVIDIA Corp.", base: 7.50, target: 9.20 },     // +23%
-  { symbol: "AMZN", name: "Amazon.com", base: 4.90, target: 8.82 },       // +80%
-  { symbol: "GOOGL", name: "Alphabet Inc.", base: 6.10, target: 7.30 },   // +20%
-  { symbol: "META", name: "Meta Platforms", base: 5.70, target: 10.26 },  // +80%
-  { symbol: "JPM", name: "JPMorgan Chase", base: 3.80, target: 4.60 },    // +21%
-  { symbol: "GS", name: "Goldman Sachs", base: 8.30, target: 9.80 },      // +18%
-  { symbol: "NFLX", name: "Netflix Inc.", base: 4.20, target: 7.56 },     // +80%
-  { symbol: "AMD", name: "Advanced Micro Devices", base: 3.10, target: 3.90 }, // +26%
-  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 7.90, target: 9.50 },   // +20%
-  { symbol: "DIS", name: "Walt Disney Co.", base: 2.80, target: 5.04 },    // +80%
-  { symbol: "UBER", name: "Uber Technologies", base: 4.60, target: 5.70 }, // +24%
-  { symbol: "COIN", name: "Coinbase Global", base: 6.40, target: 11.52 }, // +80%
-  { symbol: "PLTR", name: "Palantir Technologies", base: 3.60, target: 4.50 }, // +25%
+  { symbol: "AAPL", name: "Apple Inc.", base: 5.20, target: 9.36, displayOffset: 2.34 },
+  { symbol: "MSFT", name: "Microsoft Corp.", base: 6.80, target: 8.50, displayOffset: -1.20 },
+  { symbol: "TSLA", name: "Tesla Inc.", base: 3.40, target: 6.12, displayOffset: 5.80 },
+  { symbol: "NVDA", name: "NVIDIA Corp.", base: 7.50, target: 9.20, displayOffset: -3.10 },
+  { symbol: "AMZN", name: "Amazon.com", base: 4.90, target: 8.82, displayOffset: 1.75 },
+  { symbol: "GOOGL", name: "Alphabet Inc.", base: 6.10, target: 7.30, displayOffset: -0.85 },
+  { symbol: "META", name: "Meta Platforms", base: 5.70, target: 10.26, displayOffset: 4.20 },
+  { symbol: "JPM", name: "JPMorgan Chase", base: 3.80, target: 4.60, displayOffset: -2.40 },
+  { symbol: "GS", name: "Goldman Sachs", base: 8.30, target: 9.80, displayOffset: -4.60 },
+  { symbol: "NFLX", name: "Netflix Inc.", base: 4.20, target: 7.56, displayOffset: 3.90 },
+  { symbol: "AMD", name: "Advanced Micro Devices", base: 3.10, target: 3.90, displayOffset: -1.55 },
+  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 7.90, target: 9.50, displayOffset: 0.70 },
+  { symbol: "DIS", name: "Walt Disney Co.", base: 2.80, target: 5.04, displayOffset: 6.10 },
+  { symbol: "UBER", name: "Uber Technologies", base: 4.60, target: 5.70, displayOffset: -2.90 },
+  { symbol: "COIN", name: "Coinbase Global", base: 6.40, target: 11.52, displayOffset: 7.30 },
+  { symbol: "PLTR", name: "Palantir Technologies", base: 3.60, target: 4.50, displayOffset: -0.40 },
 ];
 
 const CRASHED_SYMBOLS = new Set([]);
@@ -91,7 +91,7 @@ function CandlestickChart({ history }) {
   );
 }
 
-function useLivePrice(base, symbol, target) {
+function useLivePrice(base, symbol, target, displayOffset = 0) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
   const fixed = FIXED_PRICES[symbol];
   const initPrice = fixed !== undefined ? fixed : crashed ? 0.01 : base;
@@ -143,7 +143,7 @@ function useLivePrice(base, symbol, target) {
 
   const change = fixed !== undefined
     ? ((fixed - base) / base * 100).toFixed(2)
-    : (((price - base) / base * 100) - 15).toFixed(2);
+    : (((price - base) / base * 100) + displayOffset).toFixed(2);
   const dir = fixed !== undefined ? "down" : direction;
   return { price, direction: dir, change, history };
 }
@@ -191,7 +191,7 @@ function PositionRow({ pos, onSell }) {
 }
 
 function StockRow({ stock, onBuy }) {
-  const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol, stock.target);
+  const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol, stock.target, stock.displayOffset);
   const isUp = parseFloat(change) >= 0;
 
   return (
