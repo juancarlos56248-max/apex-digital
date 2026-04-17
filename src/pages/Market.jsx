@@ -12,22 +12,22 @@ import {
 } from "@/components/ui/dialog";
 
 const STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", base: 198.0, target: 205.0 },
-  { symbol: "MSFT", name: "Microsoft Corp.", base: 415.0, target: 425.0 },
-  { symbol: "TSLA", name: "Tesla Inc.", base: 248.0, target: 258.0 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", base: 875.0, target: 900.0 },
-  { symbol: "AMZN", name: "Amazon.com", base: 185.0, target: 192.0 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", base: 172.0, target: 178.0 },
-  { symbol: "META", name: "Meta Platforms", base: 510.0, target: 525.0 },
-  { symbol: "JPM", name: "JPMorgan Chase", base: 218.0, target: 225.0 },
-  { symbol: "GS", name: "Goldman Sachs", base: 490.0, target: 505.0 },
-  { symbol: "NFLX", name: "Netflix Inc.", base: 620.0, target: 635.0 },
-  { symbol: "AMD", name: "Advanced Micro Devices", base: 158.0, target: 165.0 },
-  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 455.0, target: 465.0 },
-  { symbol: "DIS", name: "Walt Disney Co.", base: 112.0, target: 118.0 },
-  { symbol: "UBER", name: "Uber Technologies", base: 75.0, target: 80.0 },
-  { symbol: "COIN", name: "Coinbase Global", base: 205.0, target: 215.0 },
-  { symbol: "PLTR", name: "Palantir Technologies", base: 22.0, target: 25.0 },
+  { symbol: "AAPL", name: "Apple Inc.", base: 45.0 },
+  { symbol: "MSFT", name: "Microsoft Corp.", base: 38.0 },
+  { symbol: "TSLA", name: "Tesla Inc.", base: 12.0 },
+  { symbol: "NVDA", name: "NVIDIA Corp.", base: 8.0 },
+  { symbol: "AMZN", name: "Amazon.com", base: 55.0 },
+  { symbol: "GOOGL", name: "Alphabet Inc.", base: 30.0 },
+  { symbol: "META", name: "Meta Platforms", base: 20.0 },
+  { symbol: "JPM", name: "JPMorgan Chase", base: 18.0 },
+  { symbol: "GS", name: "Goldman Sachs", base: 25.0 },
+  { symbol: "NFLX", name: "Netflix Inc.", base: 60.0 },
+  { symbol: "AMD", name: "Advanced Micro Devices", base: 15.0 },
+  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 22.0 },
+  { symbol: "DIS", name: "Walt Disney Co.", base: 10.0 },
+  { symbol: "UBER", name: "Uber Technologies", base: 8.0 },
+  { symbol: "COIN", name: "Coinbase Global", base: 35.0 },
+  { symbol: "PLTR", name: "Palantir Technologies", base: 5.0 },
 ];
 
 const CRASHED_SYMBOLS = new Set([]);
@@ -90,7 +90,7 @@ function CandlestickChart({ history }) {
   );
 }
 
-function useLivePrice(base, symbol, stock) {
+function useLivePrice(base, symbol) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
   const fixed = FIXED_PRICES[symbol];
   const initPrice = fixed !== undefined ? fixed : crashed ? 0.01 : base;
@@ -123,9 +123,10 @@ function useLivePrice(base, symbol, stock) {
       }, 3000);
       return () => clearInterval(t);
     }
-    const TARGET = base + 50;
+    const TARGET = 200;
     const t = setInterval(() => {
       setPrice(prev => {
+        // Sube hacia $200 gradualmente, con pequeña volatilidad
         const distanceToTarget = TARGET - prev;
         const drift = distanceToTarget > 0 ? distanceToTarget * 0.00008 : 0;
         const noise = (Math.random() - 0.1) * prev * 0.0001;
@@ -190,7 +191,7 @@ function PositionRow({ pos, onSell }) {
 }
 
 function StockRow({ stock, onBuy }) {
-  const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol, stock);
+  const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol);
   const isUp = parseFloat(change) >= 0;
 
   return (
