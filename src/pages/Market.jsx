@@ -12,34 +12,26 @@ import {
 } from "@/components/ui/dialog";
 
 const STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", base: 189.5 },
-  { symbol: "MSFT", name: "Microsoft Corp.", base: 415.2 },
-  { symbol: "TSLA", name: "Tesla Inc.", base: 248.3 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", base: 875.6 },
-  { symbol: "AMZN", name: "Amazon.com", base: 198.4 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", base: 172.8 },
-  { symbol: "META", name: "Meta Platforms", base: 512.3 },
-  { symbol: "JPM", name: "JPMorgan Chase", base: 218.7 },
-  { symbol: "GS", name: "Goldman Sachs", base: 512.9 },
-  { symbol: "NFLX", name: "Netflix Inc.", base: 634.1 },
-  { symbol: "AMD", name: "Advanced Micro Devices", base: 168.4 },
-  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 456.1 },
-  { symbol: "DIS", name: "Walt Disney Co.", base: 112.3 },
-  { symbol: "UBER", name: "Uber Technologies", base: 78.5 },
-  { symbol: "COIN", name: "Coinbase Global", base: 215.7 },
-  { symbol: "PLTR", name: "Palantir Technologies", base: 24.8 },
+  { symbol: "AAPL", name: "Apple Inc.", base: 45.0 },
+  { symbol: "MSFT", name: "Microsoft Corp.", base: 38.0 },
+  { symbol: "TSLA", name: "Tesla Inc.", base: 12.0 },
+  { symbol: "NVDA", name: "NVIDIA Corp.", base: 8.0 },
+  { symbol: "AMZN", name: "Amazon.com", base: 55.0 },
+  { symbol: "GOOGL", name: "Alphabet Inc.", base: 30.0 },
+  { symbol: "META", name: "Meta Platforms", base: 20.0 },
+  { symbol: "JPM", name: "JPMorgan Chase", base: 18.0 },
+  { symbol: "GS", name: "Goldman Sachs", base: 25.0 },
+  { symbol: "NFLX", name: "Netflix Inc.", base: 60.0 },
+  { symbol: "AMD", name: "Advanced Micro Devices", base: 15.0 },
+  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 22.0 },
+  { symbol: "DIS", name: "Walt Disney Co.", base: 10.0 },
+  { symbol: "UBER", name: "Uber Technologies", base: 8.0 },
+  { symbol: "COIN", name: "Coinbase Global", base: 35.0 },
+  { symbol: "PLTR", name: "Palantir Technologies", base: 5.0 },
 ];
 
-const CRASHED_SYMBOLS = new Set(["AMZN", "META", "GS", "NFLX", "COIN", "PLTR"]);
-const FIXED_PRICES = {
-  "TSLA": 2.40,
-  "NVDA": 5.00,
-  "AMD": 10.00,
-  "DIS": 3.00,
-  "UBER": 5.72,
-  "JPM": 10.00,
-  "BRK.B": 5.00,
-};
+const CRASHED_SYMBOLS = new Set([]);
+const FIXED_PRICES = {};
 
 function generateCandles(history) {
   const candles = [];
