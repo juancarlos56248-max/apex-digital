@@ -11,23 +11,24 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
 
+// target: price the stock will climb toward
 const STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", base: 5.20 },
-  { symbol: "MSFT", name: "Microsoft Corp.", base: 6.80 },
-  { symbol: "TSLA", name: "Tesla Inc.", base: 3.40 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", base: 7.50 },
-  { symbol: "AMZN", name: "Amazon.com", base: 4.90 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", base: 6.10 },
-  { symbol: "META", name: "Meta Platforms", base: 5.70 },
-  { symbol: "JPM", name: "JPMorgan Chase", base: 3.80 },
-  { symbol: "GS", name: "Goldman Sachs", base: 8.30 },
-  { symbol: "NFLX", name: "Netflix Inc.", base: 4.20 },
-  { symbol: "AMD", name: "Advanced Micro Devices", base: 3.10 },
-  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 7.90 },
-  { symbol: "DIS", name: "Walt Disney Co.", base: 2.80 },
-  { symbol: "UBER", name: "Uber Technologies", base: 4.60 },
-  { symbol: "COIN", name: "Coinbase Global", base: 6.40 },
-  { symbol: "PLTR", name: "Palantir Technologies", base: 3.60 },
+  { symbol: "AAPL", name: "Apple Inc.", base: 5.20, target: 9.36 },       // +80%
+  { symbol: "MSFT", name: "Microsoft Corp.", base: 6.80, target: 8.50 },  // +25%
+  { symbol: "TSLA", name: "Tesla Inc.", base: 3.40, target: 6.12 },       // +80%
+  { symbol: "NVDA", name: "NVIDIA Corp.", base: 7.50, target: 9.20 },     // +23%
+  { symbol: "AMZN", name: "Amazon.com", base: 4.90, target: 8.82 },       // +80%
+  { symbol: "GOOGL", name: "Alphabet Inc.", base: 6.10, target: 7.30 },   // +20%
+  { symbol: "META", name: "Meta Platforms", base: 5.70, target: 10.26 },  // +80%
+  { symbol: "JPM", name: "JPMorgan Chase", base: 3.80, target: 4.60 },    // +21%
+  { symbol: "GS", name: "Goldman Sachs", base: 8.30, target: 9.80 },      // +18%
+  { symbol: "NFLX", name: "Netflix Inc.", base: 4.20, target: 7.56 },     // +80%
+  { symbol: "AMD", name: "Advanced Micro Devices", base: 3.10, target: 3.90 }, // +26%
+  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 7.90, target: 9.50 },   // +20%
+  { symbol: "DIS", name: "Walt Disney Co.", base: 2.80, target: 5.04 },    // +80%
+  { symbol: "UBER", name: "Uber Technologies", base: 4.60, target: 5.70 }, // +24%
+  { symbol: "COIN", name: "Coinbase Global", base: 6.40, target: 11.52 }, // +80%
+  { symbol: "PLTR", name: "Palantir Technologies", base: 3.60, target: 4.50 }, // +25%
 ];
 
 const CRASHED_SYMBOLS = new Set([]);
@@ -90,7 +91,7 @@ function CandlestickChart({ history }) {
   );
 }
 
-function useLivePrice(base, symbol) {
+function useLivePrice(base, symbol, target) {
   const crashed = CRASHED_SYMBOLS.has(symbol);
   const fixed = FIXED_PRICES[symbol];
   const initPrice = fixed !== undefined ? fixed : crashed ? 0.01 : base;
@@ -123,15 +124,14 @@ function useLivePrice(base, symbol) {
       }, 3000);
       return () => clearInterval(t);
     }
-    const TARGET = 200;
+    const TARGET = target || base * 1.25;
     const t = setInterval(() => {
       setPrice(prev => {
-        // Sube hacia $200 gradualmente, con pequeña volatilidad
         const distanceToTarget = TARGET - prev;
         const drift = distanceToTarget > 0 ? distanceToTarget * 0.00008 : 0;
         const noise = (Math.random() - 0.1) * prev * 0.0001;
         const raw = prev + drift + noise;
-        const next = parseFloat(Math.min(raw, TARGET).toFixed(2));
+        const next = parseFloat(Math.min(raw, TARGET * 1.05).toFixed(2));
         setDirection(next >= prev ? "up" : "down");
         setTimeout(() => setDirection(null), 600);
         setHistory(h => [...h.slice(-49), { v: next }]);
@@ -158,7 +158,7 @@ function useLivePositionPrice(buyPrice) {
 }
 
 function PositionRow({ pos, onSell }) {
-  const { price: currentPrice } = useLivePrice(pos.buy_price, pos.symbol);
+  const { price: currentPrice } = useLivePrice(pos.buy_price, pos.symbol, pos.buy_price * 1.25);
   const pnl = (currentPrice - pos.buy_price) * pos.quantity;
   const pnlPct = ((currentPrice - pos.buy_price) / pos.buy_price * 100).toFixed(2);
   const sellValue = pos.quantity * currentPrice;
@@ -191,7 +191,7 @@ function PositionRow({ pos, onSell }) {
 }
 
 function StockRow({ stock, onBuy }) {
-  const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol);
+  const { price, direction, change, history } = useLivePrice(stock.base, stock.symbol, stock.target);
   const isUp = parseFloat(change) >= 0;
 
   return (
