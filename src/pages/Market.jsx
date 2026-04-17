@@ -12,22 +12,22 @@ import {
 } from "@/components/ui/dialog";
 
 const STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", base: 4.0 },
-  { symbol: "MSFT", name: "Microsoft Corp.", base: 4.0 },
-  { symbol: "TSLA", name: "Tesla Inc.", base: 4.0 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", base: 4.0 },
-  { symbol: "AMZN", name: "Amazon.com", base: 4.0 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", base: 4.0 },
-  { symbol: "META", name: "Meta Platforms", base: 4.0 },
-  { symbol: "JPM", name: "JPMorgan Chase", base: 4.0 },
-  { symbol: "GS", name: "Goldman Sachs", base: 4.0 },
-  { symbol: "NFLX", name: "Netflix Inc.", base: 4.0 },
-  { symbol: "AMD", name: "Advanced Micro Devices", base: 4.0 },
-  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 4.0 },
-  { symbol: "DIS", name: "Walt Disney Co.", base: 4.0 },
-  { symbol: "UBER", name: "Uber Technologies", base: 4.0 },
-  { symbol: "COIN", name: "Coinbase Global", base: 4.0 },
-  { symbol: "PLTR", name: "Palantir Technologies", base: 4.0 },
+  { symbol: "AAPL", name: "Apple Inc.", base: 5.20 },
+  { symbol: "MSFT", name: "Microsoft Corp.", base: 6.80 },
+  { symbol: "TSLA", name: "Tesla Inc.", base: 3.40 },
+  { symbol: "NVDA", name: "NVIDIA Corp.", base: 7.50 },
+  { symbol: "AMZN", name: "Amazon.com", base: 4.90 },
+  { symbol: "GOOGL", name: "Alphabet Inc.", base: 6.10 },
+  { symbol: "META", name: "Meta Platforms", base: 5.70 },
+  { symbol: "JPM", name: "JPMorgan Chase", base: 3.80 },
+  { symbol: "GS", name: "Goldman Sachs", base: 8.30 },
+  { symbol: "NFLX", name: "Netflix Inc.", base: 4.20 },
+  { symbol: "AMD", name: "Advanced Micro Devices", base: 3.10 },
+  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 7.90 },
+  { symbol: "DIS", name: "Walt Disney Co.", base: 2.80 },
+  { symbol: "UBER", name: "Uber Technologies", base: 4.60 },
+  { symbol: "COIN", name: "Coinbase Global", base: 6.40 },
+  { symbol: "PLTR", name: "Palantir Technologies", base: 3.60 },
 ];
 
 const CRASHED_SYMBOLS = new Set([]);
