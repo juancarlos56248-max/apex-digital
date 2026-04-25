@@ -13,10 +13,10 @@ import {
 
 // target: price the stock will climb toward, displayOffset: fixed % shown before price moves
 const STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", base: 189.50, target: 341.10, displayOffset: 2.34 },
-  { symbol: "MSFT", name: "Microsoft Corp.", base: 415.20, target: 519.00, displayOffset: -1.20 },
+  { symbol: "AAPL", name: "Apple Inc.", base: 5.20, target: 9.36, displayOffset: 2.34 },
+  { symbol: "MSFT", name: "Microsoft Corp.", base: 6.80, target: 8.50, displayOffset: -1.20 },
   { symbol: "TSLA", name: "Tesla Inc.", base: 3.40, target: 6.12, displayOffset: 5.80 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", base: 875.60, target: 1050.72, displayOffset: -3.10 },
+  { symbol: "NVDA", name: "NVIDIA Corp.", base: 7.50, target: 9.20, displayOffset: -3.10 },
   { symbol: "AMZN", name: "Amazon.com", base: 4.90, target: 8.82, displayOffset: 1.75 },
   { symbol: "GOOGL", name: "Alphabet Inc.", base: 6.10, target: 7.30, displayOffset: -0.85 },
   { symbol: "META", name: "Meta Platforms", base: 5.70, target: 10.26, displayOffset: 4.20 },
