@@ -9,9 +9,10 @@ function generateMarketData() {
   for (let i = 30; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
-    // Tendencia bajista: bias negativo fuerte
-    const change = (Math.random() - 0.72) * 500;
-    value = Math.max(2000, value + change);
+    // Tendencia alcista: crecimiento con dividendos diarios del 10%
+    const dailyGrowth = value * 0.10 * (0.7 + Math.random() * 0.6);
+    const noise = (Math.random() - 0.3) * value * 0.02;
+    value = Math.max(10000, value + dailyGrowth + noise);
     data.push({
       date: date.toLocaleDateString("es", { day: "2-digit", month: "short" }),
       value: Math.round(value * 100) / 100,
@@ -28,10 +29,12 @@ export default function PerformanceChart() {
     const interval = setInterval(() => {
       setData(prev => {
         const last = prev[prev.length - 1];
-        const newVal = last.value + (Math.random() - 0.7) * 150;
+        const dailyGrowth = last.value * 0.10 / 24;
+        const noise = (Math.random() - 0.3) * last.value * 0.005;
+        const newVal = last.value + dailyGrowth + noise;
         return [...prev.slice(1), {
           date: new Date().toLocaleDateString("es", { day: "2-digit", month: "short" }),
-          value: Math.round(Math.max(8000, newVal) * 100) / 100,
+          value: Math.round(Math.max(10000, newVal) * 100) / 100,
         }];
       });
     }, 5000);
@@ -70,8 +73,8 @@ export default function PerformanceChart() {
           <AreaChart data={data}>
             <defs>
               <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0} />
+                <stop offset="0%" stopColor="hsl(40, 52%, 56%)" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="hsl(40, 52%, 56%)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis 
@@ -98,9 +101,10 @@ export default function PerformanceChart() {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="hsl(0, 72%, 51%)"
-              strokeWidth={2}
+              stroke="hsl(40, 52%, 56%)"
+              strokeWidth={2.5}
               fill="url(#goldGradient)"
+              dot={false}
             />
           </AreaChart>
         </ResponsiveContainer>
