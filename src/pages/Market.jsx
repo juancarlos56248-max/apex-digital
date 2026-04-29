@@ -5,11 +5,12 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign, History } from "lucide-react";
 
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
 } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 // target: price the stock will climb toward, displayOffset: fixed % shown before price moves
 const STOCKS = [
@@ -235,6 +236,7 @@ export default function Market() {
   const [buyDialog, setBuyDialog] = useState(null);
   const [quantity, setQuantity] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const loadPositions = async () => {
     if (!user) return;
@@ -353,13 +355,26 @@ export default function Market() {
         </motion.div>
       )}
 
-      {/* Historial de posiciones cerradas */}
+      {/* Botón historial */}
       {history.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-red-400" />
-            <span className="text-sm font-semibold">Historial de Pérdidas</span>
-          </div>
+        <button
+          onClick={() => setHistoryOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card hover:border-red-500/30 transition-colors text-sm text-muted-foreground hover:text-foreground"
+        >
+          <History className="w-4 h-4 text-red-400" />
+          Historial de pérdidas
+          <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[11px] font-semibold">{history.length}</span>
+        </button>
+      )}
+
+      {/* Sheet historial */}
+      <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
+        <SheetContent side="bottom" className="bg-card border-t border-border max-h-[70vh] overflow-y-auto rounded-t-2xl">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="flex items-center gap-2 text-red-400">
+              <TrendingDown className="w-4 h-4" /> Historial de Pérdidas ({history.length})
+            </SheetTitle>
+          </SheetHeader>
           <div className="divide-y divide-border">
             {history.map(p => {
               const invested = (p.quantity || 0) * (p.buy_price || 0);
@@ -367,7 +382,7 @@ export default function Market() {
               const lost = recovered - invested;
               const lostPct = invested > 0 ? ((lost / invested) * 100).toFixed(1) : "0.0";
               return (
-                <div key={p.id} className="flex items-center justify-between px-4 py-3">
+                <div key={p.id} className="flex items-center justify-between py-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-bold font-mono text-muted-foreground">{p.symbol}</p>
@@ -388,8 +403,8 @@ export default function Market() {
               );
             })}
           </div>
-        </motion.div>
-      )}
+        </SheetContent>
+      </Sheet>
 
       {/* Stock List */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-xl border border-border bg-card overflow-hidden">
