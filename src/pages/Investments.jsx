@@ -105,12 +105,7 @@ export default function Investments() {
     if (!amount || isNaN(amount)) {
       toast({ title: "Ingresa un monto válido.", variant: "destructive" }); setSubmitting(false); return;
     }
-    if (selectedConfig?.minDeposit && amount < selectedConfig.minDeposit) {
-      toast({ title: `El monto mínimo para este nodo es $${selectedConfig.minDeposit.toLocaleString()} USDT.`, variant: "destructive" }); setSubmitting(false); return;
-    }
-    if (selectedConfig?.maxDeposit && amount > selectedConfig.maxDeposit) {
-      toast({ title: `El monto máximo para este nodo es $${selectedConfig.maxDeposit.toLocaleString()} USDT.`, variant: "destructive" }); setSubmitting(false); return;
-    }
+
     const selectedDeposit = amount;
     if ((user.balance || 0) <= 0) {
       toast({ title: "⚠️ Sin fondos disponibles", description: "Tu balance es $0. Realiza un depósito para activar este contrato.", variant: "destructive" });
