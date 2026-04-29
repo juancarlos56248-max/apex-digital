@@ -129,16 +129,17 @@ function useLivePrice(base, symbol, target, displayOffset = 0) {
     const t = setInterval(() => {
       setPrice(prev => {
         const distanceToTarget = TARGET - prev;
-        const drift = distanceToTarget > 0 ? distanceToTarget * 0.00008 : 0;
-        const noise = (Math.random() - 0.1) * prev * 0.0001;
+        // Subida muy gradual: 0.003% por tick hacia el objetivo
+        const drift = distanceToTarget > 0 ? distanceToTarget * 0.00003 : 0;
+        const noise = (Math.random() - 0.45) * prev * 0.00008;
         const raw = prev + drift + noise;
-        const next = parseFloat(Math.min(raw, TARGET * 1.05).toFixed(2));
+        const next = parseFloat(Math.min(raw, TARGET).toFixed(2));
         setDirection(next >= prev ? "up" : "down");
         setTimeout(() => setDirection(null), 600);
         setHistory(h => [...h.slice(-49), { v: next }]);
         return next;
       });
-    }, 2000 + Math.random() * 1000);
+    }, 3000 + Math.random() * 2000);
     return () => clearInterval(t);
   }, [crashed, fixed, base]);
 
