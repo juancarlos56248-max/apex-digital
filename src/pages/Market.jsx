@@ -37,58 +37,148 @@ const FIXED_PRICES = {};
 
 function generateCandles(history) {
   const candles = [];
-  const chunk = Math.max(1, Math.floor(history.length / 20));
-  for (let i = 0; i < history.length - chunk; i += chunk) {
+  const len = history.length;
+  if (len < 4) return candles;
+  const chunk = Math.max(2, Math.floor(len / 24));
+  for (let i = 0; i + chunk <= len; i += chunk) {
     const slice = history.slice(i, i + chunk).map(h => h.v);
     const open = slice[0];
     const close = slice[slice.length - 1];
-    const high = Math.max(...slice) * (1 + Math.random() * 0.002);
-    const low = Math.min(...slice) * (1 - Math.random() * 0.002);
-    candles.push({ open, close, high, low });
+    const high = Math.max(...slice) * (1 + Math.random() * 0.004);
+    const low = Math.min(...slice) * (1 - Math.random() * 0.004);
+    const volume = 0.3 + Math.random() * 0.7;
+    candles.push({ open, close, high, low, volume });
   }
   return candles;
 }
 
-function CandlestickChart({ history }) {
+function CandlestickChart({ history, symbol, isUp }) {
   const candles = generateCandles(history);
   if (candles.length === 0) return null;
 
   const allValues = candles.flatMap(c => [c.high, c.low]);
   const minVal = Math.min(...allValues);
   const maxVal = Math.max(...allValues);
-  const padding = (maxVal - minVal) * 0.1 || 1;
+  const padding = (maxVal - minVal) * 0.12 || 0.5;
   const lo = minVal - padding;
   const hi = maxVal + padding;
-  const range = hi - lo;
-  const H = 160;
-  const totalW = candles.length * 14;
-  const toY = (v) => ((hi - v) / range) * H;
+  const range = hi - lo || 1;
+
+  const CHART_H = 140;
+  const VOL_H = 24;
+  const TOTAL_H = CHART_H + VOL_H + 4;
+  const candleW = 10;
+  const gap = 3;
+  const step = candleW + gap;
+  const totalW = candles.length * step;
+  const toY = (v) => ((hi - v) / range) * CHART_H;
+
+  // Moving average (5-period)
+  const ma = candles.map((_, i) => {
+    const slice = candles.slice(Math.max(0, i - 4), i + 1);
+    return slice.reduce((s, c) => s + (c.open + c.close) / 2, 0) / slice.length;
+  });
+  const maPath = ma.map((v, i) => {
+    const x = i * step + step / 2;
+    const y = toY(v);
+    return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+
+  const bullColor = "#26d9a8";
+  const bearColor = "#f04c5a";
 
   return (
-    <div className="w-full rounded-xl overflow-hidden border border-border" style={{ background: '#fff', height: 180 }}>
-      <svg width="100%" height="100%" viewBox={`0 0 ${totalW} ${H}`} preserveAspectRatio="none">
+    <div
+      className="w-full rounded-xl overflow-hidden border border-white/5"
+      style={{ background: "hsl(0,0%,4%)", height: TOTAL_H + 12 }}
+    >
+      <svg width="100%" height="100%" viewBox={`0 0 ${totalW} ${TOTAL_H + 4}`} preserveAspectRatio="none">
+        {/* Grid lines */}
+        {[0.25, 0.5, 0.75].map(t => (
+          <line
+            key={t}
+            x1={0} y1={CHART_H * t}
+            x2={totalW} y2={CHART_H * t}
+            stroke="rgba(255,255,255,0.04)"
+            strokeWidth={1}
+          />
+        ))}
+
+        {/* Volume bars */}
         {candles.map((c, i) => {
-          const isUp = c.close >= c.open;
-          const bullColor = "#26a69a";
-          const bearColor = "#ef5350";
-          const color = isUp ? bullColor : bearColor;
-          const x = i * 14 + 7;
+          const x = i * step;
+          const barH = c.volume * VOL_H;
+          const color = c.close >= c.open ? bullColor : bearColor;
+          return (
+            <rect
+              key={`v${i}`}
+              x={x + 1} y={CHART_H + 6 + (VOL_H - barH)}
+              width={candleW - 2} height={barH}
+              fill={color} opacity={0.35} rx={1}
+            />
+          );
+        })}
+
+        {/* Candles */}
+        {candles.map((c, i) => {
+          const up = c.close >= c.open;
+          const color = up ? bullColor : bearColor;
+          const x = i * step + candleW / 2;
           const bodyTop = toY(Math.max(c.open, c.close));
           const bodyBot = toY(Math.min(c.open, c.close));
           const bodyH = Math.max(1.5, bodyBot - bodyTop);
           return (
             <g key={i}>
-              {/* Upper wick */}
-              <line x1={x} y1={toY(c.high)} x2={x} y2={bodyTop} stroke={color} strokeWidth={1.2} />
-              {/* Lower wick */}
-              <line x1={x} y1={bodyBot} x2={x} y2={toY(c.low)} stroke={color} strokeWidth={1.2} />
+              {/* Wick */}
+              <line x1={x} y1={toY(c.high)} x2={x} y2={bodyTop} stroke={color} strokeWidth={1} opacity={0.7} />
+              <line x1={x} y1={bodyBot} x2={x} y2={toY(c.low)} stroke={color} strokeWidth={1} opacity={0.7} />
               {/* Body */}
-              <rect x={x - 5.5} y={bodyTop} width={11} height={bodyH} fill={color} rx={1.5} />
+              <rect
+                x={i * step + 1} y={bodyTop}
+                width={candleW - 2} height={bodyH}
+                fill={up ? color : "none"}
+                stroke={color}
+                strokeWidth={up ? 0 : 1.2}
+                rx={1.5}
+                opacity={0.9}
+              />
             </g>
           );
         })}
+
+        {/* MA line */}
+        <path d={maPath} stroke="hsl(40,60%,60%)" strokeWidth={1.2} fill="none" opacity={0.6} strokeLinejoin="round" />
       </svg>
     </div>
+  );
+}
+
+// Mini sparkline for stock list
+function Sparkline({ history, isUp }) {
+  if (!history || history.length < 2) return null;
+  const vals = history.map(h => h.v);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const range = max - min || 1;
+  const W = 60, H = 28;
+  const pts = vals.map((v, i) => {
+    const x = (i / (vals.length - 1)) * W;
+    const y = H - ((v - min) / range) * H;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const color = isUp ? "#26d9a8" : "#f04c5a";
+  const fillPts = `0,${H} ${pts} ${W},${H}`;
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+      <defs>
+        <linearGradient id={`sg-${isUp}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity={0.25} />
+          <stop offset="100%" stopColor={color} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      <polygon points={fillPts} fill={`url(#sg-${isUp})`} />
+      <polyline points={pts} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -197,22 +287,28 @@ function StockRow({ stock, onBuy }) {
   const isUp = parseFloat(change) >= 0;
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 hover:bg-secondary/30 transition-colors">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0">
+    <div className="flex items-center justify-between px-4 py-2.5 hover:bg-secondary/30 transition-colors gap-3">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0 border border-gold/10">
           <span className="text-[10px] font-bold font-mono text-gold">{stock.symbol.slice(0, 2)}</span>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-semibold">{stock.symbol}</p>
-          <p className="text-[11px] text-muted-foreground">{stock.name}</p>
+          <p className="text-[11px] text-muted-foreground truncate">{stock.name}</p>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+
+      {/* Sparkline */}
+      <div className="hidden sm:block flex-shrink-0">
+        <Sparkline history={history} isUp={isUp} />
+      </div>
+
+      <div className="flex items-center gap-3 flex-shrink-0">
         <div className="text-right">
           <p className={`text-sm font-mono font-bold transition-colors duration-300 ${
             direction === "up" ? "text-emerald-400" : direction === "down" ? "text-red-400" : "text-foreground"
           }`}>${price.toFixed(2)}</p>
-          <div className={`flex items-center gap-0.5 justify-end text-[11px] font-mono ${isUp ? "text-emerald-400" : "text-red-400"}`}>
+          <div className={`flex items-center gap-0.5 justify-end text-[11px] font-mono font-semibold ${isUp ? "text-emerald-400" : "text-red-400"}`}>
             {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
             {isUp ? "+" : ""}{change}%
           </div>
@@ -479,6 +575,16 @@ export default function Market() {
             <DialogTitle>Comprar {buyDialog?.stock.symbol}</DialogTitle>
             <DialogDescription>{buyDialog?.stock.name} — Precio actual: <span className="text-gold font-mono font-bold">${buyDialog?.price.toFixed(2)}</span></DialogDescription>
           </DialogHeader>
+
+          {buyDialog?.history?.length > 3 && (
+            <div className="rounded-xl overflow-hidden border border-border">
+              <div className="px-3 py-1.5 bg-secondary/40 border-b border-border flex items-center justify-between">
+                <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Gráfico de velas · {buyDialog.stock.symbol}</span>
+                <span className="text-[10px] font-mono text-gold">MA(5)</span>
+              </div>
+              <CandlestickChart history={buyDialog.history} symbol={buyDialog.stock.symbol} isUp={parseFloat(buyDialog.stock.displayOffset) >= 0} />
+            </div>
+          )}
 
           <div className="space-y-3 py-1">
             <div>
