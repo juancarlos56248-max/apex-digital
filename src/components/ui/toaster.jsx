@@ -32,22 +32,5 @@ function AutoDismissToast({ id, title, description, action, dismiss, ...props })
 }
 
 export function Toaster() {
-  const { toasts, dismiss } = useToast();
-
-  return (
-    <ToastProvider>
-      {toasts.map(({ id, title, description, action, ...props }) => (
-        <AutoDismissToast
-          key={id}
-          id={id}
-          title={title}
-          description={description}
-          action={action}
-          dismiss={dismiss}
-          {...props}
-        />
-      ))}
-      <ToastViewport />
-    </ToastProvider>
-  );
+  return null;
 }
