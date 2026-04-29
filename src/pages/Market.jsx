@@ -5,8 +5,9 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign, History, ChevronRight } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingCart, BarChart3, DollarSign, History, ChevronRight, Download } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { jsPDF } from "jspdf";
 
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
@@ -409,6 +410,88 @@ export default function Market() {
     loadPositions();
   };
 
+  const downloadHistoryPDF = (type) => {
+    const doc = new jsPDF();
+    const isGains = type === "gains";
+    const filtered = history.filter(p => {
+      const inv = (p.quantity||0)*(p.buy_price||0);
+      const rec = (p.quantity||0)*(p.sell_price||0);
+      return isGains ? rec >= inv : rec < inv;
+    });
+
+    // Header
+    doc.setFillColor(10, 10, 10);
+    doc.rect(0, 0, 210, 297, "F");
+    doc.setTextColor(197, 160, 89);
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("APEX DIGITAL", 105, 22, { align: "center" });
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Historial de ${isGains ? "Ganancias" : "Pérdidas"} — Registro Oficial`, 105, 30, { align: "center" });
+    doc.setFontSize(9);
+    doc.text(`Usuario: ${user.email}`, 105, 37, { align: "center" });
+    doc.text(`Generado: ${new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" })}`, 105, 43, { align: "center" });
+
+    // Divider
+    doc.setDrawColor(197, 160, 89);
+    doc.setLineWidth(0.4);
+    doc.line(20, 48, 190, 48);
+
+    // Table header
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text("SÍMBOLO", 22, 56);
+    doc.text("CANT.", 55, 56);
+    doc.text("PRECIO COMPRA", 75, 56);
+    doc.text("PRECIO VENTA", 115, 56);
+    doc.text("RESULTADO", 155, 56);
+    doc.line(20, 58, 190, 58);
+
+    // Rows
+    let y = 65;
+    let totalPnl = 0;
+    filtered.forEach((p) => {
+      const invested = (p.quantity||0) * (p.buy_price||0);
+      const recovered = (p.quantity||0) * (p.sell_price||0);
+      const pnl = recovered - invested;
+      const pct = invested > 0 ? ((pnl / invested) * 100).toFixed(1) : "0.0";
+      totalPnl += pnl;
+
+      if (y > 270) { doc.addPage(); y = 20; }
+
+      doc.setTextColor(220, 220, 220);
+      doc.setFontSize(9);
+      doc.text(p.symbol || "—", 22, y);
+      doc.text(String(p.quantity || 0), 55, y);
+      doc.text(`$${(p.buy_price||0).toFixed(2)}`, 75, y);
+      doc.text(`$${(p.sell_price||0).toFixed(2)}`, 115, y);
+
+      if (isGains) doc.setTextColor(38, 217, 168);
+      else doc.setTextColor(240, 76, 90);
+      doc.text(`${isGains ? "+" : ""}${pct}% / ${isGains ? "+" : "-"}$${Math.abs(pnl).toFixed(2)}`, 155, y);
+
+      doc.setDrawColor(40, 40, 40);
+      doc.line(20, y + 2, 190, y + 2);
+      y += 10;
+    });
+
+    // Total
+    doc.setDrawColor(197, 160, 89);
+    doc.line(20, y + 2, 190, y + 2);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    if (isGains) doc.setTextColor(38, 217, 168);
+    else doc.setTextColor(240, 76, 90);
+    doc.text(`TOTAL: ${isGains ? "+" : "-"}$${Math.abs(totalPnl).toFixed(2)} USDT`, 190, y + 10, { align: "right" });
+
+    doc.setFontSize(7);
+    doc.setTextColor(80, 80, 80);
+    doc.text("Apex Digital Asset Management — Documento generado automáticamente. Solo para registro personal.", 105, 285, { align: "center" });
+
+    doc.save(`Apex_${isGains ? "Ganancias" : "Perdidas"}_${new Date().toISOString().slice(0,10)}.pdf`);
+  };
+
   if (!user) return null;
 
   return (
@@ -462,6 +545,14 @@ export default function Market() {
                 <div className="flex items-center gap-2">
                   <History className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm font-semibold">Historial de Operaciones</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Button size="sm" variant="outline" onClick={() => downloadHistoryPDF("losses")} className="h-7 px-2.5 text-[11px] gap-1.5 border-red-500/30 text-red-400 hover:bg-red-500/10">
+                    <Download className="w-3 h-3" /> Pérdidas PDF
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => downloadHistoryPDF("gains")} className="h-7 px-2.5 text-[11px] gap-1.5 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10">
+                    <Download className="w-3 h-3" /> Ganancias PDF
+                  </Button>
                 </div>
               </div>
               <TabsList className="bg-secondary/60 border border-border h-8 mb-0 rounded-t-lg rounded-b-none w-full">
