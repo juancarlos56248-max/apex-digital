@@ -54,8 +54,8 @@ export default function Withdraw() {
       return;
     }
     const amt = Number(amount);
-    if (amt < 10) {
-      toast.error("Monto mínimo de retiro: 10 USDT");
+    if (amt < 1) {
+      toast.error("Monto mínimo de retiro: 1 USDT");
       return;
     }
     if (amt > (user.balance || 0)) {
