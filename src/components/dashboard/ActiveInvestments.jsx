@@ -41,6 +41,7 @@ export default function ActiveInvestments({ investments }) {
                   <p className="text-xs text-muted-foreground font-mono">${inv.amount.toLocaleString()} USDT</p>
                 </div>
                 <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Ganancias</p>
                   <p className="text-sm font-mono text-success">+${(inv.total_earned || 0).toFixed(2)}</p>
                 </div>
               </div>
