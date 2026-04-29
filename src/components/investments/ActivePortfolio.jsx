@@ -221,40 +221,47 @@ export default function ActivePortfolio({ investments }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-border bg-card overflow-hidden"
+      className="rounded-2xl border border-emerald-500/20 bg-card overflow-hidden shadow-lg shadow-emerald-500/5"
     >
       {/* Header */}
-      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-gold" />
-          <span className="text-sm font-semibold">Mis Activos en Vivo</span>
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] text-emerald-400 font-medium">EN VIVO</span>
-          </span>
+      <div className="px-5 py-4 border-b border-border bg-gradient-to-r from-emerald-500/5 to-transparent flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+            <Activity className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div>
+            <span className="text-sm font-semibold">Mis Activos en Vivo</span>
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] text-emerald-400 font-medium">EN VIVO</span>
+            </div>
+          </div>
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">Rendimiento acumulado</p>
-          <p className="text-sm font-bold font-mono text-emerald-400">+${totalEarned.toFixed(6)}</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rendimiento acumulado</p>
+          <p className="text-lg font-bold font-mono text-emerald-400">+${totalEarned.toFixed(4)}</p>
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="px-5 py-3 bg-secondary/30 flex items-center justify-between border-b border-border">
-        <div>
-          <p className="text-[11px] text-muted-foreground">Capital invertido</p>
-          <p className="text-sm font-mono font-semibold">${totalInvested.toLocaleString()} USDT</p>
+      {/* Summary row */}
+      <div className="grid grid-cols-3 divide-x divide-border border-b border-border bg-secondary/20">
+        <div className="px-4 py-3 text-center">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Capital</p>
+          <p className="text-sm font-mono font-bold">${totalInvested.toLocaleString()}</p>
+          <p className="text-[10px] text-muted-foreground">USDT</p>
         </div>
-        <div className="text-center">
-          <p className="text-[11px] text-muted-foreground">Rendimiento</p>
-          <p className="text-sm font-mono font-bold text-emerald-400">+${totalEarned.toFixed(6)} USDT</p>
+        <div className="px-4 py-3 text-center">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Rendimiento</p>
+          <p className="text-sm font-mono font-bold text-emerald-400">+${totalEarned.toFixed(4)}</p>
+          <p className="text-[10px] text-muted-foreground">USDT</p>
         </div>
-        <div className="text-right">
-          <p className="text-[11px] text-muted-foreground">Rendimiento</p>
-          <div className="flex items-center gap-1 justify-end text-emerald-400">
-            <TrendingUp className="w-3.5 h-3.5" />
+        <div className="px-4 py-3 text-center">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Variación</p>
+          <div className="flex items-center gap-1 justify-center text-emerald-400">
+            <TrendingUp className="w-3 h-3" />
             <span className="text-sm font-mono font-bold">+{totalChangePct.toFixed(3)}%</span>
           </div>
+          <p className="text-[10px] text-muted-foreground">acumulado</p>
         </div>
       </div>
 

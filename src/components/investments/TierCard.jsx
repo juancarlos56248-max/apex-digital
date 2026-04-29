@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Zap, TrendingUp, BarChart3, Building2, Check } from "lucide-react";
+import { Zap, TrendingUp, BarChart3, Building2, Check, Lock } from "lucide-react";
 
 const tierConfig = {
   starter: {
@@ -14,12 +14,15 @@ const tierConfig = {
     duration: "30 días",
     exampleEarning: "Est. +$15 (sobre $5)*",
     features: ["Estrategia algorítmica de bajo perfil", "Análisis técnico en acciones Apple", "Liquidación cada 24 horas"],
-    color: "from-emerald-500/20 to-emerald-600/5",
-    borderColor: "hover:border-emerald-500/30",
+    gradient: "from-emerald-500/15 via-emerald-500/5 to-transparent",
+    border: "hover:border-emerald-500/40",
+    activeBorder: "border-emerald-500/40",
     iconBg: "bg-emerald-500/10",
     iconColor: "text-emerald-400",
-    badgeColor: "bg-emerald-500/10 text-emerald-400",
-    barColor: "from-emerald-500 to-emerald-400",
+    badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    bar: "from-emerald-500 to-emerald-400",
+    checkColor: "text-emerald-400",
+    accent: "text-emerald-400",
   },
   advance: {
     name: "Apex Advance",
@@ -32,12 +35,15 @@ const tierConfig = {
     duration: "60 días",
     exampleEarning: "Est. +$3,000 (sobre $500)*",
     features: ["Análisis de arbitraje activo", "Seguimiento de acciones Amazon", "Liquidación cada 24 horas"],
-    color: "from-blue-500/20 to-blue-600/5",
-    borderColor: "hover:border-blue-500/30",
+    gradient: "from-blue-500/15 via-blue-500/5 to-transparent",
+    border: "hover:border-blue-500/40",
+    activeBorder: "border-blue-500/40",
     iconBg: "bg-blue-500/10",
     iconColor: "text-blue-400",
-    badgeColor: "bg-blue-500/10 text-blue-400",
-    barColor: "from-blue-500 to-blue-400",
+    badge: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    bar: "from-blue-500 to-blue-400",
+    checkColor: "text-blue-400",
+    accent: "text-blue-400",
   },
   elite: {
     name: "Apex Elite",
@@ -50,12 +56,15 @@ const tierConfig = {
     duration: "90 días",
     exampleEarning: "Est. +$18,000 (sobre $2,000)*",
     features: ["Motor de análisis de alta frecuencia", "Seguimiento de acciones NVIDIA", "Liquidación cada 24 horas"],
-    color: "from-purple-500/20 to-purple-600/5",
-    borderColor: "hover:border-purple-500/30",
+    gradient: "from-purple-500/15 via-purple-500/5 to-transparent",
+    border: "hover:border-purple-500/40",
+    activeBorder: "border-purple-500/40",
     iconBg: "bg-purple-500/10",
     iconColor: "text-purple-400",
-    badgeColor: "bg-purple-500/10 text-purple-400",
-    barColor: "from-purple-500 to-purple-400",
+    badge: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+    bar: "from-purple-500 to-purple-400",
+    checkColor: "text-purple-400",
+    accent: "text-purple-400",
   },
   institutional: {
     name: "Apex Institutional",
@@ -68,12 +77,15 @@ const tierConfig = {
     duration: "120 días",
     exampleEarning: "Est. +$120,000 (sobre $10,000)*",
     features: ["Acceso a cartera diversificada", "Seguimiento del índice S&P 500", "Liquidación cada 24 horas"],
-    color: "from-gold/20 to-gold-dark/5",
-    borderColor: "hover:border-gold/30",
+    gradient: "from-gold/15 via-gold/5 to-transparent",
+    border: "hover:border-gold/40",
+    activeBorder: "border-gold/40",
     iconBg: "bg-gold/10",
     iconColor: "text-gold",
-    badgeColor: "bg-gold/10 text-gold",
-    barColor: "from-gold to-gold-light",
+    badge: "bg-gold/10 text-gold border-gold/20",
+    bar: "from-gold to-gold-light",
+    checkColor: "text-gold",
+    accent: "text-gold",
   },
 };
 
@@ -90,74 +102,101 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay }}
-      className={`relative overflow-hidden rounded-xl border border-border bg-card p-6 group transition-all duration-300 ${config.borderColor}`}
+      transition={{ duration: 0.5, delay }}
+      className={`relative overflow-hidden rounded-2xl border bg-card group transition-all duration-300 flex flex-col
+        ${hasActive ? config.activeBorder : `border-border/60 ${config.border}`}`}
     >
-      <div className={`absolute inset-0 bg-gradient-to-br ${config.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+      {/* Background glow */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${config.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
 
-      <div className="relative">
-        <div className="flex items-start justify-between mb-4">
-          <div className={`w-12 h-12 rounded-xl ${config.iconBg} flex items-center justify-center`}>
-            <Icon className={`w-6 h-6 ${config.iconColor}`} />
+      <div className="relative flex flex-col flex-1 p-5">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-5">
+          <div className={`w-11 h-11 rounded-xl ${config.iconBg} flex items-center justify-center ring-1 ring-white/5`}>
+            <Icon className={`w-5 h-5 ${config.iconColor}`} />
           </div>
-          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider ${config.badgeColor}`}>
-            +{config.dailyReturn} / día
+          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider border ${config.badge}`}>
+            +{config.dailyReturn}/día
           </span>
         </div>
 
-        <h3 className="text-lg font-bold mb-0.5">{config.name}</h3>
-        <p className="text-xs text-muted-foreground mb-1">{config.subtitle}</p>
-        <p className="text-xs font-mono text-gold mb-2">{rangeLabel}</p>
-        <div className="flex flex-col gap-1 mb-4 p-3 rounded-lg bg-secondary/50 border border-border/50">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-muted-foreground">Rendimiento diario</span>
-            <span className="text-xs font-bold font-mono text-gold">{config.dailyReturn}</span>
+        {/* Name & range */}
+        <h3 className="text-base font-bold mb-0.5 tracking-tight">{config.name}</h3>
+        <p className="text-[11px] text-muted-foreground mb-0.5">{config.subtitle}</p>
+        <p className="text-[11px] font-mono text-gold/80 mb-4">{rangeLabel}</p>
+
+        {/* Key metrics */}
+        <div className="grid grid-cols-3 gap-1.5 mb-4">
+          <div className="rounded-lg bg-secondary/60 border border-border/40 px-2 py-2 text-center">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Diario</p>
+            <p className={`text-xs font-bold font-mono ${config.accent}`}>{config.dailyReturn}</p>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-muted-foreground">Duración</span>
-            <span className="text-xs font-mono text-foreground">{config.duration}</span>
+          <div className="rounded-lg bg-secondary/60 border border-border/40 px-2 py-2 text-center">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Ciclo</p>
+            <p className="text-xs font-bold font-mono text-foreground">{config.duration}</p>
           </div>
-          <div className="flex items-center justify-between border-t border-border/50 pt-1 mt-1">
-            <span className="text-[11px] text-muted-foreground">Rendimiento estimado</span>
-            <span className="text-sm font-bold font-mono text-success">{config.exampleEarning}</span>
+          <div className="rounded-lg bg-secondary/60 border border-border/40 px-2 py-2 text-center">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Total est.</p>
+            <p className="text-xs font-bold font-mono text-success">{config.totalReturn}</p>
           </div>
         </div>
 
-        <div className="mb-5">
+        {/* Estimated earning highlight */}
+        <div className="rounded-lg border border-border/40 bg-secondary/30 px-3 py-2 mb-4">
+          <p className="text-[10px] text-muted-foreground mb-0.5">Rendimiento estimado</p>
+          <p className="text-sm font-bold font-mono text-success">{config.exampleEarning}</p>
+        </div>
+
+        {/* Capacity bar */}
+        <div className="mb-4">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Capacidad del Nodo</span>
-            <span className="text-[10px] font-mono text-success">En línea</span>
+            <span className="text-[9px] text-muted-foreground uppercase tracking-wider">Capacidad del Nodo</span>
+            <span className="text-[9px] font-mono text-success">En línea</span>
           </div>
           <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${config.barColor}`}
-              style={{ width: "75%" }}
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "75%" }}
+              transition={{ duration: 1, delay: delay + 0.3 }}
+              className={`h-full rounded-full bg-gradient-to-r ${config.bar}`}
             />
           </div>
         </div>
 
-        <div className="space-y-2.5 mb-6">
+        {/* Features */}
+        <div className="space-y-2 mb-5 flex-1">
           {config.features.map((f, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Check className={`w-3.5 h-3.5 ${config.iconColor} flex-shrink-0`} />
+            <div key={i} className="flex items-start gap-2 text-[12px] text-muted-foreground">
+              <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
               <span>{f}</span>
             </div>
           ))}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Check className={`w-3.5 h-3.5 ${config.iconColor} flex-shrink-0`} />
+          <div className="flex items-start gap-2 text-[12px] text-muted-foreground">
+            <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
             <span>Duración del contrato: <span className="text-foreground font-medium">{config.duration}</span></span>
           </div>
         </div>
 
-        <p className="text-[10px] text-muted-foreground/60 leading-relaxed mb-3">
+        {/* Disclaimer */}
+        <p className="text-[10px] text-muted-foreground/50 leading-relaxed mb-3">
           * Rendimiento estimado. Los resultados pasados no garantizan resultados futuros. Toda inversión conlleva riesgo.
         </p>
+
+        {/* CTA */}
         <Button
           onClick={() => onSubscribe(tier, config.minDeposit, config)}
-          className="w-full bg-gold hover:bg-gold-dark text-black font-semibold"
+          className={`w-full font-semibold h-10 transition-all duration-200 ${
+            hasActive
+              ? "bg-secondary text-muted-foreground cursor-not-allowed"
+              : "bg-gold hover:bg-gold-dark text-black"
+          }`}
           disabled={hasActive}
         >
-          {hasActive ? "Nodo Activo" : "Activar Contrato"}
+          {hasActive ? (
+            <span className="flex items-center gap-2"><Lock className="w-3.5 h-3.5" /> Nodo Activo</span>
+          ) : (
+            "Activar Contrato"
+          )}
         </Button>
       </div>
     </motion.div>

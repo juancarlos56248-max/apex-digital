@@ -170,12 +170,17 @@ export default function Investments() {
   const tierKeys = ["starter", "advance", "elite", "institutional"];
 
   return (
-    <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold">Nodos de Liquidez</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Estrategias algorítmicas de análisis de mercado
-        </p>
+    <div className="space-y-6 pb-8">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Nodos de Liquidez</h1>
+          <p className="text-sm text-muted-foreground mt-1">Estrategias algorítmicas de análisis de mercado</p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 self-start sm:self-auto">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[11px] text-emerald-400 font-medium">Nodos en línea</span>
+        </div>
       </motion.div>
 
       {/* Risk disclosure */}
@@ -187,7 +192,7 @@ export default function Investments() {
       >
         <AlertTriangle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          <span className="font-semibold text-yellow-500">Aviso de Riesgo:</span> Los rendimientos mostrados son estimados y basados en análisis histórico. Los mercados financieros son volátiles y los resultados pasados no garantizan rendimientos futuros. Invierte solo lo que puedas permitirte perder.
+          <span className="font-semibold text-yellow-400">Aviso de Riesgo:</span> Los rendimientos mostrados son estimados y basados en análisis histórico. Los mercados financieros son volátiles y los resultados pasados no garantizan rendimientos futuros. Invierte solo lo que puedas permitirte perder.
         </p>
       </motion.div>
 
@@ -195,16 +200,20 @@ export default function Investments() {
         <ActivePortfolio investments={activeInvestments} />
       )}
 
-      <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        {tierKeys.map((tier, i) => (
-          <TierCard
-            key={tier}
-            tier={tier}
-            onSubscribe={handleSubscribe}
-            delay={i * 0.1}
-            hasActive={activeTiers.includes(tier)}
-          />
-        ))}
+      {/* Tier Cards */}
+      <div>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4 font-medium">Selecciona tu nivel de acceso</p>
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
+          {tierKeys.map((tier, i) => (
+            <TierCard
+              key={tier}
+              tier={tier}
+              onSubscribe={handleSubscribe}
+              delay={i * 0.08}
+              hasActive={activeTiers.includes(tier)}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Subscription Dialog */}
@@ -212,32 +221,45 @@ export default function Investments() {
         <DialogContent className="bg-card border-border max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-gold" />
-              Activar Contrato — {selectedConfig?.name}
+              <div className="w-7 h-7 rounded-lg bg-gold/10 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-gold" />
+              </div>
+              Activar Contrato
             </DialogTitle>
             <DialogDescription>
-              {selectedConfig?.subtitle} &bull; Rendimiento diario: <span className="text-gold font-mono font-bold">{selectedConfig?.dailyReturn}</span>
-              {selectedConfig && (
-                <span className="ml-2 text-muted-foreground">
-                  &bull; Mín. inversión: <span className="text-gold font-mono font-bold">${selectedConfig.minDeposit?.toLocaleString()} USDT</span>
-                </span>
-              )}
+              <span className="text-foreground font-medium">{selectedConfig?.name}</span>
+              {" · "}{selectedConfig?.subtitle}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="rounded-lg border border-gold/20 bg-gold/5 p-2.5 text-[10px] leading-relaxed text-muted-foreground">
-            <div className="flex items-center gap-1.5 mb-1">
-              <Shield className="w-3 h-3 text-gold" />
-              <span className="text-gold font-semibold text-[10px] uppercase tracking-wider">Estrategia Apex HFT</span>
+          {/* Stats summary */}
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-lg bg-secondary/60 border border-border/50 p-2">
+              <p className="text-[10px] text-muted-foreground mb-0.5">Rendimiento</p>
+              <p className="text-sm font-bold font-mono text-gold">{selectedConfig?.dailyReturn}</p>
+              <p className="text-[10px] text-muted-foreground">/ día</p>
             </div>
-            <ul className="space-y-0.5">
-              <li>• <strong className="text-foreground">Liquidación Diaria</strong> — Dividendos cada 24 horas sin excepción.</li>
-              <li>• <strong className="text-foreground">Gestión de Riesgo</strong> — 1 retiro permitido por ciclo de 24h.</li>
-              <li>• <strong className="text-foreground">Transparencia Total</strong> — Rastrea el crecimiento en tu Dashboard.</li>
-            </ul>
+            <div className="rounded-lg bg-secondary/60 border border-border/50 p-2">
+              <p className="text-[10px] text-muted-foreground mb-0.5">Duración</p>
+              <p className="text-sm font-bold font-mono text-foreground">{selectedConfig?.duration}</p>
+            </div>
+            <div className="rounded-lg bg-secondary/60 border border-border/50 p-2">
+              <p className="text-[10px] text-muted-foreground mb-0.5">Mín. entrada</p>
+              <p className="text-sm font-bold font-mono text-foreground">${selectedConfig?.minDeposit?.toLocaleString()}</p>
+            </div>
           </div>
 
-
+          <div className="rounded-lg border border-gold/20 bg-gold/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Shield className="w-3 h-3 text-gold" />
+              <span className="text-gold font-semibold text-[10px] uppercase tracking-wider">Protocolos de Seguridad</span>
+            </div>
+            <ul className="space-y-1">
+              <li>• <strong className="text-foreground">Liquidación Diaria</strong> — Rendimientos calculados cada 24 horas.</li>
+              <li>• <strong className="text-foreground">Gestión de Riesgo</strong> — 1 retiro permitido por ciclo de 24h.</li>
+              <li>• <strong className="text-foreground">Seguimiento en Vivo</strong> — Rastrea el crecimiento en tu Dashboard.</li>
+            </ul>
+          </div>
 
           <div className="space-y-3 py-1">
             <div>
@@ -247,26 +269,29 @@ export default function Investments() {
                 placeholder={`Mín. $${selectedConfig?.minDeposit?.toLocaleString()}`}
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
-                className="mt-1.5 bg-secondary border-border font-mono"
+                className="mt-1.5 bg-secondary border-border font-mono text-base"
               />
-              {selectedConfig && (
-                <p className="text-[11px] text-muted-foreground mt-1">
-                  Rango: ${selectedConfig.minDeposit?.toLocaleString("en-US")} – {selectedConfig.maxDeposit ? `$${selectedConfig.maxDeposit?.toLocaleString("en-US")}` : "Sin límite"} USDT
-                  &nbsp;&bull;&nbsp; Balance: <span className="text-gold font-mono">${(user.balance || 0).toFixed(2)}</span>
+              <div className="flex items-center justify-between mt-1.5">
+                <p className="text-[11px] text-muted-foreground">
+                  Rango: ${selectedConfig?.minDeposit?.toLocaleString("en-US")} – {selectedConfig?.maxDeposit ? `$${selectedConfig?.maxDeposit?.toLocaleString("en-US")}` : "Sin límite"}
                 </p>
-              )}
+                <p className="text-[11px] text-muted-foreground">
+                  Balance: <span className="text-gold font-mono font-semibold">${(user.balance || 0).toFixed(2)}</span>
+                </p>
+              </div>
             </div>
+
             <div>
-              <p className="text-xs text-muted-foreground mb-2">Elige hasta 4 acciones para tu nodo (opcional)</p>
+              <p className="text-xs text-muted-foreground mb-2">Personaliza tu nodo — elige hasta 4 acciones (opcional)</p>
               <div className="flex flex-wrap gap-1.5">
                 {POPULAR_STOCKS.map(s => (
                   <button
                     key={s.symbol}
                     onClick={() => toggleStock(s.symbol)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold border transition-all ${
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold border transition-all duration-150 ${
                       selectedStocks.includes(s.symbol)
                         ? "bg-gold/20 border-gold/50 text-gold"
-                        : "bg-secondary border-border text-muted-foreground hover:border-gold/30"
+                        : "bg-secondary border-border text-muted-foreground hover:border-gold/30 hover:text-foreground"
                     }`}
                   >
                     {s.symbol}
@@ -274,21 +299,21 @@ export default function Investments() {
                 ))}
               </div>
               {selectedStocks.length > 0 && (
-                <p className="text-[11px] text-gold mt-1.5">Seleccionadas: {selectedStocks.join(", ")}</p>
+                <p className="text-[11px] text-gold mt-1.5 font-mono">✓ {selectedStocks.join(", ")}</p>
               )}
             </div>
 
             {referralCode && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/5 border border-gold/20">
-                <span className="text-[11px] text-muted-foreground">Referido aplicado:</span>
+                <span className="text-[11px] text-muted-foreground">Código referido:</span>
                 <span className="text-[11px] font-mono font-bold text-gold">{referralCode}</span>
               </div>
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={confirmSubscription} disabled={submitting} className="bg-gold hover:bg-gold-dark text-black font-semibold">
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="flex-1">Cancelar</Button>
+            <Button onClick={confirmSubscription} disabled={submitting} className="flex-1 bg-gold hover:bg-gold-dark text-black font-semibold">
               {submitting ? "Procesando..." : "Confirmar Activación"}
             </Button>
           </DialogFooter>
@@ -299,23 +324,39 @@ export default function Investments() {
       <Dialog open={certOpen} onOpenChange={setCertOpen}>
         <DialogContent className="bg-card border-gold/30 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-gold">Certificado de Custodia Listo</DialogTitle>
-            <DialogDescription>Tu nodo ha sido activado. Descarga tu certificado oficial de participación.</DialogDescription>
+            <DialogTitle className="text-gold flex items-center gap-2">
+              <Shield className="w-4 h-4" /> Certificado de Custodia
+            </DialogTitle>
+            <DialogDescription>Tu nodo ha sido activado exitosamente. Descarga tu certificado oficial.</DialogDescription>
           </DialogHeader>
-          <div className="rounded-lg border border-gold/20 bg-gold/5 p-5 text-center space-y-2">
-            <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto">
-              <Download className="w-5 h-5 text-gold" />
+          <div className="rounded-xl border border-gold/20 bg-gradient-to-br from-gold/10 to-gold/5 p-6 text-center space-y-3">
+            <div className="w-14 h-14 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center mx-auto">
+              <Download className="w-6 h-6 text-gold" />
             </div>
-            <p className="text-sm font-semibold">{certData?.name}</p>
-            <p className="text-xs text-muted-foreground">Nodo: <span className="text-gold">{certData?.asset}</span></p>
-            <p className="text-xs text-muted-foreground">Rendimiento diario: <span className="text-success font-mono">{certData?.rate}</span></p>
-            <p className="text-xs text-muted-foreground">Monto: <span className="font-mono">${certData?.amount} USDT</span></p>
-            <p className="text-[10px] text-muted-foreground/60 mt-1">Bajo los protocolos de seguridad de la división de activos digitales de Singapur.</p>
+            <div>
+              <p className="text-sm font-bold text-foreground">{certData?.name}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Titular de la posición</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center pt-1">
+              <div className="rounded-lg bg-card/80 border border-border/50 p-2">
+                <p className="text-[10px] text-muted-foreground">Nodo</p>
+                <p className="text-xs font-semibold text-gold truncate">{certData?.asset?.split(" ")[0]}</p>
+              </div>
+              <div className="rounded-lg bg-card/80 border border-border/50 p-2">
+                <p className="text-[10px] text-muted-foreground">Rendimiento</p>
+                <p className="text-xs font-semibold text-success font-mono">{certData?.rate}/día</p>
+              </div>
+              <div className="rounded-lg bg-card/80 border border-border/50 p-2">
+                <p className="text-[10px] text-muted-foreground">Capital</p>
+                <p className="text-xs font-semibold font-mono">${certData?.amount}</p>
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground/60 leading-relaxed">ID: {certData?.id} · {certData?.date}</p>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCertOpen(false)}>Cerrar</Button>
-            <Button onClick={downloadCertificate} className="bg-gold hover:bg-gold-dark text-black font-semibold gap-2">
-              <Download className="w-4 h-4" /> Descargar Certificado
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setCertOpen(false)} className="flex-1">Cerrar</Button>
+            <Button onClick={downloadCertificate} className="flex-1 bg-gold hover:bg-gold-dark text-black font-semibold gap-2">
+              <Download className="w-4 h-4" /> Descargar
             </Button>
           </DialogFooter>
         </DialogContent>
