@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import TierCard from "../components/investments/TierCard";
 import ActivePortfolio from "../components/investments/ActivePortfolio";
@@ -15,7 +15,7 @@ import { Shield, Zap, Download } from "lucide-react";
 
 export default function Investments() {
   const { user } = useOutletContext();
-  const { toast } = useToast();
+
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -103,17 +103,17 @@ export default function Investments() {
     setSubmitting(true);
     const amount = parseFloat(customAmount);
     if (!amount || isNaN(amount)) {
-      toast({ title: "Ingresa un monto válido.", variant: "destructive" }); setSubmitting(false); return;
+      toast.error("Ingresa un monto válido."); setSubmitting(false); return;
     }
 
     const selectedDeposit = amount;
     if ((user.balance || 0) <= 0) {
-      toast({ title: "⚠️ Sin fondos disponibles", description: "Tu balance es $0. Realiza un depósito para activar este contrato.", variant: "destructive" });
+      toast.error("⚠️ Saldo Insuficiente — Tu balance es $0. Realiza un depósito primero.");
       setSubmitting(false);
       return;
     }
     if ((user.balance || 0) < amount) {
-      toast({ title: "⚠️ Fondos Insuficientes", description: `Tu balance ($${(user.balance || 0).toFixed(2)} USDT) es menor al monto ingresado.`, variant: "destructive" });
+      toast.error(`⚠️ Saldo Insuficiente — Tu balance es $${(user.balance || 0).toFixed(2)} USDT`);
       setSubmitting(false);
       return;
     }
@@ -153,7 +153,7 @@ export default function Investments() {
     };
     setCertData(cert);
 
-    toast({ title: `✅ ¡Compra Exitosa!`, description: `Nodo ${selectedConfig?.name || selectedTier.toUpperCase()} activado correctamente.` });
+    toast.success(`✅ Nodo ${selectedConfig?.name || selectedTier.toUpperCase()} activado correctamente.`);
     setDialogOpen(false);
     setCertOpen(true);
     localStorage.removeItem("apex_ref_code");
