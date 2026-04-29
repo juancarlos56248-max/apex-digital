@@ -9,7 +9,7 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 
-const TOAST_DURATION = 1500;
+const TOAST_DURATION = 100;
 
 function AutoDismissToast({ id, title, description, action, dismiss, ...props }) {
   useEffect(() => {
