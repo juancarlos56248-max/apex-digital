@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useOutletContext, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet, TrendingDown } from "lucide-react";
+import { Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet, TrendingDown, Mail } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
 import UserConsole from "../../components/admin/UserConsole";
 import AnnouncementManager from "../../components/admin/AnnouncementManager";
 import BalanceManager from "../../components/admin/BalanceManager";
 import MarketCrashManager from "../../components/admin/MarketCrashManager";
+import EmailMasivoManager from "../../components/admin/EmailMasivoManager";
 
 export default function AdminPanel() {
   const { user } = useOutletContext();
@@ -56,6 +57,10 @@ export default function AdminPanel() {
             <TrendingDown className="w-3.5 h-3.5" />
             Mercado
           </TabsTrigger>
+          <TabsTrigger value="email" className="gap-2 data-[state=active]:bg-gold/10 data-[state=active]:text-gold">
+            <Mail className="w-3.5 h-3.5" />
+            Email Masivo
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="deposits">
@@ -75,6 +80,9 @@ export default function AdminPanel() {
         </TabsContent>
         <TabsContent value="market">
           <MarketCrashManager />
+        </TabsContent>
+        <TabsContent value="email">
+          <EmailMasivoManager />
         </TabsContent>
       </Tabs>
     </div>
