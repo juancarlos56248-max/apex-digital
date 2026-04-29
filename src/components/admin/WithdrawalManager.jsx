@@ -75,7 +75,7 @@ export default function WithdrawalManager() {
         </div>
       </div>
 
-      <div className="divide-y divide-border max-h-[60vh] overflow-y-auto">
+      <div className="divide-y divide-border">
         {withdrawals.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">No hay retiros registrados</p>
         )}
