@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useOutletContext, Link } from "react-router-dom";
-import { Wallet, TrendingUp, DollarSign, Users, ArrowRight, RotateCcw } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import StatsCard from "../components/dashboard/StatsCard";
@@ -30,25 +30,6 @@ export default function Dashboard() {
     load();
   }, [user]);
 
-  const handleRestake = async (inv) => {
-    if (inv.total_earned <= 0) return;
-    // Re-invest earned dividends
-    const newAmount = inv.amount + inv.total_earned;
-    await base44.entities.Investment.update(inv.id, { 
-      amount: newAmount, 
-      total_earned: 0 
-    });
-    await base44.entities.Transaction.create({
-      user_email: user.email,
-      type: "deposit",
-      amount: inv.total_earned,
-      status: "completed",
-      notes: "Re-stake de dividendos",
-    });
-    // Refresh
-    const updatedInvs = await base44.entities.Investment.filter({ user_email: user.email, status: "active" });
-    setInvestments(updatedInvs);
-  };
 
   if (!user || loading) {
     return (
@@ -98,7 +79,7 @@ export default function Dashboard() {
 
       {/* Active Investments & Recent Transactions */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <ActiveInvestments investments={investments} onRestake={handleRestake} />
+        <ActiveInvestments investments={investments} />
         <RecentTransactions transactions={transactions} />
       </div>
     </div>

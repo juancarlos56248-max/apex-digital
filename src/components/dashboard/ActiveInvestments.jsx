@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { RotateCcw, Zap, TrendingUp, BarChart3, Building2 } from "lucide-react";
+import { Zap, TrendingUp, BarChart3, Building2 } from "lucide-react";
 
 const tierIcons = {
   starter: Zap,
@@ -16,7 +15,7 @@ const tierNames = {
   institutional: "Apex Institutional",
 };
 
-export default function ActiveInvestments({ investments, onRestake }) {
+export default function ActiveInvestments({ investments }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -43,17 +42,6 @@ export default function ActiveInvestments({ investments, onRestake }) {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-mono text-success">+${(inv.total_earned || 0).toFixed(2)}</p>
-                  {(inv.total_earned || 0) > 0 && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-6 px-2 text-[10px] text-gold hover:text-gold-light"
-                      onClick={() => onRestake(inv)}
-                    >
-                      <RotateCcw className="w-3 h-3 mr-1" />
-                      Re-Stake
-                    </Button>
-                  )}
                 </div>
               </div>
             );
