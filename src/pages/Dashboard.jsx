@@ -7,6 +7,7 @@ import StatsCard from "../components/dashboard/StatsCard";
 import PerformanceChart from "../components/dashboard/PerformanceChart";
 import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActiveInvestments from "../components/dashboard/ActiveInvestments";
+import MarketAlerts from "../components/dashboard/MarketAlerts";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
@@ -62,6 +63,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <MarketAlerts />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
