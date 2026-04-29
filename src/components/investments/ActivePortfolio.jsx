@@ -234,7 +234,7 @@ export default function ActivePortfolio({ investments }) {
           </span>
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">Dividendos totales</p>
+          <p className="text-xs text-muted-foreground">Rendimiento acumulado</p>
           <p className="text-sm font-bold font-mono text-emerald-400">+${totalEarned.toFixed(6)}</p>
         </div>
       </div>
@@ -246,7 +246,7 @@ export default function ActivePortfolio({ investments }) {
           <p className="text-sm font-mono font-semibold">${totalInvested.toLocaleString()} USDT</p>
         </div>
         <div className="text-center">
-          <p className="text-[11px] text-muted-foreground">Ganado</p>
+          <p className="text-[11px] text-muted-foreground">Rendimiento</p>
           <p className="text-sm font-mono font-bold text-emerald-400">+${totalEarned.toFixed(6)} USDT</p>
         </div>
         <div className="text-right">

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from "@/components/ui/dialog";
-import { Shield, Zap, Download } from "lucide-react";
+import { Shield, Zap, Download, AlertTriangle } from "lucide-react";
 
 export default function Investments() {
   const { user } = useOutletContext();
@@ -174,7 +174,20 @@ export default function Investments() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Nodos de Liquidez</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Suscríbete a estrategias algorítmicas de alto rendimiento
+          Estrategias algorítmicas de análisis de mercado
+        </p>
+      </motion.div>
+
+      {/* Risk disclosure */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="flex items-start gap-3 px-4 py-3 rounded-xl border border-yellow-500/20 bg-yellow-500/5"
+      >
+        <AlertTriangle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          <span className="font-semibold text-yellow-500">Aviso de Riesgo:</span> Los rendimientos mostrados son estimados y basados en análisis histórico. Los mercados financieros son volátiles y los resultados pasados no garantizan rendimientos futuros. Invierte solo lo que puedas permitirte perder.
         </p>
       </motion.div>
 

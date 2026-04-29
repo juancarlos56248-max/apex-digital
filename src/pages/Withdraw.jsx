@@ -198,9 +198,15 @@ export default function Withdraw() {
           {submitting ? "Procesando..." : "Solicitar Retiro"}
         </Button>
 
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          <Shield className="w-3.5 h-3.5 text-gold" />
-          <span>Los retiros pasan por auditoría de cumplimiento (Pending Compliance) antes de la ejecución</span>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <Shield className="w-3.5 h-3.5 text-gold" />
+            <span>Los retiros pasan por verificación de cumplimiento antes de ejecutarse (24–72 horas hábiles)</span>
+          </div>
+          <div className="flex items-start gap-2 text-[11px] text-muted-foreground/70 border border-border/40 rounded-lg p-2.5 bg-secondary/20">
+            <AlertCircle className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <span>La comisión de red del 8% cubre costos operativos de procesamiento blockchain. No existen cargos adicionales ocultos.</span>
+          </div>
         </div>
       </motion.div>
 

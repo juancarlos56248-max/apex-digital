@@ -12,8 +12,8 @@ const tierConfig = {
     dailyReturn: "10%",
     totalReturn: "300%",
     duration: "30 días",
-    exampleEarning: "+$15 (sobre $5)",
-    features: ["Algoritmo HFT de bajo riesgo", "Respaldado por acciones Apple", "Liquidación cada 24 horas"],
+    exampleEarning: "Est. +$15 (sobre $5)*",
+    features: ["Estrategia algorítmica de bajo perfil", "Análisis técnico en acciones Apple", "Liquidación cada 24 horas"],
     color: "from-emerald-500/20 to-emerald-600/5",
     borderColor: "hover:border-emerald-500/30",
     iconBg: "bg-emerald-500/10",
@@ -30,8 +30,8 @@ const tierConfig = {
     dailyReturn: "10%",
     totalReturn: "600%",
     duration: "60 días",
-    exampleEarning: "+$3,000 (sobre $500)",
-    features: ["Arbitraje cuántico activo", "Respaldado por acciones Amazon", "Liquidación cada 24 horas"],
+    exampleEarning: "Est. +$3,000 (sobre $500)*",
+    features: ["Análisis de arbitraje activo", "Seguimiento de acciones Amazon", "Liquidación cada 24 horas"],
     color: "from-blue-500/20 to-blue-600/5",
     borderColor: "hover:border-blue-500/30",
     iconBg: "bg-blue-500/10",
@@ -48,8 +48,8 @@ const tierConfig = {
     dailyReturn: "10%",
     totalReturn: "900%",
     duration: "90 días",
-    exampleEarning: "+$18,000 (sobre $2,000)",
-    features: ["Motor de IA de alta frecuencia", "Respaldado por acciones NVIDIA", "Liquidación cada 24 horas"],
+    exampleEarning: "Est. +$18,000 (sobre $2,000)*",
+    features: ["Motor de análisis de alta frecuencia", "Seguimiento de acciones NVIDIA", "Liquidación cada 24 horas"],
     color: "from-purple-500/20 to-purple-600/5",
     borderColor: "hover:border-purple-500/30",
     iconBg: "bg-purple-500/10",
@@ -66,8 +66,8 @@ const tierConfig = {
     dailyReturn: "10%",
     totalReturn: "1,200%",
     duration: "120 días",
-    exampleEarning: "+$120,000 (sobre $10,000)",
-    features: ["Acceso institucional exclusivo", "Respaldado por el índice S&P 500", "Liquidación cada 24 horas"],
+    exampleEarning: "Est. +$120,000 (sobre $10,000)*",
+    features: ["Acceso a cartera diversificada", "Seguimiento del índice S&P 500", "Liquidación cada 24 horas"],
     color: "from-gold/20 to-gold-dark/5",
     borderColor: "hover:border-gold/30",
     iconBg: "bg-gold/10",
@@ -118,7 +118,7 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
             <span className="text-xs font-mono text-foreground">{config.duration}</span>
           </div>
           <div className="flex items-center justify-between border-t border-border/50 pt-1 mt-1">
-            <span className="text-[11px] text-muted-foreground">Ganancia mínima est.</span>
+            <span className="text-[11px] text-muted-foreground">Rendimiento estimado</span>
             <span className="text-sm font-bold font-mono text-success">{config.exampleEarning}</span>
           </div>
         </div>
@@ -149,6 +149,9 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
           </div>
         </div>
 
+        <p className="text-[10px] text-muted-foreground/60 leading-relaxed mb-3">
+          * Rendimiento estimado. Los resultados pasados no garantizan resultados futuros. Toda inversión conlleva riesgo.
+        </p>
         <Button
           onClick={() => onSubscribe(tier, config.minDeposit, config)}
           className="w-full bg-gold hover:bg-gold-dark text-black font-semibold"
