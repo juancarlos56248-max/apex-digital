@@ -130,11 +130,6 @@ export default function Investments() {
 
     if (referralCode && referralCode !== user.referral_code) {
       investmentData.referral_code_used = referralCode;
-      await base44.functions.invoke('procesarReferido', {
-        referral_code: referralCode,
-        tier: selectedTier,
-        referred_email: user.email,
-      });
     }
 
     await base44.entities.Investment.create(investmentData);

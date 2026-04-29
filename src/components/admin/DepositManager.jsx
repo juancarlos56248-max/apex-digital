@@ -27,6 +27,21 @@ export default function DepositManager() {
         balance: (u.balance || 0) + deposit.amount,
       });
       toast.success(`Depósito de $${deposit.amount} acreditado a ${deposit.user_email}`);
+
+      // Procesar bono de referido si el usuario fue referido y aún no se ha acreditado
+      if (u.referral_code_used) {
+        const existing = await base44.entities.Referral.filter({
+          referred_email: deposit.user_email,
+          status: "credited",
+        });
+        if (existing.length === 0) {
+          await base44.functions.invoke('procesarReferido', {
+            referral_code: u.referral_code_used,
+            tier: "starter",
+            referred_email: deposit.user_email,
+          });
+        }
+      }
     }
     loadDeposits();
   };

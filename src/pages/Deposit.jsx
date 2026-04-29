@@ -35,6 +35,13 @@ export default function Deposit() {
       return;
     }
     setSubmitting(true);
+
+    // Guardar referral_code_used en el usuario si aún no lo tiene
+    const refCode = localStorage.getItem("apex_ref_code");
+    if (refCode && !user.referral_code_used && refCode !== user.referral_code) {
+      await base44.auth.updateMe({ referral_code_used: refCode });
+    }
+
     await base44.entities.Transaction.create({
       user_email: user.email,
       type: "deposit",
