@@ -237,6 +237,7 @@ export default function Market() {
   const [quantity, setQuantity] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [gainsOpen, setGainsOpen] = useState(false);
 
   const loadPositions = async () => {
     if (!user) return;
@@ -355,16 +356,26 @@ export default function Market() {
         </motion.div>
       )}
 
-      {/* Botón historial */}
+      {/* Botones historial */}
       {history.length > 0 && (
-        <button
-          onClick={() => setHistoryOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card hover:border-red-500/30 transition-colors text-sm text-muted-foreground hover:text-foreground"
-        >
-          <History className="w-4 h-4 text-red-400" />
-          Historial de pérdidas
-          <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[11px] font-semibold">{history.length}</span>
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setHistoryOpen(true)}
+            className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card hover:border-red-500/30 transition-colors text-sm text-muted-foreground hover:text-foreground"
+          >
+            <History className="w-4 h-4 text-red-400" />
+            Pérdidas
+            <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[11px] font-semibold">{history.filter(p => ((p.quantity||0)*(p.sell_price||0)) < ((p.quantity||0)*(p.buy_price||0))).length}</span>
+          </button>
+          <button
+            onClick={() => setGainsOpen(true)}
+            className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card hover:border-emerald-500/30 transition-colors text-sm text-muted-foreground hover:text-foreground"
+          >
+            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            Ganancias
+            <span className="ml-auto px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold">{history.filter(p => ((p.quantity||0)*(p.sell_price||0)) >= ((p.quantity||0)*(p.buy_price||0))).length}</span>
+          </button>
+        </div>
       )}
 
       {/* Sheet historial */}
@@ -402,6 +413,48 @@ export default function Market() {
                 </div>
               );
             })}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Sheet ganancias */}
+      <Sheet open={gainsOpen} onOpenChange={setGainsOpen}>
+        <SheetContent side="bottom" className="bg-card border-t border-border max-h-[70vh] overflow-y-auto rounded-t-2xl">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="flex items-center gap-2 text-emerald-400">
+              <TrendingUp className="w-4 h-4" /> Historial de Ganancias ({history.filter(p => ((p.quantity||0)*(p.sell_price||0)) >= ((p.quantity||0)*(p.buy_price||0))).length})
+            </SheetTitle>
+          </SheetHeader>
+          <div className="divide-y divide-border">
+            {history.filter(p => ((p.quantity||0)*(p.sell_price||0)) >= ((p.quantity||0)*(p.buy_price||0))).map(p => {
+              const invested = (p.quantity || 0) * (p.buy_price || 0);
+              const recovered = (p.quantity || 0) * (p.sell_price || 0);
+              const gained = recovered - invested;
+              const gainPct = invested > 0 ? ((gained / invested) * 100).toFixed(1) : "0.0";
+              return (
+                <div key={p.id} className="flex items-center justify-between py-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold font-mono text-muted-foreground">{p.symbol}</p>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400">VENDIDA</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{p.name}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {p.quantity} acciones @ <span className="text-foreground font-mono">${p.buy_price?.toFixed(2)}</span>
+                      {" "}&bull; Invertido: <span className="text-foreground font-mono">${invested.toFixed(2)}</span>
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-mono font-bold text-emerald-400">+{gainPct}%</p>
+                    <p className="text-[11px] text-emerald-500">+${gained.toFixed(2)} USDT</p>
+                    <p className="text-[11px] text-muted-foreground">Recuperado: <span className="font-mono">${recovered.toFixed(2)}</span></p>
+                  </div>
+                </div>
+              );
+            })}
+            {history.filter(p => ((p.quantity||0)*(p.sell_price||0)) >= ((p.quantity||0)*(p.buy_price||0))).length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-8">No hay ganancias registradas</p>
+            )}
           </div>
         </SheetContent>
       </Sheet>
