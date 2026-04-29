@@ -222,13 +222,12 @@ export default function Investments() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="rounded-lg border border-gold/20 bg-gold/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
-            <div className="flex items-center gap-1.5 mb-1.5">
+          <div className="rounded-lg border border-gold/20 bg-gold/5 p-2.5 text-[10px] leading-relaxed text-muted-foreground">
+            <div className="flex items-center gap-1.5 mb-1">
               <Shield className="w-3 h-3 text-gold" />
               <span className="text-gold font-semibold text-[10px] uppercase tracking-wider">Estrategia Apex HFT</span>
             </div>
-            <p>Al activar este nodo, integras tu capital en nuestro motor de <strong className="text-foreground">Arbitraje Cuántico</strong>. Nuestra tecnología escanea diferencias de precios en las bolsas de Nueva York y Singapur en milisegundos, utilizando apalancamiento institucional para maximizar el retorno diario, protegiendo el capital base mediante órdenes <strong className="text-foreground">Stop-Loss</strong> automatizadas.</p>
-            <ul className="mt-2 space-y-1">
+            <ul className="space-y-0.5">
               <li>• <strong className="text-foreground">Liquidación Diaria</strong> — Dividendos cada 24 horas sin excepción.</li>
               <li>• <strong className="text-foreground">Gestión de Riesgo</strong> — 1 retiro permitido por ciclo de 24h.</li>
               <li>• <strong className="text-foreground">Transparencia Total</strong> — Rastrea el crecimiento en tu Dashboard.</li>
