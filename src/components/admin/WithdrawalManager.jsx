@@ -75,63 +75,49 @@ export default function WithdrawalManager() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-[11px] text-muted-foreground uppercase tracking-wider">
-              <th className="px-4 py-3 text-left">Usuario</th>
-              <th className="px-4 py-3 text-left">Monto</th>
-              <th className="px-4 py-3 text-left">Red</th>
-              <th className="px-4 py-3 text-left">Wallet</th>
-              <th className="px-4 py-3 text-left">Fecha</th>
-              <th className="px-4 py-3 text-left">Estado</th>
-              <th className="px-4 py-3 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {withdrawals.map((w) => (
-              <tr key={w.id} className="border-b border-border/50 hover:bg-secondary/30">
-                <td className="px-4 py-3 text-xs">{w.user_email}</td>
-                <td className="px-4 py-3 font-mono font-medium text-destructive">-${w.amount.toLocaleString()}</td>
-                <td className="px-4 py-3 text-xs">{w.network || "—"}</td>
-                <td className="px-4 py-3">
-                  {w.wallet_address ? (
-                    <span className="font-mono text-[11px] text-muted-foreground">{w.wallet_address.slice(0, 16)}...</span>
-                  ) : "—"}
-                </td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{moment(w.created_date).format("DD/MM HH:mm")}</td>
-                <td className="px-4 py-3">
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                    w.status === "pending" ? "bg-yellow-500/10 text-yellow-500" :
-                    w.status === "approved" ? "bg-success/10 text-success" :
-                    "bg-destructive/10 text-destructive"
-                  }`}>
-                    {w.status === "pending" ? "Pending Compliance" : w.status === "approved" ? "Aprobado" : "Rechazado"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  {w.status === "pending" && (
-                    <div className="flex items-center justify-end gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => handleApprove(w)} className="h-7 px-2 text-success hover:text-success">
-                        <Check className="w-3.5 h-3.5" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleReject(w)} className="h-7 px-2 text-destructive hover:text-destructive">
-                        <X className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {withdrawals.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground text-sm">
-                  No hay retiros registrados
-                </td>
-              </tr>
+      <div className="divide-y divide-border max-h-[60vh] overflow-y-auto">
+        {withdrawals.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-8">No hay retiros registrados</p>
+        )}
+        {withdrawals.map((w) => (
+          <div key={w.id} className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/20">
+            {/* Info principal */}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium truncate">{w.user_email}</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-[10px] text-muted-foreground">{moment(w.created_date).format("DD/MM HH:mm")}</span>
+                <span className="text-[10px] text-muted-foreground">{w.network || "—"}</span>
+                {w.wallet_address && (
+                  <span className="font-mono text-[10px] text-muted-foreground">{w.wallet_address.slice(0, 10)}…</span>
+                )}
+              </div>
+            </div>
+
+            {/* Monto + estado */}
+            <div className="text-right flex-shrink-0">
+              <p className="text-sm font-mono font-bold text-destructive">-${w.amount.toLocaleString()}</p>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                w.status === "pending" ? "bg-yellow-500/10 text-yellow-500" :
+                w.status === "approved" ? "bg-success/10 text-success" :
+                "bg-destructive/10 text-destructive"
+              }`}>
+                {w.status === "pending" ? "Pendiente" : w.status === "approved" ? "Aprobado" : "Rechazado"}
+              </span>
+            </div>
+
+            {/* Acciones */}
+            {w.status === "pending" && (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <Button size="sm" variant="ghost" onClick={() => handleApprove(w)} className="h-7 w-7 p-0 text-success hover:text-success">
+                  <Check className="w-3.5 h-3.5" />
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => handleReject(w)} className="h-7 w-7 p-0 text-destructive hover:text-destructive">
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             )}
-          </tbody>
-        </table>
+          </div>
+        ))}
       </div>
     </div>
   );
