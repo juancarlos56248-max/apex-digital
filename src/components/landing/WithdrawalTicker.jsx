@@ -31,9 +31,10 @@ function timeAgo(date) {
 }
 
 export default function WithdrawalTicker() {
-  const [items, setItems] = useState([]);
   const [queue, setQueue] = useState([]);
   const [displayed, setDisplayed] = useState([]);
+  const rotateIdxRef = useState(4)[0];
+  const idxRef = { current: 4 };
 
   useEffect(() => {
     const load = async () => {
@@ -44,21 +45,27 @@ export default function WithdrawalTicker() {
       );
       const source = txs.length >= 3 ? txs : FALLBACK;
       setQueue(source);
-      // Show first 4 immediately
       setDisplayed(source.slice(0, 4));
+      idxRef.current = 4 % source.length;
     };
     load();
   }, []);
 
-  // Rotate: every 4s add a new item at top, remove last
+  // Rotate sequentially to avoid repeats
   useEffect(() => {
     if (queue.length === 0) return;
+    let idx = 4 % queue.length;
     const timer = setInterval(() => {
+      const next = queue[idx % queue.length];
+      idx = (idx + 1) % queue.length;
       setDisplayed(prev => {
-        const nextIdx = Math.floor(Math.random() * queue.length);
-        const next = queue[nextIdx];
-        const newList = [next, ...prev.slice(0, 3)];
-        return newList;
+        // Avoid showing same item as current first
+        if (prev[0]?.id === next.id) {
+          const skip = queue[(idx) % queue.length];
+          idx = (idx + 1) % queue.length;
+          return [skip, ...prev.slice(0, 3)];
+        }
+        return [next, ...prev.slice(0, 3)];
       });
     }, 4000);
     return () => clearInterval(timer);
