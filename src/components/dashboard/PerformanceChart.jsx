@@ -10,7 +10,7 @@ function generateMarketData() {
   const data = [];
   let value = 10000;
   const now = new Date();
-  for (let i = 30; i >= 0; i--) {
+  for (let i = 90; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
     const dailyGrowth = value * 0.10 * (0.7 + Math.random() * 0.6);
@@ -35,14 +35,15 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const PERIODS = [
-  { label: "7D", days: 7 },
-  { label: "14D", days: 14 },
   { label: "30D", days: 30 },
+  { label: "60D", days: 60 },
+  { label: "90D", days: 90 },
 ];
 
 export default function PerformanceChart() {
   const [allData, setAllData] = useState([]);
   const [period, setPeriod] = useState(30);
+  const MAX_DAYS = 90;
 
   useEffect(() => {
     setAllData(generateMarketData());
