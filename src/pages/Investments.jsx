@@ -186,6 +186,7 @@ export default function Investments() {
   const activeInvestments = investments.filter(i => i.status === "active");
   const activeTiers = activeInvestments.map(i => i.tier);
   const tierKeys = ["starter", "advance", "elite", "institutional"];
+  const trialKey = "prueba";
 
   return (
     <div className="space-y-6 pb-8">
@@ -217,6 +218,19 @@ export default function Investments() {
       {activeInvestments.length > 0 && (
         <ActivePortfolio investments={activeInvestments} />
       )}
+
+      {/* Plan Prueba — separado */}
+      <div>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3 font-medium">Plan de prueba</p>
+        <div className="max-w-xs">
+          <TierCard
+            tier={trialKey}
+            onSubscribe={handleSubscribe}
+            delay={0}
+            hasActive={activeTiers.includes(trialKey)}
+          />
+        </div>
+      </div>
 
       {/* Tier Cards */}
       <div>
@@ -282,16 +296,22 @@ export default function Investments() {
           <div className="space-y-3 py-1">
             <div>
               <Label className="text-xs text-muted-foreground">Monto a Invertir (USDT)</Label>
-              <Input
-                type="number"
-                placeholder={`Mín. $${selectedConfig?.minDeposit?.toLocaleString()}`}
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                className="mt-1.5 bg-secondary border-border font-mono text-base"
-              />
+              {selectedTier === "prueba" ? (
+                <div className="mt-1.5 flex items-center gap-2 px-4 py-2.5 rounded-md border border-border bg-secondary font-mono text-base text-gold font-bold">
+                  $5.00 USDT <span className="text-[11px] text-muted-foreground font-normal ml-1">(monto fijo)</span>
+                </div>
+              ) : (
+                <Input
+                  type="number"
+                  placeholder={`Mín. $${selectedConfig?.minDeposit?.toLocaleString()}`}
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  className="mt-1.5 bg-secondary border-border font-mono text-base"
+                />
+              )}
               <div className="flex items-center justify-between mt-1.5">
                 <p className="text-[11px] text-muted-foreground">
-                  Rango: ${selectedConfig?.minDeposit?.toLocaleString("en-US")} – {selectedConfig?.maxDeposit ? `$${selectedConfig?.maxDeposit?.toLocaleString("en-US")}` : "Sin límite"}
+                  {selectedTier === "prueba" ? "Monto fijo: $5 USDT" : `Rango: $${selectedConfig?.minDeposit?.toLocaleString("en-US")} – ${selectedConfig?.maxDeposit ? `$${selectedConfig?.maxDeposit?.toLocaleString("en-US")}` : "Sin límite"}`}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   Balance: <span className="text-gold font-mono font-semibold">${(user.balance || 0).toFixed(2)}</span>
