@@ -95,14 +95,14 @@ export default function Landing() {
               Accede a estrategias algorítmicas de alto rendimiento con <strong className="text-foreground">10% diario</strong>. Infraestructura institucional, disponible para todos.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
               <Link to="/dashboard" className="flex-1">
-                <Button size="lg" className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-13 text-base shadow-xl shadow-gold/25 pulse-glow">
-                  Comenzar Ahora <ArrowRight className="w-4 h-4" />
+                <Button size="lg" className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-14 text-lg shadow-xl shadow-gold/25 pulse-glow px-8">
+                  Comenzar Ahora <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/terms" className="flex-1">
-                <Button size="lg" variant="outline" className="w-full border-border/60 hover:border-gold/40 h-13 text-base backdrop-blur-sm">
+                <Button size="lg" variant="outline" className="w-full border-border/60 hover:border-gold/40 h-14 text-lg backdrop-blur-sm px-8">
                   Ver Protocolo
                 </Button>
               </Link>
