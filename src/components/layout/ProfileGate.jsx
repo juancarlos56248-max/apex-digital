@@ -20,7 +20,7 @@ export default function ProfileGate({ user, onComplete }) {
       return;
     }
     setSaving(true);
-    await base44.auth.updateMe({ dni: dni.trim(), phone: phone.trim() });
+    await base44.auth.updateMe({ full_name: fullName.trim(), dni: dni.trim(), phone: phone.trim() });
     toast.success("Perfil completado. ¡Bienvenido a Apex Digital!");
     onComplete();
   };

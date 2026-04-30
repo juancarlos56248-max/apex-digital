@@ -64,6 +64,14 @@ export default function Withdraw() {
     }
 
     setSubmitting(true);
+    // Fetch fresh balance to avoid stale state
+    const freshUser = await base44.auth.me();
+    const currentBalance = freshUser?.balance || 0;
+    if (amt > currentBalance) {
+      toast.error(`Balance insuficiente — Disponible: $${currentBalance.toFixed(2)} USDT`);
+      setSubmitting(false);
+      return;
+    }
     await base44.entities.Transaction.create({
       user_email: user.email,
       type: "withdrawal",
@@ -72,14 +80,14 @@ export default function Withdraw() {
       network,
       wallet_address: wallet.trim(),
     });
-    // Update user
+    const newBalance = currentBalance - amt;
     await base44.auth.updateMe({
-      balance: (user.balance || 0) - amt,
+      balance: newBalance,
       last_withdrawal_date: new Date().toISOString(),
     });
     setUser(prev => ({
       ...prev,
-      balance: (prev.balance || 0) - amt,
+      balance: newBalance,
       last_withdrawal_date: new Date().toISOString(),
     }));
 

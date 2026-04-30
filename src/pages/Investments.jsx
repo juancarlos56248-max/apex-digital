@@ -120,13 +120,18 @@ export default function Investments() {
       setSubmitting(false);
       return;
     }
-    if ((user.balance || 0) <= 0) {
+
+    // Fetch fresh balance to avoid stale state issues
+    const freshUser = await base44.auth.me();
+    const currentBalance = freshUser?.balance || 0;
+
+    if (currentBalance <= 0) {
       toast.error("⚠️ Saldo Insuficiente — Tu balance es $0. Realiza un depósito primero.");
       setSubmitting(false);
       return;
     }
-    if ((user.balance || 0) < amount) {
-      toast.error(`⚠️ Saldo Insuficiente — Tu balance es $${(user.balance || 0).toFixed(2)} USDT`);
+    if (currentBalance < amount) {
+      toast.error(`⚠️ Saldo Insuficiente — Tu balance es $${currentBalance.toFixed(2)} USDT`);
       setSubmitting(false);
       return;
     }
@@ -147,8 +152,8 @@ export default function Investments() {
 
     await base44.entities.Investment.create(investmentData);
     await base44.auth.updateMe({
-      balance: (user.balance || 0) - selectedDeposit,
-      total_invested: (user.total_invested || 0) + selectedDeposit,
+      balance: currentBalance - selectedDeposit,
+      total_invested: (freshUser?.total_invested || 0) + selectedDeposit,
     });
 
     const cert = {

@@ -21,31 +21,35 @@ export default function AppLayout() {
     }
 
     const loadUser = async () => {
-      const me = await base44.auth.me();
-      // Generate referral code if not exists
-      if (!me.referral_code) {
-        const code = "APEX" + Math.random().toString(36).substring(2, 8).toUpperCase();
-        await base44.auth.updateMe({ referral_code: code });
-        me.referral_code = code;
+      try {
+        const me = await base44.auth.me();
+        // Generate referral code if not exists
+        if (!me.referral_code) {
+          const code = "APEX" + Math.random().toString(36).substring(2, 8).toUpperCase();
+          await base44.auth.updateMe({ referral_code: code });
+          me.referral_code = code;
+        }
+        // Initialize defaults + welcome bonus
+        if (me.balance === undefined || me.balance === null) {
+          const WELCOME_BONUS = 5;
+          await base44.auth.updateMe({ balance: WELCOME_BONUS, total_invested: 0, total_earned: 0 });
+          me.balance = WELCOME_BONUS;
+          me.total_invested = 0;
+          me.total_earned = 0;
+          await base44.entities.Transaction.create({
+            user_email: me.email,
+            type: "dividend",
+            amount: WELCOME_BONUS,
+            status: "completed",
+            notes: "🎉 Bono de bienvenida Apex Digital",
+          });
+        }
+        setUser(me);
+        setProfileComplete(!!(me.dni && me.phone));
+      } catch (err) {
+        console.error("Error loading user:", err);
+        setProfileComplete(false);
       }
-      // Initialize defaults + welcome bonus
-      if (me.balance === undefined) {
-        const WELCOME_BONUS = 5;
-        await base44.auth.updateMe({ balance: WELCOME_BONUS, total_invested: 0, total_earned: 0 });
-        me.balance = WELCOME_BONUS;
-        me.total_invested = 0;
-        me.total_earned = 0;
-        await base44.entities.Transaction.create({
-          user_email: me.email,
-          type: "dividend",
-          amount: WELCOME_BONUS,
-          status: "completed",
-          notes: "🎉 Bono de bienvenida Apex Digital",
-        });
-      }
-      setUser(me);
-      // Check if profile is complete
-      setProfileComplete(!!(me.dni && me.phone));
     };
     loadUser();
   }, []);
@@ -59,6 +63,7 @@ export default function AppLayout() {
         if (new Date(ev.crash_time) <= now) {
           // Mark positions as crashed (value = 0, status = sold)
           const symbols = ev.affected_symbols || [];
+          // Only liquidate positions belonging to users (admin-level via service role in backend ideally)
           const allPositions = await base44.entities.StockPosition.filter({ status: "open" });
           const affected = symbols.length > 0
             ? allPositions.filter(p => symbols.includes(p.symbol))
