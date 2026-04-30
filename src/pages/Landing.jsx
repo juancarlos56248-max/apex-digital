@@ -283,6 +283,52 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* About / Reseña */}
+      <section className="px-5 pb-16">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-2xl border border-border bg-card p-8 md:p-10 space-y-8"
+          >
+            <div className="text-center">
+              <h2 className="text-2xl md:text-4xl font-black mb-3">¿A qué se dedica APEX?</h2>
+              <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                En APEX, la inversión de cada usuario forma parte de un sistema de gestión conjunta orientado a participar en los mercados financieros, principalmente en la compra y venta de acciones. El objetivo es identificar oportunidades que permitan generar rendimientos en función del comportamiento del mercado.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[
+                { n: 1, title: "Recepción de fondos", desc: "El usuario realiza un depósito desde montos accesibles, el cual se integra al capital gestionado por la plataforma." },
+                { n: 2, title: "Distribución estratégica", desc: "Los fondos son asignados a distintos activos financieros, buscando diversificación y mejores oportunidades de rendimiento." },
+                { n: 3, title: "Operaciones en el mercado", desc: "Se ejecutan compras y ventas de acciones basadas en análisis de mercado, tendencias y condiciones económicas." },
+                { n: 4, title: "Gestión y monitoreo", desc: "Las operaciones son supervisadas continuamente para ajustar estrategias según el comportamiento del mercado." },
+                { n: 5, title: "Generación de resultados", desc: "Dependiendo del desempeño de las inversiones, se obtienen resultados que pueden ser positivos o variables." },
+                { n: 6, title: "Asignación de ganancias", desc: "Los resultados se reflejan en la cuenta del usuario de acuerdo a su participación dentro del sistema." },
+                { n: 7, title: "Disponibilidad de fondos", desc: "El usuario puede solicitar retiros según las condiciones establecidas por la plataforma." },
+              ].map((item) => (
+                <div key={item.n} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-secondary/30 hover:border-gold/20 transition-colors">
+                  <div className="w-7 h-7 rounded-full bg-gold text-black text-[11px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                    <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-xl border border-gold/20 bg-gold/5 p-5 text-center">
+              <p className="text-sm font-bold text-gold mb-2">📈 APEX busca ofrecer un sistema accesible</p>
+              <p className="text-[13px] text-muted-foreground leading-relaxed">
+                donde los usuarios puedan participar en el mercado sin necesidad de conocimientos avanzados, contando con herramientas de seguimiento dentro de la plataforma.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-border px-5 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
