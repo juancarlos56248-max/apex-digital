@@ -8,6 +8,15 @@ const DAILY_RATES = {
   institutional: 0.10
 };
 
+// Duración en días de cada plan
+const PLAN_DURATION_DAYS = {
+  starter: 30,
+  advance: 60,
+  pro: 60,
+  elite: 90,
+  institutional: 120,
+};
+
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
 
@@ -56,6 +65,27 @@ Deno.serve(async (req) => {
     });
 
     credited++;
+
+    // Verificar si el plan ya completó su ciclo
+    const durationDays = PLAN_DURATION_DAYS[inv.tier] || 30;
+    const startDate = new Date(inv.created_date);
+    const daysElapsed = (now - startDate) / (1000 * 60 * 60 * 24);
+
+    if (daysElapsed >= durationDays) {
+      await base44.asServiceRole.entities.Investment.update(inv.id, {
+        status: "completed",
+      });
+    }
+  }
+
+  // También marcar como completed inversiones que ya vencieron aunque no tengan dividendo pendiente
+  for (const inv of activeInvestments) {
+    const durationDays = PLAN_DURATION_DAYS[inv.tier] || 30;
+    const startDate = new Date(inv.created_date);
+    const daysElapsed = (now - startDate) / (1000 * 60 * 60 * 24);
+    if (daysElapsed >= durationDays && inv.status === "active") {
+      await base44.asServiceRole.entities.Investment.update(inv.id, { status: "completed" });
+    }
   }
 
   return Response.json({ ok: true, credited, timestamp: now.toISOString() });
