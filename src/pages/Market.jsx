@@ -371,8 +371,13 @@ export default function Market() {
   const confirmBuy = async () => {
     const qty = parseFloat(quantity);
     if (!qty || qty <= 0) { toast.error("Ingresa una cantidad válida"); return; }
+
+    // Fetch latest user balance before proceeding to avoid stale state
+    const freshUser = await base44.auth.me();
+    const currentBalance = freshUser?.balance || 0;
+
     const total = qty * buyDialog.price;
-    if (total > (user.balance || 0)) { toast.error("Balance insuficiente"); return; }
+    if (total > currentBalance) { toast.error(`Balance insuficiente — Disponible: $${currentBalance.toFixed(2)} USDT`); return; }
 
     setSubmitting(true);
     await base44.entities.StockPosition.create({
@@ -384,8 +389,9 @@ export default function Market() {
       total_invested: total,
       status: "open",
     });
-    await base44.auth.updateMe({ balance: (user.balance || 0) - total });
-    setUser(prev => ({ ...prev, balance: (prev.balance || 0) - total }));
+    const newBalance = currentBalance - total;
+    await base44.auth.updateMe({ balance: newBalance });
+    setUser(prev => ({ ...prev, balance: newBalance }));
 
     toast.success(`✅ Compraste ${qty} acciones de ${buyDialog.stock.symbol}`);
     setBuyDialog(null);
@@ -404,8 +410,10 @@ export default function Market() {
       status: "sold",
       sell_price: currentPrice,
     });
-    await base44.auth.updateMe({ balance: (user.balance || 0) + sellValue });
-    setUser(prev => ({ ...prev, balance: (prev.balance || 0) + sellValue }));
+    const freshUser = await base44.auth.me();
+    const newBalance = (freshUser?.balance || 0) + sellValue;
+    await base44.auth.updateMe({ balance: newBalance });
+    setUser(prev => ({ ...prev, balance: newBalance }));
     toast.error(`⚠️ Liquidaste ${pos.quantity} ${pos.symbol} — Pérdida: $${loss.toFixed(2)} USDT`);
     loadPositions();
   };
