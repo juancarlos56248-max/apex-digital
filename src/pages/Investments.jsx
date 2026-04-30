@@ -107,6 +107,19 @@ export default function Investments() {
     }
 
     const selectedDeposit = amount;
+    const minDeposit = selectedConfig?.minDeposit || 0;
+    const maxDeposit = selectedConfig?.maxDeposit || null;
+
+    if (amount < minDeposit) {
+      toast.error(`⚠️ Monto mínimo para este plan es $${minDeposit.toLocaleString()} USDT`);
+      setSubmitting(false);
+      return;
+    }
+    if (maxDeposit && amount > maxDeposit) {
+      toast.error(`⚠️ Monto máximo para este plan es $${maxDeposit.toLocaleString()} USDT`);
+      setSubmitting(false);
+      return;
+    }
     if ((user.balance || 0) <= 0) {
       toast.error("⚠️ Saldo Insuficiente — Tu balance es $0. Realiza un depósito primero.");
       setSubmitting(false);
@@ -313,7 +326,17 @@ export default function Investments() {
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="flex-1">Cancelar</Button>
-            <Button onClick={confirmSubscription} disabled={submitting} className="flex-1 bg-gold hover:bg-gold-dark text-black font-semibold">
+            <Button
+              onClick={confirmSubscription}
+              disabled={submitting || (() => {
+                const v = parseFloat(customAmount);
+                if (!v || isNaN(v)) return true;
+                if (v < (selectedConfig?.minDeposit || 0)) return true;
+                if (selectedConfig?.maxDeposit && v > selectedConfig.maxDeposit) return true;
+                return false;
+              })()}
+              className="flex-1 bg-gold hover:bg-gold-dark text-black font-semibold"
+            >
               {submitting ? "Procesando..." : "Confirmar Activación"}
             </Button>
           </DialogFooter>
