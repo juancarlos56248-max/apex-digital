@@ -68,10 +68,10 @@ export default function Dashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard icon={Wallet} label="Balance disponible" value={`$${(user.balance || 0).toLocaleString()}`} delay={0} />
-        <StatsCard icon={TrendingUp} label="Activos invertidos" value={`$${totalActive.toLocaleString()}`} trend={2.4} delay={0.1} />
-        <StatsCard icon={DollarSign} label="Rendimiento Activo" value={`$${totalDividends.toFixed(2)}`} trend={5.1} delay={0.2} />
-        <StatsCard icon={Users} label="Total ganado" value={`$${(user.total_earned || 0).toLocaleString()}`} delay={0.3} />
+        <StatsCard icon={Wallet} label="Balance disponible" value={`$${(user.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} delay={0} />
+        <StatsCard icon={TrendingUp} label="Activos invertidos" value={`$${totalActive.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} trend={2.4} delay={0.1} />
+        <StatsCard icon={DollarSign} label="Rendimiento Activo" value={`$${totalDividends.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} trend={5.1} delay={0.2} />
+        <StatsCard icon={Users} label="Total ganado" value={`$${(user.total_earned || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} delay={0.3} />
       </div>
 
       {/* Chart */}
