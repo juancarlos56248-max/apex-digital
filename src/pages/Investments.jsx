@@ -297,8 +297,8 @@ export default function Investments() {
             <div>
               <Label className="text-xs text-muted-foreground">Monto a Invertir (USDT)</Label>
               {selectedTier === "prueba" ? (
-                <div className="mt-1.5 flex items-center gap-2 px-4 py-2.5 rounded-md border border-border bg-secondary font-mono text-base text-gold font-bold">
-                  $5.00 USDT <span className="text-[11px] text-muted-foreground font-normal ml-1">(monto fijo)</span>
+                <div className="mt-1.5 flex items-center gap-2 px-4 py-2.5 rounded-md border border-emerald-500/30 bg-emerald-500/5 font-mono text-base text-emerald-400 font-bold">
+                  $5.00 USDT <span className="text-[11px] text-muted-foreground font-normal ml-1">(ganancia pura — sin riesgo)</span>
                 </div>
               ) : (
                 <Input
