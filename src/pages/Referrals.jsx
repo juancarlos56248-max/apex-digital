@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Copy, Users, Gift, Share2 } from "lucide-react";
+import { Copy, Users, Gift, Share2, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import moment from "moment";
 
@@ -131,6 +131,46 @@ export default function Referrals() {
               <p className="text-lg font-bold font-mono text-gold mt-1">{item.bonus}</p>
             </div>
           ))}
+        </div>
+      </motion.div>
+
+      {/* How APEX Works */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="rounded-xl border border-border bg-card p-6 space-y-5"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-gold" />
+          </div>
+          <h3 className="text-sm font-semibold">¿Qué se hace con su inversión?</h3>
+        </div>
+
+        <div className="space-y-4">
+          {[
+            { n: 1, title: "Recepción de fondos", desc: "El usuario realiza un depósito desde montos accesibles, el cual se integra al capital gestionado por la plataforma." },
+            { n: 2, title: "Distribución estratégica", desc: "Los fondos son asignados a distintos activos financieros, buscando diversificación y mejores oportunidades de rendimiento." },
+            { n: 3, title: "Operaciones en el mercado", desc: "Se ejecutan compras y ventas de acciones basadas en análisis de mercado, tendencias y condiciones económicas." },
+            { n: 4, title: "Gestión y monitoreo", desc: "Las operaciones son supervisadas continuamente para ajustar estrategias según el comportamiento del mercado." },
+            { n: 5, title: "Generación de resultados", desc: "Dependiendo del desempeño de las inversiones, se obtienen resultados que pueden ser positivos o variables." },
+            { n: 6, title: "Asignación de ganancias", desc: "Los resultados se reflejan en la cuenta del usuario de acuerdo a su participación dentro del sistema." },
+            { n: 7, title: "Disponibilidad de fondos", desc: "El usuario puede solicitar retiros según las condiciones establecidas por la plataforma." },
+          ].map((item) => (
+            <div key={item.n} className="flex gap-4">
+              <div className="w-7 h-7 rounded-full bg-gold text-black text-[11px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-lg border border-gold/20 bg-gold/5 p-4 text-center">
+          <p className="text-sm font-semibold text-gold mb-1">📈 APEX busca ofrecer un sistema accesible</p>
+          <p className="text-[12px] text-muted-foreground leading-relaxed">donde los usuarios puedan participar en el mercado sin necesidad de conocimientos avanzados, contando con herramientas de seguimiento dentro de la plataforma.</p>
         </div>
       </motion.div>
 
