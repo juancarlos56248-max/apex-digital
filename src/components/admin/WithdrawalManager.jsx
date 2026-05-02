@@ -80,39 +80,51 @@ export default function WithdrawalManager() {
           <p className="text-sm text-muted-foreground text-center py-8">No hay retiros registrados</p>
         )}
         {withdrawals.map((w) => (
-          <div key={w.id} className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/20">
-            {/* Info principal */}
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium truncate">{w.user_email}</p>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[10px] text-muted-foreground">{moment(w.created_date).format("DD/MM HH:mm")}</span>
-                <span className="text-[10px] text-muted-foreground">{w.network || "—"}</span>
-                {w.wallet_address && (
-                  <span className="font-mono text-[10px] text-muted-foreground">{w.wallet_address.slice(0, 10)}…</span>
-                )}
+          <div key={w.id} className="px-5 py-4 hover:bg-secondary/20 space-y-3">
+            {/* Fila superior: usuario + monto + estado */}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-foreground">{w.user_email}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{moment(w.created_date).format("DD/MM/YYYY HH:mm")}</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="text-lg font-mono font-bold text-destructive">-${w.amount.toLocaleString()} USDT</p>
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${
+                  w.status === "pending" ? "bg-yellow-500/10 text-yellow-400" :
+                  w.status === "approved" ? "bg-success/10 text-success" :
+                  "bg-destructive/10 text-destructive"
+                }`}>
+                  {w.status === "pending" ? "⏳ Pendiente" : w.status === "approved" ? "✅ Aprobado" : "❌ Rechazado"}
+                </span>
               </div>
             </div>
 
-            {/* Monto + estado */}
-            <div className="text-right flex-shrink-0">
-              <p className="text-sm font-mono font-bold text-destructive">-${w.amount.toLocaleString()}</p>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                w.status === "pending" ? "bg-yellow-500/10 text-yellow-500" :
-                w.status === "approved" ? "bg-success/10 text-success" :
-                "bg-destructive/10 text-destructive"
-              }`}>
-                {w.status === "pending" ? "Pendiente" : w.status === "approved" ? "Aprobado" : "Rechazado"}
-              </span>
+            {/* Detalles de pago */}
+            <div className="rounded-lg border border-border bg-secondary/30 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Red de pago</span>
+                <span className="text-xs font-bold font-mono text-gold">{w.network || "—"}</span>
+              </div>
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wider flex-shrink-0">Dirección destino</span>
+                <span className="text-xs font-mono text-foreground break-all text-right">{w.wallet_address || "No especificada"}</span>
+              </div>
+              {w.notes && (
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-[11px] text-muted-foreground uppercase tracking-wider flex-shrink-0">Notas</span>
+                  <span className="text-xs text-muted-foreground text-right">{w.notes}</span>
+                </div>
+              )}
             </div>
 
             {/* Acciones */}
             {w.status === "pending" && (
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <Button size="sm" variant="ghost" onClick={() => handleApprove(w)} className="h-7 w-7 p-0 text-success hover:text-success">
-                  <Check className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-2 pt-1">
+                <Button size="sm" onClick={() => handleApprove(w)} className="flex-1 bg-success/10 hover:bg-success/20 text-success border border-success/20 gap-1.5 h-8">
+                  <Check className="w-3.5 h-3.5" /> Aprobar pago
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleReject(w)} className="h-7 w-7 p-0 text-destructive hover:text-destructive">
-                  <X className="w-3.5 h-3.5" />
+                <Button size="sm" variant="ghost" onClick={() => handleReject(w)} className="flex-1 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 gap-1.5 h-8">
+                  <X className="w-3.5 h-3.5" /> Rechazar
                 </Button>
               </div>
             )}
