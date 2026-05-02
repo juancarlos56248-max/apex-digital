@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Sidebar from "./Sidebar";
 import BottomNav from "./BottomNav";
 import ProfileGate from "./ProfileGate";
+import SupportWidget from "../support/SupportWidget";
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -119,6 +120,7 @@ export default function AppLayout() {
         </div>
       </main>
       <BottomNav />
+      <SupportWidget />
     </div>
   );
 }

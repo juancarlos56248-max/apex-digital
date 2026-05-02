@@ -1,0 +1,35 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Nombre del usuario"
+    },
+    "message": {
+      "type": "string",
+      "description": "Mensaje del usuario"
+    },
+    "reply": {
+      "type": "string",
+      "description": "Respuesta del administrador"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "replied",
+        "closed"
+      ],
+      "default": "open"
+    }
+  },
+  "required": [
+    "user_email",
+    "message"
+  ]
+}

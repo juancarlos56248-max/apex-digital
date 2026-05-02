@@ -3,7 +3,7 @@ import { useOutletContext, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet,
-  TrendingDown, Mail, Megaphone, ChevronRight
+  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle
 } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
@@ -12,6 +12,7 @@ import AnnouncementManager from "../../components/admin/AnnouncementManager";
 import BalanceManager from "../../components/admin/BalanceManager";
 import MarketCrashManager from "../../components/admin/MarketCrashManager";
 import EmailMasivoManager from "../../components/admin/EmailMasivoManager";
+import SupportManager from "../../components/admin/SupportManager";
 
 const SECTIONS = [
   {
@@ -33,6 +34,7 @@ const SECTIONS = [
     items: [
       { id: "announcements", label: "Anuncios", icon: Megaphone },
       { id: "email", label: "Email Masivo", icon: Mail },
+      { id: "support", label: "Soporte", icon: MessageCircle },
     ],
   },
   {
@@ -50,6 +52,7 @@ const CONTENT_MAP = {
   users: <UserConsole />,
   announcements: <AnnouncementManager />,
   email: <EmailMasivoManager />,
+  support: <SupportManager />,
   market: <MarketCrashManager />,
 };
 
@@ -60,6 +63,7 @@ const TITLES = {
   users: { label: "Consola de Usuarios", icon: Users },
   announcements: { label: "Anuncios", icon: Megaphone },
   email: { label: "Email Masivo", icon: Mail },
+  support: { label: "Soporte", icon: MessageCircle },
   market: { label: "Control de Mercado", icon: TrendingDown, danger: true },
 };
 
