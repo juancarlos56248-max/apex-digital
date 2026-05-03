@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useOutletContext, Navigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet,
-  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle
+  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X
 } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
@@ -92,69 +92,95 @@ export default function AdminPanel() {
         </div>
       </motion.div>
 
-      {/* Layout dos columnas */}
-      <div className="flex gap-5 items-start">
-        {/* Sidebar nav */}
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.05 }}
-          className="rounded-xl border border-border bg-card overflow-hidden w-52 flex-shrink-0"
-        >
-          {SECTIONS.map((section) => (
-            <div key={section.group}>
-              <p className="px-4 pt-4 pb-1.5 text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
-                {section.group}
-              </p>
+      {/* Menu grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="space-y-5"
+      >
+        {SECTIONS.map((section) => (
+          <div key={section.group}>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2 px-1">
+              {section.group}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {section.items.map((item) => {
                 const Icon = item.icon;
-                const isActive = active === item.id;
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setActive(isActive ? null : item.id)}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all
-                      ${isActive
-                        ? item.danger
-                          ? "bg-destructive/10 text-destructive"
-                          : "bg-gold/10 text-gold"
-                        : item.danger
-                          ? "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                          : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+                    onClick={() => setActive(item.id)}
+                    className={`flex items-center justify-between px-4 py-4 rounded-xl border bg-card transition-all text-left group
+                      ${item.danger
+                        ? "border-destructive/20 hover:bg-destructive/10 hover:border-destructive/40"
+                        : "border-border hover:bg-secondary/60 hover:border-gold/30"
                       }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>{item.label}</span>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0
+                        ${item.danger ? "bg-destructive/10" : "bg-gold/10"}`}>
+                        <Icon className={`w-4 h-4 ${item.danger ? "text-destructive" : "text-gold"}`} />
+                      </div>
+                      <span className={`text-sm font-semibold ${item.danger ? "text-destructive" : "text-foreground"}`}>
+                        {item.label}
+                      </span>
                     </div>
-                    <ChevronRight className={`w-3 h-3 transition-transform ${isActive ? "rotate-90 opacity-80" : "opacity-40"}`} />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                   </button>
                 );
               })}
-              <div className="border-b border-border/50 mx-4 last:hidden" />
             </div>
-          ))}
-        </motion.div>
+          </div>
+        ))}
+      </motion.div>
 
-        {/* Contenido inline */}
+      {/* Full-screen modal */}
+      <AnimatePresence>
         {active && (
-          <motion.div
-            key={active}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2 }}
-            className="flex-1 min-w-0"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              {CurrentIcon && (
-                <CurrentIcon className={`w-4 h-4 ${current?.danger ? "text-destructive" : "text-gold"}`} />
-              )}
-              <h2 className="text-sm font-semibold">{current?.label}</h2>
-            </div>
-            {CONTENT_MAP[active]}
-          </motion.div>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActive(null)}
+              className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
+            />
+            {/* Panel */}
+            <motion.div
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 60 }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              className="fixed inset-x-0 bottom-0 top-16 z-50 flex flex-col bg-background rounded-t-2xl border-t border-border overflow-hidden"
+            >
+              {/* Modal header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card flex-shrink-0">
+                <div className="flex items-center gap-3">
+                  {CurrentIcon && (
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${current?.danger ? "bg-destructive/10" : "bg-gold/10"}`}>
+                      <CurrentIcon className={`w-4 h-4 ${current?.danger ? "text-destructive" : "text-gold"}`} />
+                    </div>
+                  )}
+                  <h2 className="text-base font-bold">{current?.label}</h2>
+                </div>
+                <button
+                  onClick={() => setActive(null)}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Modal content */}
+              <div className="flex-1 overflow-y-auto p-5">
+                {CONTENT_MAP[active]}
+              </div>
+            </motion.div>
+          </>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 }
