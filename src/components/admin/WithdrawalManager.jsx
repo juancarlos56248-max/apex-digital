@@ -2,24 +2,27 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Check, X, RefreshCcw, Copy, Wallet, Network, User } from "lucide-react";
+import { Check, X, RefreshCcw, Copy } from "lucide-react";
 import moment from "moment";
 
-function CopyButton({ value, label }) {
+function CopyBtn({ value, label }) {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    toast.success(`${label} copiado`);
-    setTimeout(() => setCopied(false), 2000);
-  };
   return (
     <button
-      onClick={handleCopy}
-      className={`flex-shrink-0 p-1 rounded transition-colors ${copied ? "text-emerald-400" : "text-muted-foreground hover:text-gold"}`}
-      title={`Copiar ${label}`}
+      onClick={() => {
+        navigator.clipboard.writeText(value);
+        setCopied(true);
+        toast.success(`${label} copiado`);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className={`ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-colors flex-shrink-0 ${
+        copied
+          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+          : "bg-secondary text-muted-foreground border-border hover:text-gold hover:border-gold/30"
+      }`}
     >
-      <Copy className="w-3.5 h-3.5" />
+      <Copy className="w-3 h-3" />
+      {copied ? "Copiado" : "Copiar"}
     </button>
   );
 }
@@ -39,7 +42,7 @@ export default function WithdrawalManager() {
 
   const handleApprove = async (w) => {
     await base44.entities.Transaction.update(w.id, { status: "approved" });
-    toast.success(`Retiro de $${w.amount} aprobado para ${w.user_email}`);
+    toast.success(`Retiro de $${w.amount} aprobado`);
     loadWithdrawals();
   };
 
@@ -77,14 +80,14 @@ export default function WithdrawalManager() {
   return (
     <div className="rounded-xl border border-border bg-card">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-border">
         <div>
           <h3 className="text-sm font-semibold">Gestor de Pagos</h3>
-          <p className="text-[11px] text-muted-foreground">{pendingCount} retiros pendientes de aprobación</p>
+          <p className="text-[11px] text-muted-foreground">{pendingCount} retiros pendientes</p>
         </div>
         <div className="flex items-center gap-2">
           {pendingCount > 0 && (
-            <Button size="sm" onClick={handleBulkApprove} className="bg-gold hover:bg-gold-dark text-black text-xs h-7">
+            <Button size="sm" onClick={handleBulkApprove} className="bg-gold hover:bg-gold-dark text-black text-xs h-8">
               Aprobar Todos ({pendingCount})
             </Button>
           )}
@@ -96,89 +99,90 @@ export default function WithdrawalManager() {
 
       <div className="divide-y divide-border">
         {withdrawals.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">No hay retiros registrados</p>
+          <p className="text-sm text-muted-foreground text-center py-10">No hay retiros registrados</p>
         )}
 
         {withdrawals.map((w) => (
-          <div key={w.id} className={`px-5 py-5 space-y-4 ${w.status === "pending" ? "bg-yellow-500/3" : ""}`}>
+          <div key={w.id} className="p-5 space-y-4">
 
-            {/* Fila 1: Usuario + Monto + Estado */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                  <User className="w-4 h-4 text-muted-foreground" />
+            {/* ── Bloque 1: Usuario y fecha ── */}
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-0.5">Usuario</p>
+                <div className="flex items-center flex-wrap gap-1">
+                  <span className="text-sm font-semibold break-all">{w.user_email}</span>
+                  <CopyBtn value={w.user_email} label="Email" />
                 </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold text-foreground truncate">{w.user_email}</p>
-                    <CopyButton value={w.user_email} label="email" />
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">{moment(w.created_date).format("DD/MM/YYYY HH:mm")}</p>
-                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{moment(w.created_date).format("DD/MM/YYYY HH:mm")}</p>
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-xl font-mono font-black text-destructive">${w.amount?.toLocaleString()} USDT</p>
-                <span className={`inline-block text-[11px] px-2.5 py-0.5 rounded-full font-semibold mt-0.5 ${
-                  w.status === "pending" ? "bg-yellow-500/15 text-yellow-400 border border-yellow-500/20" :
-                  w.status === "approved" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" :
-                  "bg-destructive/15 text-destructive border border-destructive/20"
-                }`}>
-                  {w.status === "pending" ? "⏳ Pendiente" : w.status === "approved" ? "✅ Aprobado" : "❌ Rechazado"}
-                </span>
-              </div>
+              <span className={`text-xs px-3 py-1 rounded-full font-bold border flex-shrink-0 ${
+                w.status === "pending"  ? "bg-yellow-500/15 text-yellow-400 border-yellow-500/30" :
+                w.status === "approved" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" :
+                                          "bg-red-500/15 text-red-400 border-red-500/30"
+              }`}>
+                {w.status === "pending" ? "⏳ Pendiente" : w.status === "approved" ? "✅ Aprobado" : "❌ Rechazado"}
+              </span>
             </div>
 
-            {/* Fila 2: Datos de pago (el destino del dinero) */}
-            <div className="rounded-xl border-2 border-gold/25 bg-gold/5 p-4 space-y-3">
-              <p className="text-[10px] uppercase tracking-widest text-gold font-bold mb-1">📤 Datos de pago — enviar a esta cuenta</p>
+            {/* ── Bloque 2: Cuánto pagar ── */}
+            <div className="rounded-xl bg-destructive/10 border-2 border-destructive/30 p-4 text-center">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">💸 Monto a pagar</p>
+              <p className="text-3xl font-black font-mono text-destructive">${w.amount?.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">USDT</p>
+            </div>
+
+            {/* ── Bloque 3: A dónde enviar ── */}
+            <div className="rounded-xl bg-gold/5 border-2 border-gold/25 p-4 space-y-3">
+              <p className="text-[11px] text-gold font-bold uppercase tracking-wider">📤 Enviar a esta cuenta</p>
 
               {/* Red */}
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] text-muted-foreground flex items-center gap-1.5">
-                  <Network className="w-3.5 h-3.5" /> Red blockchain
-                </span>
-                <span className="text-sm font-black font-mono text-gold bg-gold/10 px-2.5 py-0.5 rounded-md">
-                  {w.network || "No especificada"}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">Red blockchain</span>
+                <span className="text-sm font-black font-mono text-gold bg-gold/15 px-3 py-0.5 rounded-full">
+                  {w.network || "—"}
                 </span>
               </div>
 
-              {/* Wallet */}
-              <div className="space-y-1">
-                <span className="text-[12px] text-muted-foreground flex items-center gap-1.5">
-                  <Wallet className="w-3.5 h-3.5" /> Dirección de billetera destino
-                </span>
-                <div className="flex items-center gap-2 bg-background rounded-lg border border-border px-3 py-2.5">
-                  <p className="text-sm font-mono text-foreground break-all flex-1 leading-relaxed">
+              {/* Dirección */}
+              <div>
+                <p className="text-xs text-muted-foreground mb-1.5">Dirección de billetera destino</p>
+                <div className="rounded-lg bg-background border border-border p-3">
+                  <p className="text-sm font-mono text-foreground break-all leading-relaxed">
                     {w.wallet_address || "No especificada"}
                   </p>
                   {w.wallet_address && (
-                    <CopyButton value={w.wallet_address} label="dirección" />
+                    <div className="mt-2">
+                      <CopyBtn value={w.wallet_address} label="Dirección" />
+                    </div>
                   )}
                 </div>
               </div>
-
-              {/* Monto a enviar destacado */}
-              <div className="flex items-center justify-between rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2">
-                <span className="text-[12px] text-muted-foreground">Monto a enviar</span>
-                <span className="text-base font-black font-mono text-destructive">${w.amount?.toLocaleString()} USDT</span>
-              </div>
             </div>
 
-            {/* Notas */}
+            {/* Notas opcionales */}
             {w.notes && (
-              <div className="rounded-lg bg-secondary/40 border border-border px-3 py-2 text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground px-1">
                 <span className="font-semibold text-foreground">Notas: </span>{w.notes}
-              </div>
+              </p>
             )}
 
-            {/* Acciones */}
+            {/* ── Acciones ── */}
             {w.status === "pending" && (
-              <div className="flex items-center gap-2 pt-1">
-                <Button size="sm" onClick={() => handleApprove(w)} className="flex-1 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/25 gap-1.5 h-9 font-semibold">
-                  <Check className="w-3.5 h-3.5" /> Marcar como pagado
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => handleApprove(w)}
+                  className="bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 gap-1.5 h-10 font-bold text-sm"
+                >
+                  <Check className="w-4 h-4" /> Pagado ✓
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleReject(w)} className="flex-1 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 gap-1.5 h-9 font-semibold">
-                  <X className="w-3.5 h-3.5" /> Rechazar
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleReject(w)}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 gap-1.5 h-10 font-bold text-sm"
+                >
+                  <X className="w-4 h-4" /> Rechazar
                 </Button>
               </div>
             )}
