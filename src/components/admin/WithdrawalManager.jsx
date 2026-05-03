@@ -87,7 +87,8 @@ export default function WithdrawalManager() {
           {/* Fila superior */}
           <div className="flex items-center justify-between gap-2">
             <div>
-              <p className="text-sm font-semibold font-mono text-gold">${w.amount?.toLocaleString()} USDT</p>
+              <p className="text-[11px] text-muted-foreground line-through opacity-60">${w.amount?.toLocaleString()} bruto</p>
+              <p className="text-sm font-bold font-mono text-emerald-400">${(w.amount * 0.92).toFixed(2)} USDT <span className="text-[10px] text-muted-foreground font-normal">(neto -8%)</span></p>
               <p className="text-[11px] text-muted-foreground">{w.user_email} · {moment(w.created_date).format("DD/MM HH:mm")}</p>
             </div>
             <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold flex-shrink-0 ${
