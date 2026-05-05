@@ -7,14 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, Shield, AlertCircle } from "lucide-react";
+import { Clock, Shield, AlertCircle, TrendingUp } from "lucide-react";
 import WithdrawalTicker from "../components/landing/WithdrawalTicker";
 
 const COMMISSION_RATE = 0.08;
+const WELCOME_BONUS = 5; // Los $5 de bienvenida no son retirables
+
+// Valida direcciones USDT: TRC20 (T...), ERC20/BEP20 (0x...)
+const isValidUSDTAddress = (addr) => {
+  const trc20 = /^T[A-Za-z0-9]{33}$/;
+  const erc20 = /^0x[a-fA-F0-9]{40}$/;
+  return trc20.test(addr.trim()) || erc20.test(addr.trim());
+};
 
 export default function Withdraw() {
   const { user, setUser } = useOutletContext();
-  const [network, setNetwork] = useState("USDT");
+  const [network, setNetwork] = useState("TRC20");
   const [amount, setAmount] = useState("");
   const [wallet, setWallet] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -22,6 +30,13 @@ export default function Withdraw() {
   const amtNum = parseFloat(amount) || 0;
   const commission = amtNum * COMMISSION_RATE;
   const netAmount = amtNum - commission;
+
+  // Saldo real disponible para retiro (excluyendo bono de bienvenida)
+  const totalBalance = user?.balance || 0;
+  const withdrawableBalance = Math.max(0, totalBalance - WELCOME_BONUS);
+  const hasOnlyBonus = totalBalance <= WELCOME_BONUS;
+
+  const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
 
   // Check 24h restriction
   const canWithdraw = () => {
@@ -53,22 +68,30 @@ export default function Withdraw() {
       toast.error("Completa todos los campos");
       return;
     }
+    if (!isValidUSDTAddress(wallet)) {
+      toast.error("Dirección de wallet inválida. Ingresa una dirección USDT válida (TRC20 o ERC20/BEP20).");
+      return;
+    }
     const amt = Number(amount);
     if (amt < 1) {
       toast.error("Monto mínimo de retiro: 1 USDT");
       return;
     }
-    if (amt > (user.balance || 0)) {
-      toast.error("Balance insuficiente");
+    if (hasOnlyBonus) {
+      toast.error("El bono de bienvenida de $5 no es retirable. Debes realizar una inversión primero.");
+      return;
+    }
+    if (amt > withdrawableBalance) {
+      toast.error(`Solo puedes retirar hasta $${withdrawableBalance.toFixed(2)} USDT (el bono de $5 de bienvenida no es retirable).`);
       return;
     }
 
     setSubmitting(true);
-    // Fetch fresh balance to avoid stale state
     const freshUser = await base44.auth.me();
     const currentBalance = freshUser?.balance || 0;
-    if (amt > currentBalance) {
-      toast.error(`Balance insuficiente — Disponible: $${currentBalance.toFixed(2)} USDT`);
+    const freshWithdrawable = Math.max(0, currentBalance - WELCOME_BONUS);
+    if (amt > freshWithdrawable) {
+      toast.error(`Saldo retirable insuficiente — Disponible: $${freshWithdrawable.toFixed(2)} USDT`);
       setSubmitting(false);
       return;
     }
@@ -137,33 +160,69 @@ export default function Withdraw() {
         transition={{ delay: 0.1 }}
         className="rounded-xl border border-border bg-card p-6 space-y-5"
       >
-        <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
-          <span className="text-xs text-muted-foreground">Balance Disponible</span>
-          <span className="text-lg font-bold font-mono text-gold">${(user.balance || 0).toLocaleString()}</span>
+        {/* Balances */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col p-3 rounded-lg bg-secondary/50">
+            <span className="text-[10px] text-muted-foreground">Balance Total</span>
+            <span className="text-base font-bold font-mono text-gold">${totalBalance.toLocaleString()}</span>
+          </div>
+          <div className="flex flex-col p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <span className="text-[10px] text-emerald-400">Disponible para Retirar</span>
+            <span className="text-base font-bold font-mono text-emerald-400">${withdrawableBalance.toFixed(2)}</span>
+          </div>
         </div>
 
+        {/* Alerta bono de bienvenida */}
+        {hasOnlyBonus && (
+          <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/8 p-4 flex gap-3">
+            <TrendingUp className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-yellow-400">Bono de bienvenida no retirable</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Los <span className="text-yellow-400 font-bold">$5 de bienvenida</span> son exclusivamente para invertir en la plataforma. Realiza una inversión para comenzar a generar ganancias retirables.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Red */}
         <div>
-          <Label className="text-xs text-muted-foreground">Red de Retiro</Label>
+          <Label className="text-xs text-muted-foreground">Red de la Wallet</Label>
           <Select value={network} onValueChange={setNetwork}>
             <SelectTrigger className="mt-1.5 bg-secondary border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="USDT">USDT Nativo</SelectItem>
+              <SelectItem value="TRC20">TRC20 (TRON)</SelectItem>
+              <SelectItem value="ERC20">ERC20 (Ethereum)</SelectItem>
+              <SelectItem value="BEP20">BEP20 (BSC)</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
+        {/* Dirección wallet con validación */}
         <div>
-          <Label className="text-xs text-muted-foreground">Dirección de tu Wallet</Label>
+          <Label className="text-xs text-muted-foreground">Dirección de tu Wallet USDT</Label>
           <Input
-            placeholder="Ingresa tu dirección de wallet"
+            placeholder={network === "TRC20" ? "Empieza con T... (34 caracteres)" : "Empieza con 0x... (42 caracteres)"}
             value={wallet}
             onChange={(e) => setWallet(e.target.value)}
-            className="mt-1.5 bg-secondary border-border font-mono text-xs"
+            className={`mt-1.5 bg-secondary font-mono text-xs transition-colors ${
+              walletValid === false ? "border-destructive focus-visible:ring-destructive" :
+              walletValid === true  ? "border-emerald-500/60" : "border-border"
+            }`}
           />
+          {walletValid === false && (
+            <p className="text-[11px] text-destructive mt-1 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" /> Dirección inválida. Verifica que sea una dirección USDT correcta.
+            </p>
+          )}
+          {walletValid === true && (
+            <p className="text-[11px] text-emerald-400 mt-1">✓ Dirección válida</p>
+          )}
         </div>
 
+        {/* Monto */}
         <div>
           <Label className="text-xs text-muted-foreground">Monto a Retirar (USDT)</Label>
           <Input
@@ -174,10 +233,10 @@ export default function Withdraw() {
             className="mt-1.5 bg-secondary border-border font-mono"
           />
           <button
-            onClick={() => setAmount(String(user.balance || 0))}
+            onClick={() => setAmount(String(withdrawableBalance))}
             className="text-[11px] text-gold hover:text-gold-light mt-1 transition-colors"
           >
-            Retirar todo
+            Retirar máximo disponible
           </button>
         </div>
 
@@ -200,7 +259,7 @@ export default function Withdraw() {
 
         <Button
           onClick={handleSubmit}
-          disabled={submitting || !withdrawAllowed}
+          disabled={submitting || !withdrawAllowed || hasOnlyBonus || walletValid === false}
           className="w-full bg-gold hover:bg-gold-dark text-black font-semibold h-11"
         >
           {submitting ? "Procesando..." : "Solicitar Retiro"}
