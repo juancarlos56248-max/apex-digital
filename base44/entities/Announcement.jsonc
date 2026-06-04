@@ -1,0 +1,32 @@
+{
+  "name": "Announcement",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del anuncio"
+    },
+    "message": {
+      "type": "string",
+      "description": "Contenido del anuncio"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "success",
+        "promo"
+      ],
+      "default": "info"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "message"
+  ]
+}

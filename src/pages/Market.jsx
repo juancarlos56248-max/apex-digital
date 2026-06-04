@@ -16,22 +16,21 @@ import {
 
 // target: price the stock will climb toward, displayOffset: fixed % shown before price moves
 const STOCKS = [
-  { symbol: "AAPL", name: "Apple Inc.", base: 5.20, target: 9.36, displayOffset: 2.34 },
-  { symbol: "MSFT", name: "Microsoft Corp.", base: 6.80, target: 8.50, displayOffset: -1.20 },
-  { symbol: "TSLA", name: "Tesla Inc.", base: 3.40, target: 6.12, displayOffset: 5.80 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", base: 7.50, target: 9.20, displayOffset: -3.10 },
-  { symbol: "AMZN", name: "Amazon.com", base: 4.90, target: 8.82, displayOffset: 1.75 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", base: 6.10, target: 7.30, displayOffset: -0.85 },
-  { symbol: "META", name: "Meta Platforms", base: 5.70, target: 10.26, displayOffset: 4.20 },
-  { symbol: "JPM", name: "JPMorgan Chase", base: 3.80, target: 4.60, displayOffset: -2.40 },
-  { symbol: "GS", name: "Goldman Sachs", base: 8.30, target: 9.80, displayOffset: -4.60 },
-  { symbol: "NFLX", name: "Netflix Inc.", base: 4.20, target: 7.56, displayOffset: 3.90 },
-  { symbol: "AMD", name: "Advanced Micro Devices", base: 3.10, target: 3.90, displayOffset: -1.55 },
-  { symbol: "BRK.B", name: "Berkshire Hathaway", base: 7.90, target: 9.50, displayOffset: 0.70 },
-  { symbol: "DIS", name: "Walt Disney Co.", base: 2.80, target: 5.04, displayOffset: 6.10 },
-  { symbol: "UBER", name: "Uber Technologies", base: 4.60, target: 5.70, displayOffset: -2.90 },
-  { symbol: "COIN", name: "Coinbase Global", base: 6.40, target: 11.52, displayOffset: 7.30 },
-  { symbol: "PLTR", name: "Palantir Technologies", base: 3.60, target: 4.50, displayOffset: -0.40 },
+  { symbol: "AAPL",  name: "Apple Inc.",             base: 310.26,  target: 322.00,  displayOffset: -1.57 },
+  { symbol: "MSFT",  name: "Microsoft Corp.",         base: 427.34,  target: 445.00,  displayOffset: -3.17 },
+  { symbol: "TSLA",  name: "Tesla Inc.",              base: 423.70,  target: 445.00,  displayOffset: -0.01 },
+  { symbol: "NVDA",  name: "NVIDIA Corp.",            base: 214.75,  target: 228.00,  displayOffset: -3.62 },
+  { symbol: "AMZN",  name: "Amazon.com",              base: 250.02,  target: 265.00,  displayOffset: -2.53 },
+  { symbol: "GOOGL", name: "Alphabet Inc.",           base: 358.99,  target: 375.00,  displayOffset: -0.79 },
+  { symbol: "META",  name: "Meta Platforms",          base: 622.98,  target: 650.00,  displayOffset: 4.24  },
+  { symbol: "JPM",   name: "JPMorgan Chase",          base: 300.85,  target: 315.00,  displayOffset: -0.04 },
+  { symbol: "GS",    name: "Goldman Sachs",           base: 1041.02, target: 1075.00, displayOffset: -2.21 },
+  { symbol: "NFLX",  name: "Netflix Inc.",            base: 81.52,   target: 88.00,   displayOffset: -2.17 },
+  { symbol: "AMD",   name: "Advanced Micro Devices",  base: 542.52,  target: 570.00,  displayOffset: 4.02  },
+  { symbol: "DIS",   name: "Walt Disney Co.",         base: 99.39,   target: 108.00,  displayOffset: -1.99 },
+  { symbol: "UBER",  name: "Uber Technologies",       base: 71.69,   target: 78.00,   displayOffset: 0.10  },
+  { symbol: "COIN",  name: "Coinbase Global",         base: 163.22,  target: 178.00,  displayOffset: -6.19 },
+  { symbol: "PLTR",  name: "Palantir Technologies",   base: 142.20,  target: 155.00,  displayOffset: -6.55 },
 ];
 
 const CRASHED_SYMBOLS = new Set([]);

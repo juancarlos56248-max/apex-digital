@@ -1,0 +1,60 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "deposit",
+        "withdrawal",
+        "dividend",
+        "referral_bonus"
+      ],
+      "description": "Transaction type"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount in USDT"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "completed"
+      ],
+      "default": "pending"
+    },
+    "txid": {
+      "type": "string",
+      "description": "Blockchain transaction hash"
+    },
+    "network": {
+      "type": "string",
+      "enum": [
+        "TRC20",
+        "ERC20",
+        "BEP20"
+      ],
+      "description": "Blockchain network"
+    },
+    "wallet_address": {
+      "type": "string",
+      "description": "Wallet address for withdrawals"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Admin notes"
+    }
+  },
+  "required": [
+    "user_email",
+    "type",
+    "amount"
+  ]
+}

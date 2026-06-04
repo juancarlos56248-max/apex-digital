@@ -1,0 +1,51 @@
+{
+  "name": "Investment",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the investor"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "pro",
+        "elite",
+        "institutional"
+      ],
+      "description": "Investment tier"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Deposited amount in USDT"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "active"
+    },
+    "total_earned": {
+      "type": "number",
+      "default": 0,
+      "description": "Total dividends earned"
+    },
+    "last_dividend_date": {
+      "type": "string",
+      "description": "ISO date of last dividend accrual"
+    },
+    "referral_code_used": {
+      "type": "string",
+      "description": "Referral code used at activation"
+    }
+  },
+  "required": [
+    "user_email",
+    "tier",
+    "amount"
+  ]
+}

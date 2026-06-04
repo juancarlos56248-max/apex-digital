@@ -1,0 +1,44 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "referrer_email": {
+      "type": "string",
+      "description": "Email of the referrer"
+    },
+    "referred_email": {
+      "type": "string",
+      "description": "Email of the referred user"
+    },
+    "referral_code": {
+      "type": "string",
+      "description": "Referral code used"
+    },
+    "bonus_amount": {
+      "type": "number",
+      "description": "Bonus earned by referrer"
+    },
+    "investment_tier": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "pro",
+        "elite",
+        "institutional"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "credited"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "referrer_email",
+    "referred_email",
+    "referral_code"
+  ]
+}
