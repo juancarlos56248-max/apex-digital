@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, Users } from "lucide-react";
+import { LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, Users, MessageSquare } from "lucide-react";
 
 const navItems = [
   { path: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { path: "/investments", label: "Nodos", icon: TrendingUp },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
-  { path: "/referrals", label: "Referidos", icon: Users },
+  { path: "/comunidad", label: "Comunidad", icon: MessageSquare },
 ];
 
 export default function BottomNav() {

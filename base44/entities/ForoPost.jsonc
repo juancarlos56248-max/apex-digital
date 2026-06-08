@@ -1,0 +1,35 @@
+{
+  "name": "ForoPost",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email del autor"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Nombre del autor"
+    },
+    "content": {
+      "type": "string",
+      "description": "Contenido del mensaje"
+    },
+    "likes": {
+      "type": "number",
+      "default": 0,
+      "description": "N\u00famero de likes"
+    },
+    "liked_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails de usuarios que dieron like"
+    }
+  },
+  "required": [
+    "user_email",
+    "user_name",
+    "content"
+  ]
+}
