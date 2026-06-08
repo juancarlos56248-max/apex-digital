@@ -33,12 +33,17 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Save ref code before redirecting to login
-      const params = new URLSearchParams(window.location.search);
-      const refCode = params.get('ref');
-      if (refCode) localStorage.setItem('apex_ref_code', refCode);
-      navigateToLogin();
-      return null;
+      // Allow public routes without auth
+      const publicPaths = ['/', '/terms'];
+      const isPublicPath = publicPaths.includes(window.location.pathname);
+      if (!isPublicPath) {
+        // Save ref code before redirecting to login
+        const params = new URLSearchParams(window.location.search);
+        const refCode = params.get('ref');
+        if (refCode) localStorage.setItem('apex_ref_code', refCode);
+        navigateToLogin();
+        return null;
+      }
     }
   }
 
