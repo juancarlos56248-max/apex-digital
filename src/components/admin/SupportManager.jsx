@@ -1,44 +1,82 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, RefreshCcw, Send, CheckCircle2 } from "lucide-react";
+import { MessageCircle, Send, CheckCircle2, ChevronLeft, Circle } from "lucide-react";
 import { toast } from "sonner";
-import moment from "moment";
+import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
 
 export default function SupportManager() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [replyText, setReplyText] = useState({});
-  const [sending, setSending] = useState({});
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
+  const bottomRef = useRef(null);
 
-  const load = async () => {
-    setLoading(true);
-    const all = await base44.entities.SupportTicket.list("-created_date", 100);
-    setTickets(all);
-    setLoading(false);
-  };
+  useEffect(() => {
+    const load = async () => {
+      const all = await base44.entities.SupportTicket.list("-created_date", 200);
+      setTickets(all);
+      setLoading(false);
+    };
+    load();
+    const unsub = base44.entities.SupportTicket.subscribe((event) => {
+      if (event.type === "create") setTickets(prev => [event.data, ...prev]);
+      else if (event.type === "update") setTickets(prev => prev.map(t => t.id === event.id ? event.data : t));
+    });
+    return unsub;
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  }, [selectedUser, tickets]);
 
-  const handleReply = async (ticket) => {
-    const reply = replyText[ticket.id]?.trim();
-    if (!reply) return;
-    setSending(prev => ({ ...prev, [ticket.id]: true }));
-    await base44.entities.SupportTicket.update(ticket.id, { reply, status: "replied" });
+  // Group tickets by user
+  const byUser = tickets.reduce((acc, tk) => {
+    const key = tk.user_email;
+    if (!acc[key]) acc[key] = { email: key, name: tk.user_name || key, messages: [] };
+    acc[key].messages.push(tk);
+    return acc;
+  }, {});
+
+  const conversations = Object.values(byUser).map(u => ({
+    ...u,
+    messages: u.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)),
+    lastMessage: u.messages[u.messages.length - 1],
+    unread: u.messages.filter(t => t.status === "open" && !t.reply).length,
+  })).sort((a, b) => new Date(b.lastMessage?.created_date) - new Date(a.lastMessage?.created_date));
+
+  const currentConv = selectedUser ? byUser[selectedUser] : null;
+  const currentMessages = currentConv?.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)) || [];
+
+  const handleReply = async () => {
+    if (!replyText.trim() || !selectedUser || sending) return;
+    setSending(true);
+    // Reply to the last open unanswered ticket, or create a new one
+    const openTicket = currentMessages.slice().reverse().find(t => t.status === "open" && !t.reply);
+    if (openTicket) {
+      await base44.entities.SupportTicket.update(openTicket.id, { reply: replyText.trim(), status: "replied" });
+    } else {
+      // No open ticket, reply to last one anyway
+      const lastTicket = currentMessages[currentMessages.length - 1];
+      if (lastTicket) {
+        await base44.entities.SupportTicket.update(lastTicket.id, { reply: replyText.trim(), status: "replied" });
+      }
+    }
     toast.success("Respuesta enviada");
-    setReplyText(prev => ({ ...prev, [ticket.id]: "" }));
-    setSending(prev => ({ ...prev, [ticket.id]: false }));
-    load();
+    setReplyText("");
+    setSending(false);
   };
 
-  const handleClose = async (ticket) => {
-    await base44.entities.SupportTicket.update(ticket.id, { status: "closed" });
-    toast.info("Ticket cerrado");
-    load();
+  const handleClose = async (ticketId) => {
+    await base44.entities.SupportTicket.update(ticketId, { status: "closed" });
   };
 
-  const openTickets = tickets.filter(t => t.status !== "closed");
-  const closedTickets = tickets.filter(t => t.status === "closed");
+  const getInitials = (name) =>
+    name?.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase() || "?";
+
+  const totalUnread = conversations.reduce((s, c) => s + c.unread, 0);
 
   if (loading) return (
     <div className="flex items-center justify-center h-32">
@@ -47,112 +85,145 @@ export default function SupportManager() {
   );
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-border bg-card">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
-              <MessageCircle className="w-4 h-4 text-gold" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold">Centro de Soporte</h3>
-              <p className="text-[11px] text-muted-foreground">
-                {openTickets.length} tickets abiertos · {closedTickets.length} cerrados
-              </p>
-            </div>
+    <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ height: "560px" }}>
+      <div className="flex h-full">
+        {/* Sidebar: conversation list */}
+        <div className={`w-full md:w-72 flex-shrink-0 border-r border-border flex flex-col ${selectedUser ? "hidden md:flex" : "flex"}`}>
+          <div className="px-4 py-3 border-b border-border flex items-center gap-2.5 flex-shrink-0">
+            <MessageCircle className="w-4 h-4 text-gold" />
+            <span className="text-sm font-semibold">Soporte</span>
+            {totalUnread > 0 && (
+              <span className="ml-auto w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {totalUnread}
+              </span>
+            )}
           </div>
-          <Button variant="ghost" size="sm" onClick={load} className="gap-1.5 text-xs">
-            <RefreshCcw className="w-3 h-3" /> Refrescar
-          </Button>
-        </div>
-
-        <div className="divide-y divide-border">
-          {openTickets.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-10">No hay tickets abiertos</p>
-          )}
-          {openTickets.map((tk) => (
-            <div key={tk.id} className="px-5 py-4 space-y-3">
-              {/* Header */}
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold">{tk.user_name || tk.user_email}</p>
-                  <p className="text-[11px] text-muted-foreground">{tk.user_email} · {moment(tk.created_date).format("DD/MM/YYYY HH:mm")}</p>
+          <div className="flex-1 overflow-y-auto divide-y divide-border">
+            {conversations.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-10">Sin conversaciones</p>
+            )}
+            {conversations.map((conv) => (
+              <button
+                key={conv.email}
+                onClick={() => setSelectedUser(conv.email)}
+                className={`w-full px-4 py-3 flex items-start gap-3 text-left transition-colors hover:bg-secondary/50 ${selectedUser === conv.email ? "bg-gold/5 border-l-2 border-gold" : ""}`}
+              >
+                <div className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center flex-shrink-0 text-xs font-bold text-muted-foreground">
+                  {getInitials(conv.name)}
                 </div>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${
-                  tk.status === "open" ? "bg-yellow-500/10 text-yellow-400" :
-                  tk.status === "replied" ? "bg-emerald-500/10 text-emerald-400" :
-                  "bg-muted text-muted-foreground"
-                }`}>
-                  {tk.status === "open" ? "⏳ Abierto" : tk.status === "replied" ? "✅ Respondido" : "Cerrado"}
-                </span>
-              </div>
-
-              {/* User message */}
-              <div className="rounded-lg bg-secondary/40 border border-border px-4 py-3">
-                <p className="text-[11px] text-muted-foreground mb-1">Mensaje del usuario:</p>
-                <p className="text-sm text-foreground leading-relaxed">{tk.message}</p>
-              </div>
-
-              {/* Existing reply */}
-              {tk.reply && (
-                <div className="rounded-lg bg-gold/5 border border-gold/20 px-4 py-3">
-                  <p className="text-[11px] text-gold mb-1">Tu respuesta:</p>
-                  <p className="text-sm text-foreground leading-relaxed">{tk.reply}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1">
+                    <p className="text-sm font-medium truncate">{conv.name}</p>
+                    <p className="text-[10px] text-muted-foreground flex-shrink-0">
+                      {formatDistanceToNow(new Date(conv.lastMessage?.created_date || Date.now()), { locale: es })}
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground truncate">{conv.lastMessage?.message}</p>
+                  {conv.unread > 0 && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Circle className="w-2 h-2 fill-gold text-gold" />
+                      <span className="text-[10px] text-gold font-semibold">{conv.unread} sin responder</span>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              {/* Reply input */}
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={replyText[tk.id] || ""}
-                  onChange={e => setReplyText(prev => ({ ...prev, [tk.id]: e.target.value }))}
-                  onKeyDown={e => e.key === "Enter" && handleReply(tk)}
-                  placeholder={tk.reply ? "Enviar otra respuesta..." : "Escribe tu respuesta..."}
-                  className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-gold/40 transition-colors placeholder:text-muted-foreground"
-                />
-                <Button
-                  size="sm"
-                  onClick={() => handleReply(tk)}
-                  disabled={sending[tk.id] || !replyText[tk.id]?.trim()}
-                  className="bg-gold hover:bg-gold-dark text-black gap-1.5 h-9"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  {sending[tk.id] ? "..." : "Enviar"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleClose(tk)}
-                  className="h-9 text-muted-foreground hover:text-foreground gap-1.5"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Cerrar
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Closed tickets */}
-      {closedTickets.length > 0 && (
-        <div className="rounded-xl border border-border bg-card">
-          <div className="px-5 py-3 border-b border-border">
-            <p className="text-xs font-semibold text-muted-foreground">Tickets Cerrados ({closedTickets.length})</p>
-          </div>
-          <div className="divide-y divide-border max-h-64 overflow-y-auto">
-            {closedTickets.map(tk => (
-              <div key={tk.id} className="px-5 py-3 flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium">{tk.user_email}</p>
-                  <p className="text-[11px] text-muted-foreground line-clamp-1">{tk.message}</p>
-                </div>
-                <span className="text-[10px] text-muted-foreground flex-shrink-0">{moment(tk.created_date).format("DD/MM HH:mm")}</span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
-      )}
+
+        {/* Chat panel */}
+        <div className={`flex-1 flex flex-col ${!selectedUser ? "hidden md:flex items-center justify-center" : "flex"}`}>
+          {!selectedUser ? (
+            <div className="text-center text-muted-foreground p-8">
+              <MessageCircle className="w-10 h-10 mx-auto mb-3 opacity-20" />
+              <p className="text-sm">Selecciona una conversación</p>
+            </div>
+          ) : (
+            <>
+              {/* Chat header */}
+              <div className="px-4 py-3 border-b border-border flex items-center gap-3 flex-shrink-0 bg-card">
+                <button onClick={() => setSelectedUser(null)} className="md:hidden text-muted-foreground hover:text-foreground">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center text-xs font-bold text-muted-foreground">
+                  {getInitials(currentConv?.name)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate">{currentConv?.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{selectedUser}</p>
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-background/20">
+                {currentMessages.map((tk) => (
+                  <div key={tk.id} className="space-y-2">
+                    {/* User message */}
+                    <div className="flex justify-end">
+                      <div className="max-w-[75%] space-y-1">
+                        <div className="bg-secondary border border-border rounded-2xl rounded-tr-sm px-3 py-2">
+                          <p className="text-xs text-foreground leading-relaxed">{tk.message}</p>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground text-right px-1">
+                          {formatDistanceToNow(new Date(tk.created_date), { addSuffix: true, locale: es })}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Reply */}
+                    {tk.reply && (
+                      <div className="flex gap-2">
+                        <div className="w-6 h-6 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-[9px] font-black text-gold">A</span>
+                        </div>
+                        <div className="max-w-[75%] space-y-1">
+                          <div className="bg-gold/10 border border-gold/20 rounded-2xl rounded-tl-sm px-3 py-2">
+                            <p className="text-[10px] text-gold font-semibold mb-0.5">Soporte APEX</p>
+                            <p className="text-xs text-foreground leading-relaxed">{tk.reply}</p>
+                          </div>
+                          {tk.status !== "closed" && (
+                            <button
+                              onClick={() => handleClose(tk.id)}
+                              className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-emerald-400 transition-colors ml-1"
+                            >
+                              <CheckCircle2 className="w-3 h-3" /> Cerrar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {!tk.reply && tk.status === "open" && (
+                      <div className="ml-8">
+                        <span className="text-[10px] text-yellow-500/70">⏳ Pendiente de respuesta</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div ref={bottomRef} />
+              </div>
+
+              {/* Reply input */}
+              <div className="border-t border-border p-3 flex gap-2 bg-card flex-shrink-0">
+                <input
+                  type="text"
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && !e.shiftKey && handleReply()}
+                  placeholder="Escribe tu respuesta..."
+                  className="flex-1 bg-secondary border border-border rounded-xl px-3 py-2 text-sm outline-none focus:border-gold/40 transition-colors placeholder:text-muted-foreground"
+                />
+                <Button
+                  size="icon"
+                  onClick={handleReply}
+                  disabled={sending || !replyText.trim()}
+                  className="bg-gold hover:bg-gold-dark text-black w-9 h-9 rounded-xl flex-shrink-0"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
