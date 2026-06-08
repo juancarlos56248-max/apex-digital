@@ -1,15 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
-  Users, Shield, X, LogOut, ChevronRight, LineChart
-} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { 
+  LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
+  Users, Shield, X, LogOut, ChevronRight
+} from "lucide-react";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/investments", label: "Inversiones", icon: TrendingUp },
-  { path: "/market", label: "Mercado", icon: LineChart },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
   { path: "/referrals", label: "Referidos", icon: Users },
