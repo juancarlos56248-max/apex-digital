@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Shield, TrendingUp, Clock, Zap, ArrowRight, Lock, Globe, CheckCircle, Users, DollarSign, BarChart3 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Shield, TrendingUp, Clock, ArrowRight, Lock, Globe, CheckCircle, Users, DollarSign, BarChart3 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import WithdrawalTicker from "../components/landing/WithdrawalTicker";
+import { base44 } from "@/api/base44Client";
 
 const features = [
   { icon: Shield, title: "Seguridad Bancaria", desc: "Protocolos de cumplimiento institucional con auditoría en tiempo real y cifrado de grado militar.", color: "text-emerald-400", bg: "bg-emerald-500/10" },
@@ -39,12 +40,25 @@ function generateChartData() {
 
 export default function Landing() {
   const [chartData] = useState(generateChartData);
+  const [isAuth, setIsAuth] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const refCode = params.get("ref");
     if (refCode) localStorage.setItem("apex_ref_code", refCode);
+
+    // Check if already authenticated
+    base44.auth.isAuthenticated().then(setIsAuth);
   }, []);
+
+  const handleCTA = () => {
+    if (isAuth) {
+      navigate("/dashboard");
+    } else {
+      base44.auth.redirectToLogin(window.location.origin + "/dashboard");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background font-inter overflow-x-hidden">
@@ -60,11 +74,9 @@ export default function Landing() {
               <span className="text-[10px] text-muted-foreground ml-1.5 tracking-[0.2em] uppercase font-medium">Digital</span>
             </div>
           </div>
-          <Link to="/dashboard">
-            <Button size="sm" className="bg-gold hover:bg-gold-dark text-black font-bold text-xs px-5 shadow-lg shadow-gold/20">
-              Acceder <ArrowRight className="w-3 h-3 ml-1" />
-            </Button>
-          </Link>
+          <Button size="sm" onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-black font-bold text-xs px-5 shadow-lg shadow-gold/20">
+            {isAuth ? "Ir al Panel" : "Registrarse"} <ArrowRight className="w-3 h-3 ml-1" />
+          </Button>
         </div>
       </nav>
 
@@ -96,11 +108,9 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
-              <Link to="/dashboard" className="flex-1">
-                <Button size="lg" className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-14 text-lg shadow-xl shadow-gold/25 pulse-glow px-8">
-                  Comenzar Ahora <ArrowRight className="w-5 h-5" />
-                </Button>
-              </Link>
+              <Button size="lg" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-black font-bold h-14 text-lg shadow-xl shadow-gold/25 pulse-glow px-8">
+                {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-5 h-5" />
+              </Button>
               <Link to="/terms" className="flex-1">
                 <Button size="lg" variant="outline" className="w-full border-border/60 hover:border-gold/40 h-14 text-lg backdrop-blur-sm px-8">
                   Ver Protocolo
@@ -247,11 +257,9 @@ export default function Landing() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <Link to="/dashboard">
-              <Button className="bg-gold hover:bg-gold-dark text-black font-bold px-8 shadow-lg shadow-gold/20">
-                Ver todos los planes <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            <Button onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-black font-bold px-8 shadow-lg shadow-gold/20">
+              {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </section>
@@ -274,11 +282,9 @@ export default function Landing() {
                 Nuestra restricción de retiro de 24 horas garantiza que los nodos de inversión mantengan su potencia de cálculo, asegurando retornos estables y una gestión de riesgo institucional avalada por el Protocolo de Singapur.
               </p>
             </div>
-            <Link to="/dashboard" className="flex-shrink-0">
-              <Button className="bg-gold hover:bg-gold-dark text-black font-bold whitespace-nowrap shadow-lg shadow-gold/20">
-                Empezar ahora
-              </Button>
-            </Link>
+            <Button onClick={handleCTA} className="flex-shrink-0 bg-gold hover:bg-gold-dark text-black font-bold whitespace-nowrap shadow-lg shadow-gold/20">
+              {isAuth ? "Ir al Panel" : "Empezar ahora"}
+            </Button>
           </motion.div>
         </div>
       </section>
