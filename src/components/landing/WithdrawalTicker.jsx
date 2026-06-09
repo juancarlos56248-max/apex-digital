@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpFromLine } from "lucide-react";
-import moment from "moment";
 
 // Fallback data cuando no hay retiros reales
 const FALLBACK = [
@@ -31,45 +29,17 @@ function timeAgo(date) {
 }
 
 export default function WithdrawalTicker() {
-  const [queue, setQueue] = useState([]);
-  const [displayed, setDisplayed] = useState([]);
-  const rotateIdxRef = useState(4)[0];
-  const idxRef = { current: 4 };
+  const [displayed, setDisplayed] = useState(FALLBACK.slice(0, 4));
 
   useEffect(() => {
-    const load = async () => {
-      const txs = await base44.entities.Transaction.filter(
-        { type: "withdrawal", status: "approved" },
-        "-updated_date",
-        30
-      );
-      const source = txs.length >= 3 ? txs : FALLBACK;
-      setQueue(source);
-      setDisplayed(source.slice(0, 4));
-      idxRef.current = 4 % source.length;
-    };
-    load();
-  }, []);
-
-  // Rotate sequentially to avoid repeats
-  useEffect(() => {
-    if (queue.length === 0) return;
-    let idx = 4 % queue.length;
+    let idx = 4 % FALLBACK.length;
     const timer = setInterval(() => {
-      const next = queue[idx % queue.length];
-      idx = (idx + 1) % queue.length;
-      setDisplayed(prev => {
-        // Avoid showing same item as current first
-        if (prev[0]?.id === next.id) {
-          const skip = queue[(idx) % queue.length];
-          idx = (idx + 1) % queue.length;
-          return [skip, ...prev.slice(0, 3)];
-        }
-        return [next, ...prev.slice(0, 3)];
-      });
+      const next = FALLBACK[idx % FALLBACK.length];
+      idx = (idx + 1) % FALLBACK.length;
+      setDisplayed(prev => [next, ...prev.slice(0, 3)]);
     }, 4000);
     return () => clearInterval(timer);
-  }, [queue]);
+  }, []);
 
   if (displayed.length === 0) return null;
 
