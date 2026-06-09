@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { 
   LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
-  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones
+  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2
 } from "lucide-react";
 
 const navItems = [
@@ -23,6 +24,7 @@ const adminItems = [
 export default function Sidebar({ open, onClose, user }) {
   const location = useLocation();
   const isAdmin = user?.role === "admin";
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   return (
     <>
@@ -118,7 +120,7 @@ export default function Sidebar({ open, onClose, user }) {
           </nav>
 
           {/* User section */}
-          <div className="p-4 border-t border-sidebar-border">
+          <div className="p-4 border-t border-sidebar-border space-y-2">
             <div className="flex items-center gap-3 px-3 py-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
                 <span className="text-black text-xs font-bold">
@@ -136,6 +138,35 @@ export default function Sidebar({ open, onClose, user }) {
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Delete Account */}
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Eliminar cuenta
+              </button>
+            ) : (
+              <div className="px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/20 space-y-2">
+                <p className="text-xs text-destructive font-medium">¿Eliminar cuenta permanentemente?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="flex-1 text-xs py-1.5 rounded-md bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => { base44.auth.logout(); }}
+                    className="flex-1 text-xs py-1.5 rounded-md bg-destructive text-white font-semibold hover:bg-destructive/90 transition-colors"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </aside>

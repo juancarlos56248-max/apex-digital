@@ -1,5 +1,6 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
+import PullToRefresh from "../components/layout/PullToRefresh";
 import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, ArrowDownToLine, ArrowUpFromLine, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
@@ -19,7 +20,7 @@ const quickActions = [
 ];
 
 export default function Dashboard() {
-  const { user } = useOutletContext();
+  const { user, setUser } = useOutletContext();
   const [investments, setInvestments] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -36,6 +37,18 @@ export default function Dashboard() {
     });
   }, [user]);
 
+  const handleRefresh = useCallback(async () => {
+    if (!user) return;
+    const [me, invs, txs] = await Promise.all([
+      base44.auth.me(),
+      base44.entities.Investment.filter({ user_email: user.email, status: "active" }),
+      base44.entities.Transaction.filter({ user_email: user.email }, "-created_date", 10),
+    ]);
+    setUser(me);
+    setInvestments(invs);
+    setTransactions(txs);
+  }, [user]);
+
   if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -49,6 +62,7 @@ export default function Dashboard() {
   const hasInvestments = investments.length > 0;
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-6">
       <MarketAlerts />
 
@@ -131,5 +145,6 @@ export default function Dashboard() {
         <RecentTransactions transactions={transactions} loading={loadingData} />
       </div>
     </div>
+    </PullToRefresh>
   );
 }

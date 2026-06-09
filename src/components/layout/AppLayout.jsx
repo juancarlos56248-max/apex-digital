@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { Outlet } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import Sidebar from "./Sidebar";
@@ -8,10 +9,20 @@ import BottomNav from "./BottomNav";
 import ProfileGate from "./ProfileGate";
 import SupportWidget from "../support/SupportWidget";
 
+const ROOT_TABS = ["/dashboard", "/investments", "/deposit", "/withdraw", "/referrals", "/comunidad", "/soporte", "/admin"];
+
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [profileComplete, setProfileComplete] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isRootTab = ROOT_TABS.includes(location.pathname);
+
+  // Enforce dark mode for WebView
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
 
   useEffect(() => {
     // Capture referral code from URL and persist it
@@ -115,13 +126,25 @@ export default function AppLayout() {
       
       <main className="flex-1 overflow-y-auto">
         {/* Mobile top bar */}
-        <div className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground active:scale-95 transition-all"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+        <div
+          className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border px-4 flex items-center justify-between"
+          style={{ paddingTop: `calc(env(safe-area-inset-top) + 12px)`, paddingBottom: "12px" }}
+        >
+          {isRootTab ? (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground active:scale-95 transition-all flex items-center gap-1"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
               <span className="text-black font-bold text-xs">A</span>
@@ -131,7 +154,17 @@ export default function AppLayout() {
           <div className="w-9" /> {/* spacer */}
         </div>
         <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
-          <Outlet context={{ user, setUser }} />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, x: 18 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -18 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+            >
+              <Outlet context={{ user, setUser }} />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
       <BottomNav />
