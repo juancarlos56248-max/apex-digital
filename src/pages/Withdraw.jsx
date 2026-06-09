@@ -13,12 +13,7 @@ import WithdrawalTicker from "../components/landing/WithdrawalTicker";
 const COMMISSION_RATE = 0.08;
 const WELCOME_BONUS = 5; // Los $5 de bienvenida no son retirables
 
-// Valida direcciones USDT: TRC20 (T...), ERC20/BEP20 (0x...)
-const isValidUSDTAddress = (addr) => {
-  const trc20 = /^T[A-Za-z0-9]{33}$/;
-  const erc20 = /^0x[a-fA-F0-9]{40}$/;
-  return trc20.test(addr.trim()) || erc20.test(addr.trim());
-};
+const isValidUSDTAddress = (addr) => addr.trim().length >= 10;
 
 export default function Withdraw() {
   const { user, setUser } = useOutletContext();
@@ -212,13 +207,8 @@ export default function Withdraw() {
               walletValid === true  ? "border-emerald-500/60" : "border-border"
             }`}
           />
-          {walletValid === false && (
-            <p className="text-[11px] text-destructive mt-1 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" /> Dirección inválida. Verifica que sea una dirección USDT correcta.
-            </p>
-          )}
           {walletValid === true && (
-            <p className="text-[11px] text-emerald-400 mt-1">✓ Dirección válida</p>
+            <p className="text-[11px] text-emerald-400 mt-1">✓ Dirección ingresada</p>
           )}
         </div>
 
