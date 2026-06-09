@@ -24,20 +24,22 @@ export default function AppLayout() {
     const loadUser = async () => {
       try {
         const me = await base44.auth.me();
-        // Generate referral code if not exists
+        // Show UI immediately — do async init in background
+        setUser(me);
+        setProfileComplete(!!(me.dni && me.phone));
+
+        // Background: init referral code + welcome bonus without blocking render
+        const updates = {};
         if (!me.referral_code) {
-          const code = "APEX" + Math.random().toString(36).substring(2, 8).toUpperCase();
-          await base44.auth.updateMe({ referral_code: code });
-          me.referral_code = code;
+          updates.referral_code = "APEX" + Math.random().toString(36).substring(2, 8).toUpperCase();
         }
-        // Initialize defaults + welcome bonus
         if (me.balance === undefined || me.balance === null) {
           const WELCOME_BONUS = 5;
-          await base44.auth.updateMe({ balance: WELCOME_BONUS, total_invested: 0, total_earned: 0 });
-          me.balance = WELCOME_BONUS;
-          me.total_invested = 0;
-          me.total_earned = 0;
-          await base44.entities.Transaction.create({
+          updates.balance = WELCOME_BONUS;
+          updates.total_invested = 0;
+          updates.total_earned = 0;
+          // Fire and forget welcome bonus transaction
+          base44.entities.Transaction.create({
             user_email: me.email,
             type: "dividend",
             amount: WELCOME_BONUS,
@@ -45,8 +47,10 @@ export default function AppLayout() {
             notes: "🎉 Bono de bienvenida Apex Digital",
           });
         }
-        setUser(me);
-        setProfileComplete(!!(me.dni && me.phone));
+        if (Object.keys(updates).length > 0) {
+          base44.auth.updateMe(updates);
+          setUser(prev => ({ ...prev, ...updates }));
+        }
       } catch (err) {
         console.error("Error loading user:", err);
         setProfileComplete(false);
@@ -86,9 +90,10 @@ export default function AppLayout() {
       }
     };
 
-    const interval = setInterval(checkCrash, 60000); // check every minute
-    checkCrash(); // immediate check on load
-    return () => clearInterval(interval);
+    const interval = setInterval(checkCrash, 60000);
+    // Delay first check so it doesn't compete with initial render
+    const timeout = setTimeout(checkCrash, 5000);
+    return () => { clearInterval(interval); clearTimeout(timeout); };
   }, []);
 
   // Still loading

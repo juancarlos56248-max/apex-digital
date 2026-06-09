@@ -20,11 +20,12 @@ import Comunidad from './pages/Comunidad';
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  // Only block on public paths if we truly need to (avoid black screen on mobile)
+  const isPublicRoute = ['/', '/terms'].includes(window.location.pathname);
+  if (!isPublicRoute && (isLoadingPublicSettings || isLoadingAuth)) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div>
       </div>
     );
   }
