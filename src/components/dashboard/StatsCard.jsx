@@ -6,7 +6,7 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", trend
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
-      className="relative overflow-hidden rounded-xl border border-border bg-card p-5 group hover:border-gold/30 transition-all duration-300"
+      className="relative overflow-hidden rounded-xl border border-border bg-card p-3 sm:p-5 group hover:border-gold/30 transition-all duration-300"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="relative">
@@ -20,8 +20,8 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", trend
             </span>
           )}
         </div>
-        <p className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground mb-1">{label}</p>
-        <p className="text-2xl font-bold tracking-tight">
+        <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground mb-1 leading-tight">{label}</p>
+        <p className="text-lg sm:text-2xl font-bold tracking-tight">
           {value}
           {suffix && <span className="text-sm text-muted-foreground ml-1">{suffix}</span>}
         </p>

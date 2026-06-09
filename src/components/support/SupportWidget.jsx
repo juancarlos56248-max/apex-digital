@@ -78,7 +78,7 @@ export default function SupportWidget() {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-20 right-3 lg:bottom-6 lg:right-6 z-50 flex flex-col items-end gap-3">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -86,8 +86,8 @@ export default function SupportWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="w-[340px] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col"
-            style={{ maxHeight: "520px" }}
+            className="w-[calc(100vw-2rem)] max-w-[340px] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col"
+            style={{ maxHeight: "min(520px, calc(100dvh - 160px))" }}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-gold/20 to-transparent border-b border-border px-4 py-3 flex items-center justify-between flex-shrink-0">
@@ -191,7 +191,7 @@ export default function SupportWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(prev => !prev)}
-        className="relative w-14 h-14 rounded-full bg-gold hover:bg-gold-dark text-black shadow-xl shadow-gold/30 flex items-center justify-center transition-colors"
+        className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-gold hover:bg-gold-dark text-black shadow-xl shadow-gold/30 flex items-center justify-center transition-colors"
       >
         <AnimatePresence mode="wait">
           {open

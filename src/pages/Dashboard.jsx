@@ -54,18 +54,18 @@ export default function Dashboard() {
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">
-            Bienvenido, <span className="text-gold-gradient">{user.full_name?.split(" ")[0] || "Inversor"}</span>
+          <h1 className="text-xl sm:text-2xl font-bold">
+            Hola, <span className="text-gold-gradient">{user.full_name?.split(" ")[0] || "Inversor"}</span> 👋
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Panel de gestión de activos digitales</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Panel de activos digitales</p>
         </div>
-        <Link to="/investments">
-          <Button className="bg-gold hover:bg-gold-dark text-black font-semibold gap-2 shadow-lg shadow-gold/20">
-            <Zap className="w-4 h-4" />
-            Activar Nodo
-            <ArrowRight className="w-3 h-3" />
+        <Link to="/investments" className="flex-shrink-0">
+          <Button size="sm" className="bg-gold hover:bg-gold-dark text-black font-semibold gap-1.5 shadow-lg shadow-gold/20">
+            <Zap className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Activar Nodo</span>
+            <span className="sm:hidden">Invertir</span>
           </Button>
         </Link>
       </motion.div>
@@ -90,7 +90,7 @@ export default function Dashboard() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatsCard icon={Wallet} label="Balance disponible" value={`$${(user.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} delay={0} />
         <StatsCard icon={TrendingUp} label="Activos invertidos" value={`$${totalActive.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} trend={hasInvestments ? 2.4 : null} delay={0.1} />
         <StatsCard icon={DollarSign} label="Rendimiento Activo" value={`$${totalDividends.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} trend={hasInvestments ? 5.1 : null} delay={0.2} />
@@ -100,19 +100,19 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Acciones rápidas</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {quickActions.map((a, i) => (
             <Link key={a.to} to={a.to}>
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                className={`rounded-xl border ${a.border} bg-card p-4 flex flex-col gap-2 cursor-pointer transition-all hover:bg-secondary/40 group`}
+                className={`rounded-xl border ${a.border} bg-card p-3 sm:p-4 flex flex-col gap-2 cursor-pointer transition-all hover:bg-secondary/40 active:scale-95 group`}
               >
-                <div className={`w-10 h-10 rounded-lg ${a.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <a.icon className={`w-5 h-5 ${a.color}`} />
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg ${a.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <a.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${a.color}`} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold">{a.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{a.desc}</p>
+                  <p className="text-xs sm:text-sm font-bold">{a.label}</p>
+                  <p className="text-[10px] sm:text-[11px] text-muted-foreground hidden sm:block">{a.desc}</p>
                 </div>
               </motion.div>
             </Link>
@@ -126,7 +126,7 @@ export default function Dashboard() {
       </Suspense>
 
       {/* Active Investments & Recent Transactions */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ActiveInvestments investments={investments} loading={loadingData} />
         <RecentTransactions transactions={transactions} loading={loadingData} />
       </div>
