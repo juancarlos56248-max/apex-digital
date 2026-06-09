@@ -15,7 +15,7 @@ const tierNames = {
   institutional: "Apex Institutional",
 };
 
-export default function ActiveInvestments({ investments }) {
+export default function ActiveInvestments({ investments, loading }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -25,7 +25,11 @@ export default function ActiveInvestments({ investments }) {
     >
       <h3 className="text-sm font-semibold mb-4">Nodos Activos</h3>
       
-      {investments.length === 0 ? (
+      {loading ? (
+        <div className="space-y-3">
+          {[1,2].map(i => <div key={i} className="h-14 rounded-lg bg-secondary/50 animate-pulse" />)}
+        </div>
+      ) : investments.length === 0 ? (
         <p className="text-sm text-muted-foreground py-8 text-center">No hay inversiones activas</p>
       ) : (
         <div className="space-y-3">

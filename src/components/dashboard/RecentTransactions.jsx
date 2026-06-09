@@ -43,7 +43,7 @@ function TxRow({ tx }) {
   );
 }
 
-export default function RecentTransactions({ transactions }) {
+export default function RecentTransactions({ transactions, loading }) {
   const [open, setOpen] = useState(false);
   const preview = transactions.slice(0, 3);
 
@@ -67,7 +67,11 @@ export default function RecentTransactions({ transactions }) {
           )}
         </div>
 
-        {transactions.length === 0 ? (
+        {loading ? (
+          <div className="space-y-2">
+            {[1,2,3].map(i => <div key={i} className="h-12 rounded-lg bg-secondary/50 animate-pulse" />)}
+          </div>
+        ) : transactions.length === 0 ? (
           <p className="text-sm text-muted-foreground py-8 text-center">Sin transacciones</p>
         ) : (
           <div className="space-y-2">

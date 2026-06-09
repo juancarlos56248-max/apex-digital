@@ -21,23 +21,21 @@ export default function Dashboard() {
   const { user } = useOutletContext();
   const [investments, setInvestments] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     if (!user) return;
-    const load = async () => {
-      const [invs, txs] = await Promise.all([
-        base44.entities.Investment.filter({ user_email: user.email, status: "active" }),
-        base44.entities.Transaction.filter({ user_email: user.email }, "-created_date", 10),
-      ]);
+    Promise.all([
+      base44.entities.Investment.filter({ user_email: user.email, status: "active" }),
+      base44.entities.Transaction.filter({ user_email: user.email }, "-created_date", 10),
+    ]).then(([invs, txs]) => {
       setInvestments(invs);
       setTransactions(txs);
-      setLoading(false);
-    };
-    load();
+      setLoadingData(false);
+    });
   }, [user]);
 
-  if (!user || loading) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
@@ -126,8 +124,8 @@ export default function Dashboard() {
 
       {/* Active Investments & Recent Transactions */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <ActiveInvestments investments={investments} />
-        <RecentTransactions transactions={transactions} />
+        <ActiveInvestments investments={investments} loading={loadingData} />
+        <RecentTransactions transactions={transactions} loading={loadingData} />
       </div>
     </div>
   );
