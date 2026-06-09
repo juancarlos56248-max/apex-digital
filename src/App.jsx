@@ -15,6 +15,7 @@ import Referrals from './pages/Referrals';
 import AdminPanel from './pages/admin/AdminPanel';
 import Terms from './pages/Terms';
 import Comunidad from './pages/Comunidad';
+import Soporte from './pages/Soporte';
 
 
 const AuthenticatedApp = () => {
@@ -61,6 +62,7 @@ const AuthenticatedApp = () => {
         <Route path="/withdraw" element={<Withdraw />} />
         <Route path="/referrals" element={<Referrals />} />
         <Route path="/comunidad" element={<Comunidad />} />
+        <Route path="/soporte" element={<Soporte />} />
 
         <Route path="/admin" element={<AdminPanel />} />
       </Route>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { 
   LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
-  Users, Shield, X, LogOut, ChevronRight, MessageSquare
+  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones
 } from "lucide-react";
 
 const navItems = [
@@ -13,6 +13,7 @@ const navItems = [
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
   { path: "/referrals", label: "Referidos", icon: Users },
   { path: "/comunidad", label: "Comunidad", icon: MessageSquare },
+  { path: "/soporte", label: "Atención al Cliente", icon: Headphones },
 ];
 
 const adminItems = [
