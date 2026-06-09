@@ -97,32 +97,38 @@ function AnimatedValue({ value, prefix = "", suffix = "", className = "" }) {
 }
 
 export default function PerformanceChart() {
-  const [allData] = useState(() => generateMarketData(90));
-  const [liveData, setLiveData] = useState(allData);
+  const [liveData, setLiveData] = useState([]);
   const [period, setPeriod] = useState(30);
-  const [pulse, setPulse] = useState(false);
 
-  // Tick en tiempo real cada 3s: actualiza el último punto con micro-movimientos
+  // Defer heavy data generation so it doesn't block initial render
   useEffect(() => {
+    const id = setTimeout(() => {
+      setLiveData(generateMarketData(90));
+    }, 50);
+    return () => clearTimeout(id);
+  }, []);
+
+  // Live tick — only start after data is ready
+  useEffect(() => {
+    if (liveData.length === 0) return;
     const interval = setInterval(() => {
       setLiveData(prev => {
         const last = prev[prev.length - 1];
         const micro = (Math.random() - 0.44) * last.value * 0.003;
         const newVal = Math.max(9000, last.value + micro + last.value * 0.0008);
-        const updated = [...prev.slice(0, -1), {
+        return [...prev.slice(0, -1), {
           ...last,
           value: Math.round(newVal * 100) / 100,
           high: Math.max(last.high, Math.round(newVal * (1 + Math.random() * 0.004) * 100) / 100),
           low: Math.min(last.low, Math.round(newVal * (1 - Math.random() * 0.004) * 100) / 100),
         }];
-        setPulse(p => !p);
-        return updated;
       });
-    }, 2800);
+    }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [liveData.length]);
 
   const data = useMemo(() => liveData.slice(-period), [liveData, period]);
+  const isReady = liveData.length > 0;
 
   const currentValue = data[data.length - 1]?.value ?? 0;
   const startValue = data[0]?.value ?? 0;
@@ -206,6 +212,14 @@ export default function PerformanceChart() {
 
       {/* Chart */}
       <div className="h-56 md:h-80 px-1 pt-5 pb-2">
+        {!isReady && (
+          <div className="w-full h-full flex items-end gap-1 px-4 pb-4 animate-pulse">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div key={i} className="flex-1 rounded-sm bg-secondary/80" style={{ height: `${30 + Math.sin(i * 0.5) * 20 + Math.random() * 20}%` }} />
+            ))}
+          </div>
+        )}
+        {isReady && (
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 6, right: 16, left: 0, bottom: 0 }}>
             <defs>
@@ -301,6 +315,7 @@ export default function PerformanceChart() {
             />
           </ComposedChart>
         </ResponsiveContainer>
+        )}
       </div>
 
       {/* Footer */}

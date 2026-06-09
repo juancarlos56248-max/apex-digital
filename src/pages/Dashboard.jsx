@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, ArrowDownToLine, ArrowUpFromLine, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import StatsCard from "../components/dashboard/StatsCard";
-import PerformanceChart from "../components/dashboard/PerformanceChart";
 import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActiveInvestments from "../components/dashboard/ActiveInvestments";
 import MarketAlerts from "../components/dashboard/MarketAlerts";
 import { motion } from "framer-motion";
+
+const PerformanceChart = lazy(() => import("../components/dashboard/PerformanceChart"));
 
 const quickActions = [
   { label: "Depositar", desc: "Añade fondos ahora", icon: ArrowDownToLine, to: "/deposit", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20 hover:border-emerald-500/40" },
@@ -119,8 +120,10 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Chart */}
-      <PerformanceChart />
+      {/* Chart — lazy loaded so it never blocks navigation */}
+      <Suspense fallback={<div className="h-80 rounded-2xl border border-border bg-card animate-pulse" />}>
+        <PerformanceChart />
+      </Suspense>
 
       {/* Active Investments & Recent Transactions */}
       <div className="grid lg:grid-cols-2 gap-6">
