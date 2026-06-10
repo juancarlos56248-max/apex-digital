@@ -75,98 +75,79 @@ export default function Deposit() {
         </p>
       </motion.div>
 
-      {/* Warning */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 flex gap-3"
+      {/* Steps */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+        className="rounded-xl border border-border bg-card p-5 space-y-4"
       >
-        <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-        <div className="text-sm">
-          <p className="font-medium text-yellow-500">Importante</p>
-          <p className="text-muted-foreground text-xs mt-1">
-            Envía únicamente USDT en la red seleccionada. Los fondos enviados en una red incorrecta pueden perderse permanentemente.
-          </p>
-        </div>
-      </motion.div>
+        <p className="text-sm font-bold text-foreground">Sigue estos pasos para depositar</p>
 
-      {/* Wallet Address */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="rounded-xl border border-border bg-card p-6 space-y-5"
-      >
-        <div>
-          <Label className="text-xs text-muted-foreground">Red de Transferencia</Label>
-          <div className="mt-1.5 px-4 py-3 bg-secondary border border-border rounded-lg text-sm font-medium">
-            BEP20 (BNB Smart Chain)
+        {/* Paso 1 */}
+        <div className="flex gap-3 items-start">
+          <div className="w-7 h-7 rounded-full bg-gold text-black text-xs font-black flex items-center justify-center flex-shrink-0">1</div>
+          <div>
+            <p className="text-sm font-semibold">Abre tu wallet y selecciona USDT - BEP20</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Usa Trust Wallet, MetaMask o Binance. Asegúrate de elegir la red <strong className="text-foreground">BNB Smart Chain (BEP20)</strong>, no otra.</p>
           </div>
         </div>
 
-        {/* Instrucciones paso a paso */}
-        <div className="rounded-xl border border-gold/20 bg-gold/5 p-4 space-y-2">
-          <p className="text-xs font-bold text-gold mb-3">¿Cómo depositar con BEP20?</p>
-          {NETWORK_INSTRUCTIONS.map((step, i) => (
-            <div key={i} className="flex gap-2.5 items-start">
-              <div className="w-5 h-5 rounded-full bg-gold text-black text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</div>
-              <p className="text-xs text-muted-foreground leading-relaxed">{step}</p>
+        {/* Paso 2 */}
+        <div className="flex gap-3 items-start">
+          <div className="w-7 h-7 rounded-full bg-gold text-black text-xs font-black flex items-center justify-center flex-shrink-0">2</div>
+          <div className="w-full">
+            <p className="text-sm font-semibold">Copia y pega esta dirección como destino</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2.5">
+                <p className="text-xs font-mono text-gold break-all">{WALLET_ADDRESSES["BEP20"]}</p>
+              </div>
+              <Button variant="outline" size="icon" onClick={() => handleCopy(WALLET_ADDRESSES["BEP20"])}
+                className="flex-shrink-0 border-border hover:border-gold/30 h-10 w-10">
+                <Copy className="w-4 h-4" />
+              </Button>
             </div>
-          ))}
+            <p className="text-[11px] text-yellow-500 mt-1.5 flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" /> Verifica que la dirección copiada sea idéntica antes de enviar.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <Label className="text-xs text-muted-foreground">Dirección de la Wallet Corporativa</Label>
-          <div className="mt-1.5 flex items-center gap-2">
-            <div className="flex-1 bg-secondary border border-border rounded-lg px-4 py-3">
-              <p className="text-xs font-mono text-foreground break-all">{WALLET_ADDRESSES[network]}</p>
+        {/* Paso 3 */}
+        <div className="flex gap-3 items-start">
+          <div className="w-7 h-7 rounded-full bg-gold text-black text-xs font-black flex items-center justify-center flex-shrink-0">3</div>
+          <div>
+            <p className="text-sm font-semibold">Envía el monto (mínimo 10 USDT)</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Necesitas un pequeño saldo de <strong className="text-foreground">BNB</strong> en tu wallet para pagar la comisión de red (gas fee). El envío tarda aprox. 1–3 minutos.</p>
+          </div>
+        </div>
+
+        {/* Paso 4 */}
+        <div className="flex gap-3 items-start">
+          <div className="w-7 h-7 rounded-full bg-gold text-black text-xs font-black flex items-center justify-center flex-shrink-0">4</div>
+          <div className="w-full space-y-3">
+            <div>
+              <p className="text-sm font-semibold">Registra tu depósito aquí abajo</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Una vez confirmada la transacción, copia el <strong className="text-foreground">TXID / Hash</strong> desde tu wallet o BscScan y completa el formulario.</p>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleCopy(WALLET_ADDRESSES[network])}
-              className="flex-shrink-0 border-border hover:border-gold/30"
-            >
-              <Copy className="w-4 h-4" />
+            <div>
+              <Label className="text-xs text-muted-foreground">Monto enviado (USDT)</Label>
+              <Input type="number" placeholder="Ej: 100" value={amount} onChange={(e) => setAmount(e.target.value)}
+                className="mt-1.5 bg-secondary border-border font-mono" />
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Hash / TXID de la transacción</Label>
+              <Input placeholder="Pega aquí el hash de tu transacción" value={txid} onChange={(e) => setTxid(e.target.value)}
+                className="mt-1.5 bg-secondary border-border font-mono text-xs" />
+              <p className="text-[11px] text-muted-foreground mt-1">Lo encuentras en el historial de tu wallet o en bscscan.com</p>
+            </div>
+            <Button onClick={handleSubmit} disabled={submitting || !amount || !txid}
+              className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-11">
+              {submitting ? "Enviando..." : "✓ Confirmar Depósito"}
             </Button>
           </div>
         </div>
 
-        <div className="border-t border-border pt-5 space-y-4">
-          <div>
-            <Label className="text-xs text-muted-foreground">Monto Enviado (USDT)</Label>
-            <Input
-              type="number"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="mt-1.5 bg-secondary border-border font-mono"
-            />
-          </div>
-
-          <div>
-            <Label className="text-xs text-muted-foreground">Hash de Transacción USDT (TXID)</Label>
-            <Input
-              placeholder="Pega aquí el hash de tu transacción USDT"
-              value={txid}
-              onChange={(e) => setTxid(e.target.value)}
-              className="mt-1.5 bg-secondary border-border font-mono text-xs"
-            />
-          </div>
-
-          <Button
-            onClick={handleSubmit}
-            disabled={submitting || !amount || !txid}
-            className="w-full bg-gold hover:bg-gold-dark text-black font-semibold h-11"
-          >
-            {submitting ? "Enviando..." : "Enviar para Verificación"}
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 pt-2 border-t border-border text-[11px] text-muted-foreground">
           <Shield className="w-3.5 h-3.5 text-gold" />
-          <span>Tu depósito será verificado y acreditado por el equipo de cumplimiento</span>
+          <span>Tu depósito será revisado y acreditado en tu cuenta en menos de 24 horas.</span>
         </div>
       </motion.div>
     </div>
