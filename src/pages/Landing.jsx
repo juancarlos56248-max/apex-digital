@@ -56,7 +56,7 @@ export default function Landing() {
     if (isAuth) {
       navigate("/dashboard");
     } else {
-      base44.auth.redirectToLogin(window.location.origin + "/dashboard");
+      base44.auth.redirectToLogin("/dashboard");
     }
   };
 
