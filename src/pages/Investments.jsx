@@ -184,7 +184,11 @@ export default function Investments() {
   }
 
   const activeInvestments = investments.filter(i => i.status === "active");
-  const activeTiers = activeInvestments.map(i => i.tier);
+  // Count active investments per tier (promo: max 2 per tier)
+  const activeTierCounts = activeInvestments.reduce((acc, i) => {
+    acc[i.tier] = (acc[i.tier] || 0) + 1;
+    return acc;
+  }, {});
   const tierKeys = ["starter", "advance", "elite", "institutional"];
   const trialKey = "prueba";
 
@@ -227,7 +231,7 @@ export default function Investments() {
             tier={trialKey}
             onSubscribe={handleSubscribe}
             delay={0}
-            hasActive={activeTiers.includes(trialKey)}
+            hasActive={(activeTierCounts[trialKey] || 0) >= 1}
           />
         </div>
       </div>
@@ -242,7 +246,8 @@ export default function Investments() {
               tier={tier}
               onSubscribe={handleSubscribe}
               delay={i * 0.08}
-              hasActive={activeTiers.includes(tier)}
+              hasActive={(activeTierCounts[tier] || 0) >= 2}
+              activeCount={activeTierCounts[tier] || 0}
             />
           ))}
         </div>

@@ -110,7 +110,7 @@ const tierConfig = {
   },
 };
 
-export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
+export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, activeCount = 0 }) {
   const config = tierConfig[tier];
   if (!config) return null;
   const Icon = config.icon;
@@ -214,7 +214,9 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive }) {
           disabled={hasActive}
         >
           {hasActive ? (
-            <span className="flex items-center gap-2"><Lock className="w-3.5 h-3.5" /> Nodo Activo</span>
+            <span className="flex items-center gap-2"><Lock className="w-3.5 h-3.5" /> 2/2 Nodos Activos</span>
+          ) : activeCount === 1 ? (
+            "Activar 2° Contrato 🔥"
           ) : (
             "Activar Contrato"
           )}
