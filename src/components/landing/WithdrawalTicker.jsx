@@ -4,11 +4,21 @@ import { ArrowUpFromLine } from "lucide-react";
 
 // Fallback data cuando no hay retiros reales
 const FALLBACK = [
-  { id: "f1", user_email: "carlos.m***@gmail.com", amount: 1200, updated_date: new Date(Date.now() - 2 * 60000).toISOString() },
-  { id: "f2", user_email: "ana.r***@hotmail.com", amount: 3500, updated_date: new Date(Date.now() - 8 * 60000).toISOString() },
-  { id: "f3", user_email: "pedro.l***@yahoo.com", amount: 800, updated_date: new Date(Date.now() - 15 * 60000).toISOString() },
-  { id: "f4", user_email: "lucia.v***@gmail.com", amount: 5200, updated_date: new Date(Date.now() - 30 * 60000).toISOString() },
-  { id: "f5", user_email: "jose.m***@outlook.com", amount: 2100, updated_date: new Date(Date.now() - 45 * 60000).toISOString() },
+  { id: "f1", user_email: "wei.zh***@163.com", amount: 4800, updated_date: new Date(Date.now() - 1 * 60000).toISOString() },
+  { id: "f2", user_email: "xia.li***@qq.com", amount: 12500, updated_date: new Date(Date.now() - 3 * 60000).toISOString() },
+  { id: "f3", user_email: "dmitr.iv***@mail.ru", amount: 3200, updated_date: new Date(Date.now() - 7 * 60000).toISOString() },
+  { id: "f4", user_email: "fatim.al***@gmail.com", amount: 7600, updated_date: new Date(Date.now() - 11 * 60000).toISOString() },
+  { id: "f5", user_email: "yuki.ta***@yahoo.co.jp", amount: 9100, updated_date: new Date(Date.now() - 18 * 60000).toISOString() },
+  { id: "f6", user_email: "carlos.m***@gmail.com", amount: 1200, updated_date: new Date(Date.now() - 22 * 60000).toISOString() },
+  { id: "f7", user_email: "priya.sh***@gmail.com", amount: 5500, updated_date: new Date(Date.now() - 28 * 60000).toISOString() },
+  { id: "f8", user_email: "ming.ch***@sina.com", amount: 18300, updated_date: new Date(Date.now() - 35 * 60000).toISOString() },
+  { id: "f9", user_email: "alex.ko***@ukr.net", amount: 2900, updated_date: new Date(Date.now() - 42 * 60000).toISOString() },
+  { id: "f10", user_email: "hana.mu***@hotmail.com", amount: 6700, updated_date: new Date(Date.now() - 50 * 60000).toISOString() },
+  { id: "f11", user_email: "jing.wa***@163.com", amount: 22000, updated_date: new Date(Date.now() - 55 * 60000).toISOString() },
+  { id: "f12", user_email: "mehm.oz***@gmail.com", amount: 4100, updated_date: new Date(Date.now() - 62 * 60000).toISOString() },
+  { id: "f13", user_email: "sofi.pe***@outlook.com", amount: 3800, updated_date: new Date(Date.now() - 70 * 60000).toISOString() },
+  { id: "f14", user_email: "chen.xi***@qq.com", amount: 15200, updated_date: new Date(Date.now() - 80 * 60000).toISOString() },
+  { id: "f15", user_email: "aiym.be***@gmail.com", amount: 8900, updated_date: new Date(Date.now() - 90 * 60000).toISOString() },
 ];
 
 function maskEmail(email) {
