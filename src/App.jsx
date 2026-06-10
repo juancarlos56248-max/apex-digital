@@ -33,44 +33,39 @@ const PageSkeleton = () => (
 
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, authError, navigateToLogin } = useAuth();
 
-  // Only block on truly protected paths — never block public routes
   const pathname = window.location.pathname;
   const isPublicRoute = pathname === '/' || pathname === '/terms';
-  const needsAuth = !isPublicRoute && isLoadingAuth && !isLoadingPublicSettings;
-  if (needsAuth) {
+
+  // Handle errors only after loading completes and only on protected routes
+  if (!isLoadingAuth && authError) {
+    if (authError.type === 'user_not_registered') {
+      return <UserNotRegisteredError />;
+    }
+    if (authError.type === 'auth_required' && !isPublicRoute) {
+      const params = new URLSearchParams(window.location.search);
+      const refCode = params.get('ref');
+      if (refCode) localStorage.setItem('apex_ref_code', refCode);
+      navigateToLogin();
+      return null;
+    }
+  }
+
+  // Protected routes: show spinner only while loading auth on non-public paths
+  if (!isPublicRoute && isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />
       </div>
     );
   }
 
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Allow public routes without auth
-      const publicPaths = ['/', '/terms'];
-      const isPublicPath = publicPaths.includes(window.location.pathname);
-      if (!isPublicPath) {
-        // Save ref code before redirecting to login
-        const params = new URLSearchParams(window.location.search);
-        const refCode = params.get('ref');
-        if (refCode) localStorage.setItem('apex_ref_code', refCode);
-        navigateToLogin();
-        return null;
-      }
-    }
-  }
-
-  // Render the main app
+  // Always render routes — public routes never wait
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route path="/terms" element={<Terms />} />
+      <Route path="/terms" element={<Suspense fallback={null}><Terms /></Suspense>} />
       <Route element={<AppLayout />}>
         <Suspense fallback={<PageSkeleton />}>
           <Route path="/dashboard" element={<Dashboard />} />
