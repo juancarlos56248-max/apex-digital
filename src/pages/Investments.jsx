@@ -319,27 +319,7 @@ export default function Investments() {
               </div>
             </div>
 
-            <div>
-              <p className="text-xs text-muted-foreground mb-2">Personaliza tu nodo — elige hasta 4 acciones (opcional)</p>
-              <div className="flex flex-wrap gap-1.5">
-                {POPULAR_STOCKS.map(s => (
-                  <button
-                    key={s.symbol}
-                    onClick={() => toggleStock(s.symbol)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold border transition-all duration-150 ${
-                      selectedStocks.includes(s.symbol)
-                        ? "bg-gold/20 border-gold/50 text-gold"
-                        : "bg-secondary border-border text-muted-foreground hover:border-gold/30 hover:text-foreground"
-                    }`}
-                  >
-                    {s.symbol}
-                  </button>
-                ))}
-              </div>
-              {selectedStocks.length > 0 && (
-                <p className="text-[11px] text-gold mt-1.5 font-mono">✓ {selectedStocks.join(", ")}</p>
-              )}
-            </div>
+
 
             {referralCode && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/5 border border-gold/20">
