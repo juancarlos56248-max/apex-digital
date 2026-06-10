@@ -50,8 +50,8 @@ Deno.serve(async (req) => {
     if (users.length > 0) {
       const u = users[0];
       await base44.asServiceRole.entities.User.update(u.id, {
-        balance: (u.balance || 0) + dividend,
-        total_earned: (u.total_earned || 0) + dividend,
+        balance: parseFloat(((u.balance || 0) + dividend).toFixed(4)),
+        total_earned: parseFloat(((u.total_earned || 0) + dividend).toFixed(4)),
       });
     }
 
