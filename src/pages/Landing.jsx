@@ -40,7 +40,7 @@ function generateChartData() {
 
 export default function Landing() {
   const [chartData] = useState(generateChartData);
-  const [isAuth, setIsAuth] = useState(false);
+  const [isAuth, setIsAuth] = useState(null); // null = loading
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function Landing() {
             </div>
           </div>
           <Button size="sm" onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-black font-bold text-xs px-5 shadow-lg shadow-gold/20">
-            {isAuth ? "Ir al Panel" : "Registrarse"} <ArrowRight className="w-3 h-3 ml-1" />
+            {isAuth === null ? "..." : isAuth ? "Ir al Panel" : "Registrarse"} <ArrowRight className="w-3 h-3 ml-1" />
           </Button>
         </div>
       </nav>
@@ -109,7 +109,7 @@ export default function Landing() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
               <Button size="lg" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-black font-bold h-14 text-lg shadow-xl shadow-gold/25 pulse-glow px-8">
-                {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-5 h-5" />
+                {isAuth === null ? "Cargando..." : isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-5 h-5" />
               </Button>
               <Link to="/terms" className="flex-1">
                 <Button size="lg" variant="outline" className="w-full border-border/60 hover:border-gold/40 h-14 text-lg backdrop-blur-sm px-8">

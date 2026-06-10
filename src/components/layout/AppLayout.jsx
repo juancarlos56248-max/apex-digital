@@ -64,7 +64,9 @@ export default function AppLayout() {
         }
       } catch (err) {
         console.error("Error loading user:", err);
-        setProfileComplete(false);
+        // Session expired or not authenticated — redirect to login
+        base44.auth.redirectToLogin("/dashboard");
+        return;
       }
     };
     loadUser();

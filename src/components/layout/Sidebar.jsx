@@ -159,7 +159,12 @@ export default function Sidebar({ open, onClose, user }) {
                     Cancelar
                   </button>
                   <button
-                    onClick={() => { base44.auth.logout(); }}
+                    onClick={async () => {
+                      try {
+                        await base44.auth.updateMe({ deleted: true, deleted_at: new Date().toISOString() });
+                      } catch(_) {}
+                      base44.auth.logout();
+                    }}
                     className="flex-1 text-xs py-1.5 rounded-md bg-destructive text-white font-semibold hover:bg-destructive/90 transition-colors"
                   >
                     Eliminar
