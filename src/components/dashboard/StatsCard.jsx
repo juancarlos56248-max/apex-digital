@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 
-export default function StatsCard({ icon: Icon, label, value, suffix = "", trend, delay = 0 }) {
+export default function StatsCard({ icon: Icon, label, value, suffix = "", trend, delay = 0, loading = false }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
+      transition={{ duration: 0.4, delay }}
       className="relative overflow-hidden rounded-xl border border-border bg-card p-3 sm:p-5 group hover:border-gold/30 transition-all duration-300"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -14,17 +14,21 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", trend
           <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
             <Icon className="w-4 h-4 text-gold" />
           </div>
-          {trend && (
+          {trend && !loading && (
             <span className={`text-xs font-mono font-medium ${trend > 0 ? "text-success" : "text-destructive"}`}>
               {trend > 0 ? "+" : ""}{trend}%
             </span>
           )}
         </div>
         <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground mb-1 leading-tight">{label}</p>
-        <p className="text-lg sm:text-2xl font-bold tracking-tight">
-          {value}
-          {suffix && <span className="text-sm text-muted-foreground ml-1">{suffix}</span>}
-        </p>
+        {loading ? (
+          <div className="h-7 w-24 rounded-md bg-secondary/60 animate-pulse mt-1" />
+        ) : (
+          <p className="text-lg sm:text-2xl font-bold tracking-tight">
+            {value}
+            {suffix && <span className="text-sm text-muted-foreground ml-1">{suffix}</span>}
+          </p>
+        )}
       </div>
     </motion.div>
   );
