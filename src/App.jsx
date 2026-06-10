@@ -65,18 +65,16 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route path="/terms" element={<Suspense fallback={null}><Terms /></Suspense>} />
+      <Route path="/terms" element={<Terms />} />
       <Route element={<AppLayout />}>
-        <Suspense fallback={<PageSkeleton />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/investments" element={<Investments />} />
-          <Route path="/deposit" element={<Deposit />} />
-          <Route path="/withdraw" element={<Withdraw />} />
-          <Route path="/referrals" element={<Referrals />} />
-          <Route path="/comunidad" element={<Comunidad />} />
-          <Route path="/soporte" element={<Soporte />} />
-          <Route path="/admin" element={<AdminPanel />} />
-        </Suspense>
+        <Route path="/dashboard" element={<Suspense fallback={<PageSkeleton />}><Dashboard /></Suspense>} />
+        <Route path="/investments" element={<Suspense fallback={<PageSkeleton />}><Investments /></Suspense>} />
+        <Route path="/deposit" element={<Suspense fallback={<PageSkeleton />}><Deposit /></Suspense>} />
+        <Route path="/withdraw" element={<Suspense fallback={<PageSkeleton />}><Withdraw /></Suspense>} />
+        <Route path="/referrals" element={<Suspense fallback={<PageSkeleton />}><Referrals /></Suspense>} />
+        <Route path="/comunidad" element={<Suspense fallback={<PageSkeleton />}><Comunidad /></Suspense>} />
+        <Route path="/soporte" element={<Suspense fallback={<PageSkeleton />}><Soporte /></Suspense>} />
+        <Route path="/admin" element={<Suspense fallback={<PageSkeleton />}><AdminPanel /></Suspense>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
