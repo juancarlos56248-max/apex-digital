@@ -7,12 +7,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Copy, Shield, AlertTriangle, Gift } from "lucide-react";
+import { Copy, Shield, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 const WALLET_ADDRESSES = {
   TRC20: "TYkXfPLzMvLmFxvMbPeYGVT2Hd9BnGNy8q",
   ERC20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
   BEP20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
+};
+
+const NETWORK_INSTRUCTIONS = {
+  TRC20: [
+    "Abre tu wallet (Trust Wallet, Binance, etc.) y selecciona USDT en red TRON (TRC20).",
+    "Copia la dirección corporativa de arriba y pégala como dirección destino.",
+    "Ingresa el monto a enviar (mínimo 10 USDT) y confirma la transacción.",
+    "Espera la confirmación en blockchain (aprox. 1–2 minutos en TRON).",
+    "Copia el TXID/Hash de la transacción y pégalo en el campo de abajo.",
+  ],
+  ERC20: [
+    "Abre tu wallet (MetaMask, Trust Wallet, etc.) y selecciona USDT en red Ethereum (ERC20).",
+    "Copia la dirección corporativa de arriba y pégala como dirección destino.",
+    "Ingresa el monto a enviar (mínimo 10 USDT). Ten en cuenta que el gas fee de Ethereum puede ser elevado.",
+    "Confirma la transacción y espera la confirmación en blockchain (aprox. 1–5 minutos).",
+    "Copia el TXID/Hash de Etherscan y pégalo en el campo de abajo.",
+  ],
+  BEP20: [
+    "Abre tu wallet (Trust Wallet, MetaMask con BSC, Binance, etc.) y selecciona USDT en red BNB Smart Chain (BEP20).",
+    "Copia la dirección corporativa de arriba y pégala como dirección destino.",
+    "Asegúrate de tener BNB en tu wallet para pagar el gas fee de la transacción.",
+    "Ingresa el monto a enviar (mínimo 10 USDT) y confirma la transacción.",
+    "Espera la confirmación en blockchain (aprox. 1–3 minutos en BSC), copia el TXID de BscScan y pégalo abajo.",
+  ],
 };
 
 export default function Deposit() {
@@ -104,6 +128,17 @@ export default function Deposit() {
               <SelectItem value="BEP20">BEP20 (BSC)</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Instrucciones paso a paso */}
+        <div className="rounded-xl border border-gold/20 bg-gold/5 p-4 space-y-2">
+          <p className="text-xs font-bold text-gold mb-3">¿Cómo depositar con {network}?</p>
+          {NETWORK_INSTRUCTIONS[network].map((step, i) => (
+            <div key={i} className="flex gap-2.5 items-start">
+              <div className="w-5 h-5 rounded-full bg-gold text-black text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</div>
+              <p className="text-xs text-muted-foreground leading-relaxed">{step}</p>
+            </div>
+          ))}
         </div>
 
         <div>
