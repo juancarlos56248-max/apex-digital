@@ -14,7 +14,7 @@ import {
 import { Shield, Zap, Download, AlertTriangle } from "lucide-react";
 
 export default function Investments() {
-  const { user } = useOutletContext();
+  const { user, setUser } = useOutletContext();
 
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,7 +106,6 @@ export default function Investments() {
       toast.error("Ingresa un monto válido."); setSubmitting(false); return;
     }
 
-    const selectedDeposit = amount;
     const minDeposit = selectedConfig?.minDeposit || 0;
     const maxDeposit = selectedConfig?.maxDeposit || null;
 
@@ -151,10 +150,14 @@ export default function Investments() {
     }
 
     await base44.entities.Investment.create(investmentData);
+    const newBalance = currentBalance - amount;
+    const newTotalInvested = (freshUser?.total_invested || 0) + amount;
     await base44.auth.updateMe({
-      balance: currentBalance - selectedDeposit,
-      total_invested: (freshUser?.total_invested || 0) + selectedDeposit,
+      balance: newBalance,
+      total_invested: newTotalInvested,
     });
+    // Update local user state so Dashboard reflects the new balance immediately
+    setUser(prev => ({ ...prev, balance: newBalance, total_invested: newTotalInvested }));
 
     const cert = {
       name: user.full_name || user.email,
