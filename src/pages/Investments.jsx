@@ -250,7 +250,7 @@ export default function Investments() {
 
       {/* Subscription Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-card border-border max-w-sm">
+        <DialogContent className="bg-card border-border max-w-sm max-h-[90dvh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-gold/10 flex items-center justify-center">
@@ -293,7 +293,7 @@ export default function Investments() {
             </ul>
           </div>
 
-          <div className="space-y-3 py-1">
+          <div className="space-y-3 py-1 overflow-y-auto flex-1 pr-1">
             <div>
               <Label className="text-xs text-muted-foreground">Monto a Invertir (USDT)</Label>
               {selectedTier === "prueba" ? (
@@ -349,7 +349,7 @@ export default function Investments() {
             )}
           </div>
 
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 pt-2 border-t border-border flex-shrink-0">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="flex-1">Cancelar</Button>
             <Button
               onClick={confirmSubscription}
