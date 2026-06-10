@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Shield, TrendingUp, Clock, ArrowRight, Lock, Globe, CheckCircle, Users, DollarSign, BarChart3 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
-import WithdrawalTicker from "../components/landing/WithdrawalTicker";
 import { base44 } from "@/api/base44Client";
+
+const WithdrawalTicker = lazy(() => import("../components/landing/WithdrawalTicker"));
 
 const features = [
   { icon: Shield, title: "Seguridad Bancaria", desc: "Protocolos de cumplimiento institucional con auditoría en tiempo real y cifrado de grado militar.", color: "text-emerald-400", bg: "bg-emerald-500/10" },
@@ -40,7 +41,10 @@ function generateChartData() {
 
 export default function Landing() {
   const [chartData] = useState(generateChartData);
-  const [isAuth, setIsAuth] = useState(false); // default false = show CTA immediately
+  const [isAuth, setIsAuth] = useState(() => {
+    // Instant check from session storage to avoid flicker on returning users
+    try { return !!sessionStorage.getItem("apex_auth_hint"); } catch { return false; }
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,8 +52,14 @@ export default function Landing() {
     const refCode = params.get("ref");
     if (refCode) localStorage.setItem("apex_ref_code", refCode);
 
-    // Check auth in background without blocking render
-    base44.auth.isAuthenticated().then(setIsAuth);
+    // Check auth in background — store hint for instant next load
+    base44.auth.isAuthenticated().then(auth => {
+      setIsAuth(auth);
+      try {
+        if (auth) sessionStorage.setItem("apex_auth_hint", "1");
+        else sessionStorage.removeItem("apex_auth_hint");
+      } catch {}
+    });
   }, []);
 
   const handleCTA = () => {
@@ -90,7 +100,7 @@ export default function Landing() {
         </div>
 
         <div className="relative max-w-5xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: "easeOut" }}>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/5 mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <Lock className="w-3 h-3 text-gold" />
@@ -121,9 +131,9 @@ export default function Landing() {
 
           {/* Mini Chart Preview */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.3 }}
+            transition={{ duration: 0.4, delay: 0.18, ease: "easeOut" }}
             className="mt-14 mx-auto max-w-2xl"
           >
             <div className="rounded-2xl border border-gold/20 bg-card/80 backdrop-blur-sm p-5 shadow-2xl">
@@ -184,7 +194,9 @@ export default function Landing() {
       {/* Withdrawal Ticker */}
       <section className="px-5 pb-10">
         <div className="max-w-5xl mx-auto">
-          <WithdrawalTicker />
+          <Suspense fallback={<div className="h-32" />}>
+            <WithdrawalTicker />
+          </Suspense>
         </div>
       </section>
 

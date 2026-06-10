@@ -35,9 +35,11 @@ const PageSkeleton = () => (
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Only block on public paths if we truly need to (avoid black screen on mobile)
-  const isPublicRoute = ['/', '/terms'].includes(window.location.pathname);
-  if (!isPublicRoute && (isLoadingPublicSettings || isLoadingAuth)) {
+  // Only block on truly protected paths — never block public routes
+  const pathname = window.location.pathname;
+  const isPublicRoute = pathname === '/' || pathname === '/terms';
+  const needsAuth = !isPublicRoute && isLoadingAuth && !isLoadingPublicSettings;
+  if (needsAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div>
