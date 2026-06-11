@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { RefreshCw } from "lucide-react";
 
 const THRESHOLD = 70;
@@ -6,12 +6,14 @@ const THRESHOLD = 70;
 export default function PullToRefresh({ onRefresh, children }) {
   const [pullY, setPullY] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const containerRef = useRef(null);
   const startY = useRef(null);
   const pulling = useRef(false);
 
   const handleTouchStart = useCallback((e) => {
-    // Only activate if scrolled to top
-    if (window.scrollY > 0) return;
+    const scrollEl = containerRef.current?.closest(".overflow-y-auto") || document.querySelector("main.overflow-y-auto") || window;
+    const scrollTop = scrollEl === window ? window.scrollY : scrollEl.scrollTop;
+    if (scrollTop > 0) return;
     startY.current = e.touches[0].clientY;
     pulling.current = true;
   }, []);
@@ -20,8 +22,12 @@ export default function PullToRefresh({ onRefresh, children }) {
     if (!pulling.current || startY.current === null) return;
     const delta = e.touches[0].clientY - startY.current;
     if (delta > 0) {
-      e.preventDefault();
+      // Only prevent default when actively pulling down (not scrolling up)
       setPullY(Math.min(delta * 0.5, THRESHOLD + 20));
+    } else {
+      pulling.current = false;
+      startY.current = null;
+      setPullY(0);
     }
   }, []);
 
@@ -48,21 +54,22 @@ export default function PullToRefresh({ onRefresh, children }) {
 
   return (
     <div
+      ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      style={{ touchAction: "pan-y" }}
     >
-      {/* Pull indicator */}
-      <div
-        className="flex items-center justify-center overflow-hidden transition-all duration-200"
-        style={{ height: showing ? `${pullY}px` : 0 }}
-      >
-        <RefreshCw
-          className={`w-5 h-5 text-gold transition-all ${refreshing ? "animate-spin" : ""}`}
-          style={{ transform: `rotate(${progress * 360}deg)`, opacity: progress }}
-        />
-      </div>
+      {showing && (
+        <div
+          className="flex items-center justify-center overflow-hidden transition-all duration-200"
+          style={{ height: `${pullY}px` }}
+        >
+          <RefreshCw
+            className={`w-5 h-5 text-gold ${refreshing ? "animate-spin" : ""}`}
+            style={{ transform: `rotate(${progress * 360}deg)`, opacity: progress }}
+          />
+        </div>
+      )}
       {children}
     </div>
   );
