@@ -199,7 +199,7 @@ export default function Investments() {
   const trialKey = "prueba";
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-6 pb-8" style={{ touchAction: "pan-y" }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
@@ -304,7 +304,7 @@ export default function Investments() {
             </ul>
           </div>
 
-          <div className="space-y-3 py-1 overflow-y-auto flex-1 pr-1">
+          <div className="space-y-3 py-1 overflow-y-auto flex-1 pr-1" style={{ touchAction: "pan-y" }}>
             <div>
               <Label className="text-xs text-muted-foreground">Monto a Invertir (USDT)</Label>
               {selectedTier === "prueba" ? (
