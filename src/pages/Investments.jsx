@@ -138,7 +138,7 @@ export default function Investments() {
     const investmentData = {
       user_email: user.email,
       tier: selectedTier,
-      amount: selectedDeposit,
+      amount: amount,
       status: "active",
       total_earned: 0,
       last_dividend_date: new Date().toISOString(),
@@ -150,14 +150,17 @@ export default function Investments() {
     }
 
     await base44.entities.Investment.create(investmentData);
+
+    // Recalculate total_invested from all active investments (including the new one)
+    const allInvs = await base44.entities.Investment.filter({ user_email: user.email, status: "active" });
+    const realTotalInvested = allInvs.reduce((sum, i) => sum + (i.amount || 0), 0);
     const newBalance = currentBalance - amount;
-    const newTotalInvested = (freshUser?.total_invested || 0) + amount;
     await base44.auth.updateMe({
       balance: newBalance,
-      total_invested: newTotalInvested,
+      total_invested: realTotalInvested,
     });
     // Update local user state so Dashboard reflects the new balance immediately
-    setUser(prev => ({ ...prev, balance: newBalance, total_invested: newTotalInvested }));
+    setUser(prev => ({ ...prev, balance: newBalance, total_invested: realTotalInvested }));
 
     const cert = {
       name: user.full_name || user.email,

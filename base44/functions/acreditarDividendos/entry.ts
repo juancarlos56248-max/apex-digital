@@ -72,9 +72,14 @@ Deno.serve(async (req) => {
     const daysElapsed = (now - startDate) / (1000 * 60 * 60 * 24);
 
     if (daysElapsed >= durationDays) {
-      await base44.asServiceRole.entities.Investment.update(inv.id, {
-        status: "completed",
-      });
+      await base44.asServiceRole.entities.Investment.update(inv.id, { status: "completed" });
+      // Sync total_invested for this user after completion
+      const remainingInvs = await base44.asServiceRole.entities.Investment.filter({ user_email: inv.user_email, status: "active" });
+      const realTotal = remainingInvs.reduce((s, i) => s + (i.amount || 0), 0);
+      const usersToSync = await base44.asServiceRole.entities.User.filter({ email: inv.user_email });
+      if (usersToSync.length > 0) {
+        await base44.asServiceRole.entities.User.update(usersToSync[0].id, { total_invested: realTotal });
+      }
     }
   }
 
@@ -85,6 +90,12 @@ Deno.serve(async (req) => {
     const daysElapsed = (now - startDate) / (1000 * 60 * 60 * 24);
     if (daysElapsed >= durationDays && inv.status === "active") {
       await base44.asServiceRole.entities.Investment.update(inv.id, { status: "completed" });
+      const remainingInvs = await base44.asServiceRole.entities.Investment.filter({ user_email: inv.user_email, status: "active" });
+      const realTotal = remainingInvs.reduce((s, i) => s + (i.amount || 0), 0);
+      const usersToSync = await base44.asServiceRole.entities.User.filter({ email: inv.user_email });
+      if (usersToSync.length > 0) {
+        await base44.asServiceRole.entities.User.update(usersToSync[0].id, { total_invested: realTotal });
+      }
     }
   }
 
