@@ -51,7 +51,7 @@ export default function PullToRefresh({ onRefresh, children }) {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      style={{ touchAction: "pan-x" }}
+      style={{ touchAction: "pan-y" }}
     >
       {/* Pull indicator */}
       <div
