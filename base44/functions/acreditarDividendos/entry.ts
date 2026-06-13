@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const DAILY_RATES = {
+  prueba: 0.10,
   starter: 0.10,
   advance: 0.10,
   pro: 0.10,
@@ -10,6 +11,7 @@ const DAILY_RATES = {
 
 // Duración en días de cada plan
 const PLAN_DURATION_DAYS = {
+  prueba: 3,
   starter: 30,
   advance: 60,
   pro: 60,
