@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const DAILY_RATES = {
-  prueba: 0.10,
+  prueba: 0.3333,
   starter: 0.10,
   advance: 0.10,
   pro: 0.10,
