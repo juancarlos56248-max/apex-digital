@@ -26,6 +26,10 @@ export const AuthProvider = ({ children }) => {
       .catch(error => {
         setIsLoadingAuth(false);
         setIsAuthenticated(false);
+        // Network error (offline, timeout, CORS) — treat as unauthenticated, don't block the app
+        if (!error.status || error.message === 'Network Error') {
+          return;
+        }
         if (error.status === 401 || error.status === 403) {
           const reason = error.data?.extra_data?.reason;
           setAuthError({
