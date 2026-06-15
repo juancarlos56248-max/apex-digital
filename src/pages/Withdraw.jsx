@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -21,24 +21,8 @@ export default function Withdraw() {
   const [amount, setAmount] = useState("");
   const [wallet, setWallet] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [activeInvestments, setActiveInvestments] = useState([]);
 
-  useEffect(() => {
-    if (user?.email) {
-      base44.entities.Investment.filter({ user_email: user.email, status: "active" })
-        .then(setActiveInvestments);
-    }
-  }, [user?.email]);
 
-  // Verificar si tiene plan prueba aún activo (no completado)
-  const pruebaInvestment = activeInvestments.find(inv => inv.tier === "prueba");
-  const pruebaLockedDays = pruebaInvestment ? (() => {
-    const start = new Date(pruebaInvestment.created_date);
-    const daysElapsed = (new Date() - start) / (1000 * 60 * 60 * 24);
-    const daysLeft = Math.ceil(3 - daysElapsed);
-    return daysLeft > 0 ? daysLeft : 0;
-  })() : 0;
-  const pruebaLocked = pruebaLockedDays > 0;
 
   const amtNum = parseFloat(amount) || 0;
   const commission = amtNum * COMMISSION_RATE;
@@ -92,10 +76,6 @@ export default function Withdraw() {
     }
     if (hasOnlyBonus) {
       toast.error("El bono de bienvenida de $5 no es retirable. Debes realizar una inversión primero.");
-      return;
-    }
-    if (pruebaLocked) {
-      toast.error(`El plan de prueba debe completar sus 3 días antes de poder retirar. Faltan ${pruebaLockedDays} día(s).`);
       return;
     }
     if (amt > withdrawableBalance) {
@@ -189,19 +169,6 @@ export default function Withdraw() {
           </div>
         </div>
 
-        {/* Alerta plan prueba bloqueado */}
-        {pruebaLocked && (
-          <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/8 p-4 flex gap-3">
-            <Clock className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-yellow-400">Plan de Prueba en curso</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Los fondos del plan de prueba <span className="text-yellow-400 font-bold">no son retirables</span> hasta completar los 3 días del ciclo. Faltan <span className="text-yellow-400 font-bold">{pruebaLockedDays} día(s)</span>.
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Alerta bono de bienvenida */}
         {hasOnlyBonus && (
           <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/8 p-4 flex gap-3">
@@ -284,7 +251,7 @@ export default function Withdraw() {
 
         <Button
           onClick={handleSubmit}
-          disabled={submitting || !withdrawAllowed || hasOnlyBonus || pruebaLocked || walletValid === false}
+          disabled={submitting || !withdrawAllowed || hasOnlyBonus || walletValid === false}
           className="w-full bg-gold hover:bg-gold-dark text-black font-semibold h-11"
         >
           {submitting ? "Procesando..." : "Solicitar Retiro"}
