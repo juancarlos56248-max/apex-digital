@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -21,17 +21,23 @@ export default function Withdraw() {
   const [amount, setAmount] = useState("");
   const [wallet, setWallet] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [hasPruebaActive, setHasPruebaActive] = useState(false);
 
-
+  useEffect(() => {
+    if (!user?.email) return;
+    base44.entities.Investment.filter({ user_email: user.email, tier: "prueba", status: "active" })
+      .then(invs => setHasPruebaActive(invs.length > 0));
+  }, [user?.email]);
 
   const amtNum = parseFloat(amount) || 0;
   const commission = amtNum * COMMISSION_RATE;
   const netAmount = amtNum - commission;
 
   const totalBalance = user?.balance || 0;
-  const withdrawableBalance = totalBalance;
-  // Bloqueado solo si el saldo es exactamente el bono de bienvenida (sin ganancias reales)
-  const hasOnlyBonus = totalBalance <= WELCOME_BONUS;
+  // Si hay plan prueba activo, los $5 del bono están bloqueados
+  const lockedBonus = hasPruebaActive ? WELCOME_BONUS : 0;
+  const withdrawableBalance = Math.max(0, totalBalance - lockedBonus);
+  const hasOnlyBonus = hasPruebaActive && totalBalance <= WELCOME_BONUS;
 
   const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
 
@@ -75,18 +81,18 @@ export default function Withdraw() {
       return;
     }
     if (hasOnlyBonus) {
-      toast.error("El bono de bienvenida de $5 no es retirable. Debes realizar una inversión primero.");
+      toast.error("Los $5 del plan prueba se liberan al completar los 3 días. Espera a que finalice el ciclo.");
       return;
     }
     if (amt > withdrawableBalance) {
-      toast.error(`Solo puedes retirar hasta $${withdrawableBalance.toFixed(2)} USDT (el bono de $5 de bienvenida no es retirable).`);
+      toast.error(`Los $5 del plan prueba están bloqueados hasta completar los 3 días. Disponible: $${withdrawableBalance.toFixed(2)} USDT`);
       return;
     }
 
     setSubmitting(true);
     const freshUser = await base44.auth.me();
     const currentBalance = freshUser?.balance || 0;
-    const freshWithdrawable = currentBalance;
+    const freshWithdrawable = Math.max(0, currentBalance - lockedBonus);
     if (amt > freshWithdrawable) {
       toast.error(`Saldo insuficiente — Disponible: $${freshWithdrawable.toFixed(2)} USDT`);
       setSubmitting(false);
@@ -169,14 +175,14 @@ export default function Withdraw() {
           </div>
         </div>
 
-        {/* Alerta bono de bienvenida */}
-        {hasOnlyBonus && (
+        {/* Alerta plan prueba activo */}
+        {hasPruebaActive && (
           <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/8 p-4 flex gap-3">
             <TrendingUp className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-yellow-400">Bono de bienvenida no retirable</p>
+              <p className="text-sm font-semibold text-yellow-400">Plan Prueba en curso — $5 bloqueados</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Los <span className="text-yellow-400 font-bold">$5 de bienvenida</span> son exclusivamente para invertir en la plataforma. Realiza una inversión para comenzar a generar ganancias retirables.
+                Los <span className="text-yellow-400 font-bold">$5 del plan prueba</span> se liberarán automáticamente al completar los 3 días. Las ganancias adicionales de otros planes son retirables ahora.
               </p>
             </div>
           </div>
