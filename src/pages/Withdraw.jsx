@@ -28,9 +28,9 @@ export default function Withdraw() {
   const commission = amtNum * COMMISSION_RATE;
   const netAmount = amtNum - commission;
 
-  // Saldo real disponible para retiro (excluyendo bono de bienvenida)
   const totalBalance = user?.balance || 0;
-  const withdrawableBalance = Math.max(0, totalBalance - WELCOME_BONUS);
+  const withdrawableBalance = totalBalance;
+  // Bloqueado solo si el saldo es exactamente el bono de bienvenida (sin ganancias reales)
   const hasOnlyBonus = totalBalance <= WELCOME_BONUS;
 
   const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
@@ -86,9 +86,9 @@ export default function Withdraw() {
     setSubmitting(true);
     const freshUser = await base44.auth.me();
     const currentBalance = freshUser?.balance || 0;
-    const freshWithdrawable = Math.max(0, currentBalance - WELCOME_BONUS);
+    const freshWithdrawable = currentBalance;
     if (amt > freshWithdrawable) {
-      toast.error(`Saldo retirable insuficiente — Disponible: $${freshWithdrawable.toFixed(2)} USDT`);
+      toast.error(`Saldo insuficiente — Disponible: $${freshWithdrawable.toFixed(2)} USDT`);
       setSubmitting(false);
       return;
     }
