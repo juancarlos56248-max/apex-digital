@@ -35,9 +35,12 @@ export default function DepositManager() {
           status: "credited",
         });
         if (existing.length === 0) {
+          // Determinar tier según monto del depósito
+          const amt = deposit.amount;
+          const tier = amt >= 10000 ? "institutional" : amt >= 2000 ? "elite" : amt >= 500 ? "advance" : "starter";
           await base44.functions.invoke('procesarReferido', {
             referral_code: u.referral_code_used,
-            tier: "starter",
+            tier,
             referred_email: deposit.user_email,
           });
         }
