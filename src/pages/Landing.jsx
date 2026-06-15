@@ -50,7 +50,11 @@ export default function Landing() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const refCode = params.get("ref");
-    if (refCode) localStorage.setItem("apex_ref_code", refCode);
+    if (refCode) {
+      localStorage.setItem("apex_ref_code", refCode);
+      // Keep ref in sessionStorage so it survives a login redirect
+      try { sessionStorage.setItem("apex_ref_code", refCode); } catch {}
+    }
 
     // Check auth in background — store hint for instant next load
     base44.auth.isAuthenticated().then(auth => {
@@ -66,7 +70,10 @@ export default function Landing() {
     if (isAuth) {
       navigate("/dashboard");
     } else {
-      base44.auth.redirectToLogin("/dashboard");
+      // Preserve ref code across the login redirect
+      const refCode = localStorage.getItem("apex_ref_code") || new URLSearchParams(window.location.search).get("ref");
+      const next = refCode ? `/?ref=${refCode}` : "/dashboard";
+      base44.auth.redirectToLogin(next);
     }
   };
 
