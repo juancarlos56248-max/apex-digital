@@ -45,22 +45,17 @@ export default function AppLayout() {
           updates.referral_code = "APEX" + Math.random().toString(36).substring(2, 8).toUpperCase();
         }
         if (me.balance === undefined || me.balance === null) {
-          const WELCOME_BONUS = 5;
-          updates.balance = WELCOME_BONUS;
+          updates.balance = 0;
           updates.total_invested = 0;
           updates.total_earned = 0;
-          // Fire and forget welcome bonus transaction
-          base44.entities.Transaction.create({
-            user_email: me.email,
-            type: "dividend",
-            amount: WELCOME_BONUS,
-            status: "completed",
-            notes: "🎉 Bono de bienvenida Apex Digital",
-          });
         }
         if (Object.keys(updates).length > 0) {
-          base44.auth.updateMe(updates);
+          await base44.auth.updateMe(updates);
           setUser(prev => ({ ...prev, ...updates }));
+          // Si es usuario nuevo, enviar email de bienvenida
+          if (updates.balance !== undefined) {
+            base44.functions.invoke('emailBienvenida', { data: { email: me.email, full_name: me.full_name } });
+          }
         }
       } catch (err) {
         console.error("Error loading user:", err);

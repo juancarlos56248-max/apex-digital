@@ -166,7 +166,7 @@ export default function Investments() {
       name: user.full_name || user.email,
       asset: selectedConfig?.subtitle || selectedTier,
       rate: selectedConfig?.dailyReturn || "N/A",
-      amount: selectedDeposit.toLocaleString(),
+      amount: amount.toLocaleString(),
       date: new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" }),
       id: Math.random().toString(36).substring(2, 10).toUpperCase(),
     };
