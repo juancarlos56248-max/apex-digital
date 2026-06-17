@@ -116,7 +116,13 @@ function StockCard({ stock, isActive, activating, onActivate, userBalance }) {
                 )}
               </div>
               <p className="text-[11px] text-muted-foreground">{stock.name}</p>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{stock.category}</span>
+              <div className="flex items-center gap-1 flex-wrap">
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{stock.category}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5 ${stock.change.startsWith('+') ? 'bg-emerald-500/15 text-emerald-400' : 'bg-destructive/15 text-destructive'}`}>
+                  {stock.change.startsWith('+') ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                  {stock.change}
+                </span>
+              </div>
             </div>
           </div>
           <div className="text-right flex-shrink-0">
@@ -407,6 +413,19 @@ export default function Trading() {
           </div>
         </motion.div>
       )}
+
+      {/* Market Pulse */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card p-3">
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">📊 Pulso del mercado</p>
+        <div className="flex flex-wrap gap-1.5">
+          {STOCKS.map(s => (
+            <div key={s.id} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-mono font-semibold border ${s.change.startsWith('+') ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-destructive/10 border-destructive/20 text-destructive'}`}>
+              {s.change.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {s.symbol} <span className="opacity-80">{s.change}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
 
       {/* Disclaimers */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-2">
