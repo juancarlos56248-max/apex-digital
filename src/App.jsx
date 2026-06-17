@@ -19,6 +19,7 @@ const AdminPanel = lazy(() => import('./pages/admin/AdminPanel'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Comunidad = lazy(() => import('./pages/Comunidad'));
 const Soporte = lazy(() => import('./pages/Soporte'));
+const Trading = lazy(() => import('./pages/Trading'));
 
 const PageSkeleton = () => (
   <div className="space-y-4 p-4">
@@ -74,6 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/referrals" element={<Suspense fallback={<PageSkeleton />}><Referrals /></Suspense>} />
         <Route path="/comunidad" element={<Suspense fallback={<PageSkeleton />}><Comunidad /></Suspense>} />
         <Route path="/soporte" element={<Suspense fallback={<PageSkeleton />}><Soporte /></Suspense>} />
+        <Route path="/trading" element={<Suspense fallback={<PageSkeleton />}><Trading /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageSkeleton />}><AdminPanel /></Suspense>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

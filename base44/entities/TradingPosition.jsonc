@@ -1,0 +1,62 @@
+{
+  "name": "TradingPosition",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email del inversor"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "standard",
+        "premium"
+      ],
+      "description": "Plan de trading"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Monto invertido en USDT"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "active"
+    },
+    "cycle_day": {
+      "type": "number",
+      "default": 1,
+      "description": "D\u00eda actual del ciclo (1-10)"
+    },
+    "total_days": {
+      "type": "number",
+      "description": "Duraci\u00f3n total del ciclo en d\u00edas"
+    },
+    "total_result": {
+      "type": "number",
+      "default": 0,
+      "description": "Resultado acumulado (positivo o negativo)"
+    },
+    "daily_results": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Historial de resultados diarios"
+    },
+    "last_cycle_date": {
+      "type": "string",
+      "description": "ISO fecha del \u00faltimo ciclo procesado"
+    }
+  },
+  "required": [
+    "user_email",
+    "plan",
+    "amount"
+  ]
+}

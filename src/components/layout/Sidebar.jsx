@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { 
   LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
-  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2
+  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2, BarChart2
 } from "lucide-react";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/investments", label: "Inversiones", icon: TrendingUp },
+  { path: "/trading", label: "Trading", icon: BarChart2 },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
   { path: "/referrals", label: "Referidos", icon: Users },
