@@ -40,32 +40,10 @@ export default function Withdraw() {
 
   const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
 
-  // Check 24h restriction
-  const canWithdraw = () => {
-    if (!user?.last_withdrawal_date) return true;
-    const lastDate = new Date(user.last_withdrawal_date);
-    const now = new Date();
-    const diff = now - lastDate;
-    return diff >= 24 * 60 * 60 * 1000;
-  };
-
-  const getTimeRemaining = () => {
-    if (!user?.last_withdrawal_date) return null;
-    const lastDate = new Date(user.last_withdrawal_date);
-    const nextDate = new Date(lastDate.getTime() + 24 * 60 * 60 * 1000);
-    const now = new Date();
-    const diff = nextDate - now;
-    if (diff <= 0) return null;
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${mins}m`;
-  };
+  const canWithdraw = () => true;
+  const getTimeRemaining = () => null;
 
   const handleSubmit = async () => {
-    if (!canWithdraw()) {
-      toast.error("Solo puedes realizar un retiro cada 24 horas");
-      return;
-    }
     if (!amount || !wallet) {
       toast.error("Completa todos los campos");
       return;
@@ -256,7 +234,7 @@ export default function Withdraw() {
 
         <Button
           onClick={handleSubmit}
-          disabled={submitting || !withdrawAllowed || hasOnlyBonus || walletValid === false}
+          disabled={submitting || !amount || !wallet}
           className="w-full bg-gold hover:bg-gold-dark text-black font-semibold h-11"
         >
           {submitting ? "Procesando..." : "Solicitar Retiro"}
