@@ -98,41 +98,71 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-28 pb-16 px-5 overflow-hidden">
+      <section className="relative pt-24 pb-16 px-5 overflow-hidden">
         {/* Background glows */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 left-1/4 w-72 h-72 bg-gold/8 rounded-full blur-[120px]" />
-          <div className="absolute top-40 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[150px]" />
+          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold/6 rounded-full blur-[160px]" />
+          <div className="absolute top-32 right-1/4 w-80 h-80 bg-blue-500/5 rounded-full blur-[120px]" />
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
         </div>
 
         <div className="relative max-w-5xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: "easeOut" }}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/5 mb-8">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/5 mb-7">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <Lock className="w-3 h-3 text-gold" />
               <span className="text-[11px] text-gold font-semibold tracking-wide">Protocolo de Seguridad · Singapur</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] mb-6">
-              Inversión Inteligente
-              <br />
-              <span className="text-gold-gradient">Sin Límites</span>
+            {/* Headline */}
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.0] mb-6">
+              <span className="block text-foreground">Inversión</span>
+              <span className="block text-foreground">Inteligente</span>
+              <span className="block text-gold-gradient mt-1">Sin Límites</span>
             </h1>
 
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              Accede a estrategias algorítmicas de alto rendimiento con <strong className="text-foreground">10% diario</strong>. Infraestructura institucional, disponible para todos.
+            {/* Subheadline */}
+            <p className="text-base md:text-xl text-muted-foreground max-w-xl mx-auto mb-4 leading-relaxed">
+              Accede a estrategias algorítmicas de alto rendimiento con{" "}
+              <span className="relative inline-block">
+                <span className="text-foreground font-black text-lg md:text-2xl">10% diario</span>
+                <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-gold to-gold-light rounded-full" />
+              </span>
+              .
+            </p>
+            <p className="text-sm text-muted-foreground/70 max-w-md mx-auto mb-10">
+              Infraestructura institucional, disponible para todos.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
-              <Button size="lg" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-black font-bold h-14 text-lg shadow-xl shadow-gold/25 pulse-glow px-8">
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto">
+              <Button size="lg" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-black font-black h-14 text-base shadow-2xl shadow-gold/30 pulse-glow rounded-2xl">
                 {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-5 h-5" />
               </Button>
               <Link to="/terms" className="flex-1">
-                <Button size="lg" variant="outline" className="w-full border-border/60 hover:border-gold/40 h-14 text-lg backdrop-blur-sm px-8">
+                <Button size="lg" variant="ghost" className="w-full h-14 text-base font-semibold text-muted-foreground hover:text-foreground rounded-2xl">
                   Ver Protocolo
                 </Button>
               </Link>
+            </div>
+
+            {/* Trust row */}
+            <div className="flex items-center justify-center gap-6 mt-8">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                <span>SSL 256-bit</span>
+              </div>
+              <div className="w-px h-3 bg-border" />
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <CheckCircle className="w-3.5 h-3.5 text-gold" />
+                <span>12,400+ inversores</span>
+              </div>
+              <div className="w-px h-3 bg-border" />
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Globe className="w-3.5 h-3.5 text-blue-400" />
+                <span>Singapur</span>
+              </div>
             </div>
           </motion.div>
 
