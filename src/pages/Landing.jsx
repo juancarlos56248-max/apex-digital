@@ -98,7 +98,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-24 pb-16 px-5 overflow-hidden">
+      <section className="relative pt-20 pb-12 px-5 overflow-hidden">
         {/* Background glows */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold/6 rounded-full blur-[160px]" />
@@ -109,66 +109,66 @@ export default function Landing() {
         <div className="relative max-w-5xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: "easeOut" }}>
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/5 mb-7">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-gold/30 bg-gold/5 mb-5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <Lock className="w-3 h-3 text-gold" />
-              <span className="text-[11px] text-gold font-semibold tracking-wide">Protocolo de Seguridad · Singapur</span>
+              <span className="text-[10px] text-gold font-semibold tracking-wide">Protocolo de Seguridad · Singapur</span>
             </div>
 
             {/* Headline */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.0] mb-6">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-4">
               <span className="block text-foreground">Inversión</span>
               <span className="block text-foreground">Inteligente</span>
-              <span className="block text-gold-gradient mt-1">Sin Límites</span>
+              <span className="block text-gold-gradient mt-0.5">Sin Límites</span>
             </h1>
 
             {/* Big % stat */}
-            <div className="inline-flex flex-col items-center my-5">
+            <div className="inline-flex flex-col items-center my-4">
               <div className="flex items-end gap-2 leading-none">
-                <span className="text-7xl md:text-9xl font-black text-gold-gradient tracking-tighter">+10%</span>
+                <span className="text-5xl md:text-7xl font-black text-gold-gradient tracking-tighter">+10%</span>
               </div>
-              <span className="text-sm md:text-base text-muted-foreground font-medium tracking-widest uppercase mt-1">rendimiento diario desde</span>
+              <span className="text-xs md:text-sm text-muted-foreground font-medium tracking-widest uppercase mt-1">rendimiento diario desde</span>
             </div>
 
             {/* Subheadline */}
-            <p className="text-base md:text-xl text-muted-foreground max-w-xl mx-auto mb-4 leading-relaxed">
+            <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-3 leading-relaxed">
               Accede a estrategias algorítmicas de alto rendimiento desde{" "}
               <span className="relative inline-block">
-                <span className="text-foreground font-black text-lg md:text-2xl">+10% diario</span>
+                <span className="text-foreground font-black text-base md:text-lg">+10% diario</span>
                 <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-gold to-gold-light rounded-full" />
               </span>
               .
             </p>
-            <p className="text-sm text-muted-foreground/70 max-w-md mx-auto mb-10">
+            <p className="text-xs text-muted-foreground/70 max-w-md mx-auto mb-6">
               Infraestructura institucional, disponible para todos.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto">
-              <Button size="lg" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-black font-black h-14 text-base shadow-2xl shadow-gold/30 pulse-glow rounded-2xl">
-                {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-5 h-5" />
+            <div className="flex flex-col sm:flex-row gap-2 justify-center max-w-sm mx-auto">
+              <Button size="md" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-black font-bold h-10 text-sm shadow-lg shadow-gold/15 rounded-xl">
+                {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-3.5 h-3.5" />
               </Button>
               <Link to="/terms" className="flex-1">
-                <Button size="lg" variant="ghost" className="w-full h-14 text-base font-semibold text-muted-foreground hover:text-foreground rounded-2xl">
+                <Button size="md" variant="ghost" className="w-full h-10 text-sm font-medium text-muted-foreground hover:text-foreground rounded-xl">
                   Ver Protocolo
                 </Button>
               </Link>
             </div>
 
             {/* Trust row */}
-            <div className="flex items-center justify-center gap-6 mt-8">
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Shield className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <Shield className="w-3 h-3 text-emerald-400" />
                 <span>SSL 256-bit</span>
               </div>
-              <div className="w-px h-3 bg-border" />
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <CheckCircle className="w-3.5 h-3.5 text-gold" />
+              <div className="w-px h-2.5 bg-border" />
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <CheckCircle className="w-3 h-3 text-gold" />
                 <span>12,400+ inversores</span>
               </div>
-              <div className="w-px h-3 bg-border" />
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Globe className="w-3.5 h-3.5 text-blue-400" />
+              <div className="w-px h-2.5 bg-border" />
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <Globe className="w-3 h-3 text-blue-400" />
                 <span>Singapur</span>
               </div>
             </div>
@@ -179,22 +179,21 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.18, ease: "easeOut" }}
-            className="mt-14 mx-auto max-w-2xl"
+            className="mt-8 mx-auto max-w-xl"
           >
-            <div className="rounded-2xl border border-gold/20 bg-card/80 backdrop-blur-sm p-5 shadow-2xl">
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-xl border border-gold/20 bg-card/60 backdrop-blur-sm p-4 shadow-xl">
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p className="text-xs text-muted-foreground">Simulación de portafolio</p>
-                  <p className="text-xl font-black font-mono text-gold">${chartData[chartData.length - 1]?.v?.toLocaleString()}</p>
+                  <p className="text-[10px] text-muted-foreground">Simulación de portafolio</p>
+                  <p className="text-lg font-black font-mono text-gold">${chartData[chartData.length - 1]?.v?.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
-                    ▲ +{(((chartData[chartData.length - 1]?.v - chartData[0]?.v) / chartData[0]?.v) * 100).toFixed(0)}% en 30 días
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                    ▲ +{(((chartData[chartData.length - 1]?.v - chartData[0]?.v) / chartData[0]?.v) * 100).toFixed(0)}%
                   </span>
-                  <p className="text-[10px] text-muted-foreground mt-1.5">Desde $1,000 USDT inicial</p>
                 </div>
               </div>
-              <div className="h-40">
+              <div className="h-32">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                     <defs>
