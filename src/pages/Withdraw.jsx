@@ -34,10 +34,9 @@ export default function Withdraw() {
   const netAmount = amtNum - commission;
 
   const totalBalance = user?.balance || 0;
-  // Si hay plan prueba activo, los $5 del bono están bloqueados
-  const lockedBonus = hasPruebaActive ? WELCOME_BONUS : 0;
-  const withdrawableBalance = Math.max(0, totalBalance - lockedBonus);
-  const hasOnlyBonus = hasPruebaActive && totalBalance <= WELCOME_BONUS;
+  const lockedBonus = 0;
+  const withdrawableBalance = totalBalance;
+  const hasOnlyBonus = false;
 
   const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
 
