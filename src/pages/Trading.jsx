@@ -409,19 +409,31 @@ export default function Trading() {
       )}
 
       {/* Disclaimers */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
-          <Shield className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-2">
+        {/* Risk warning */}
+        <div className="flex items-start gap-3 rounded-xl border border-yellow-500/30 bg-yellow-500/8 p-3.5">
+          <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-[11px] font-bold text-emerald-400">Capital 100% retirable</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Al completar el ciclo, tu capital se devuelve íntegramente más el resultado neto acumulado.</p>
+            <p className="text-[11px] font-bold text-yellow-400 mb-0.5">⚠️ Aviso de riesgo — Lectura obligatoria</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              El trading en acciones implica <span className="text-yellow-300 font-semibold">riesgo real de pérdida parcial</span> del capital invertido. Los resultados de cada sesión dependen del comportamiento del mercado y <span className="text-yellow-300 font-semibold">no están garantizados</span>. Invierte únicamente lo que puedas permitirte perder.
+            </p>
           </div>
         </div>
-        <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
-          <TrendingUp className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-[11px] font-bold text-emerald-400">Rendimientos diarios acreditados</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Cada sesión genera rendimientos que se acreditan directamente a tu balance.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
+            <Shield className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[11px] font-bold text-emerald-400">Capital retirable al finalizar</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Tu capital inicial se devuelve al completar el ciclo, más o menos el resultado neto.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
+            <TrendingUp className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[11px] font-bold text-emerald-400">Rendimientos diarios acreditados</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Cada sesión genera rendimientos que se acreditan directamente a tu balance.</p>
+            </div>
           </div>
         </div>
       </motion.div>
