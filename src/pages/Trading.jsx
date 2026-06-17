@@ -327,15 +327,20 @@ function PositionCard({ pos, stock }) {
 function CandlestickChart({ stock }) {
   const isUp = stock.change.startsWith('+');
   const seed = stock.id.charCodeAt(0);
+  const N = 24; // 24 hourly candles
+  const W = 520;
+  const H = 140;
+  const PRICE_BASE = 100 + (seed % 200); // fake base price per stock
 
-  // Generate 30 candles with open/high/low/close
-  const candles = Array.from({ length: 30 }, (_, i) => {
-    const trend = (isUp ? 1 : -1) * i * 0.6;
-    const base = 50 + trend + ((seed * (i + 3) * 17 + i * 31) % 18) - 9;
-    const bodySize = 2 + ((seed * (i + 5) * 7) % 6);
-    const wickTop = 1 + ((seed * (i + 11) * 3) % 4);
-    const wickBot = 1 + ((seed * (i + 2) * 9) % 4);
-    const bullish = ((seed + i) % 3) !== 0;
+  // Generate hourly candles
+  const candles = Array.from({ length: N }, (_, i) => {
+    const trend = (isUp ? 1 : -1) * i * 0.4;
+    const noise = ((seed * (i + 3) * 17 + i * 31) % 22) - 11;
+    const base = PRICE_BASE + trend + noise;
+    const bodySize = 1.5 + ((seed * (i + 5) * 7) % 5);
+    const wickTop = 0.8 + ((seed * (i + 11) * 3) % 3);
+    const wickBot = 0.8 + ((seed * (i + 2) * 9) % 3);
+    const bullish = ((seed * 3 + i * 7) % 5) !== 0 ? isUp || i % 3 !== 0 : !isUp;
     const open = base;
     const close = bullish ? base + bodySize : base - bodySize;
     const high = Math.max(open, close) + wickTop;
@@ -344,35 +349,96 @@ function CandlestickChart({ stock }) {
   });
 
   const allVals = candles.flatMap(c => [c.high, c.low]);
-  const chartMin = Math.min(...allVals) - 2;
-  const chartMax = Math.max(...allVals) + 2;
+  const chartMin = Math.min(...allVals) - 1.5;
+  const chartMax = Math.max(...allVals) + 1.5;
   const range = chartMax - chartMin;
-  const H = 80; // chart height px
+  const PAD_L = 42; // left padding for Y axis
+  const PAD_R = 8;
+  const PAD_T = 8;
+  const PAD_B = 20;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
 
-  const toY = v => H - ((v - chartMin) / range) * H;
+  const toY = v => PAD_T + plotH - ((v - chartMin) / range) * plotH;
+  const candleW = Math.floor(plotW / N);
+  const toX = i => PAD_L + i * candleW + candleW / 2;
+
+  // SMA(5)
+  const sma = candles.map((_, i) => {
+    if (i < 4) return null;
+    const avg = candles.slice(i - 4, i + 1).reduce((s, c) => s + (c.open + c.close) / 2, 0) / 5;
+    return avg;
+  });
+  const smaPath = sma
+    .map((v, i) => v === null ? null : `${i === 4 ? 'M' : 'L'}${toX(i)},${toY(v)}`)
+    .filter(Boolean)
+    .join(' ');
+
+  // Y grid lines
+  const gridLines = 4;
+  const yTicks = Array.from({ length: gridLines + 1 }, (_, i) => chartMin + (range / gridLines) * i);
+
+  // X labels (hours)
+  const now = new Date();
+  const xLabels = [0, 6, 12, 18, N - 1].map(i => {
+    const h = new Date(now.getTime() - (N - 1 - i) * 3600000);
+    return { i, label: `${String(h.getHours()).padStart(2, '0')}h` };
+  });
 
   return (
-    <div className="mt-3 mb-1">
-      <svg width="100%" height={H} viewBox={`0 0 ${candles.length * 8} ${H}`} preserveAspectRatio="none" className="overflow-visible">
+    <div className="mt-2 mb-1 rounded-lg overflow-hidden bg-[#0a0a0a] border border-border/40">
+      <div className="flex items-center justify-between px-3 pt-2 pb-1">
+        <span className="text-[10px] font-mono text-muted-foreground">SMA(5)</span>
+        <span className="text-[10px] font-mono text-muted-foreground font-semibold">{stock.symbol} · 1H</span>
+      </div>
+      <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
+        {/* Grid lines */}
+        {yTicks.map((v, i) => (
+          <g key={i}>
+            <line x1={PAD_L} y1={toY(v)} x2={W - PAD_R} y2={toY(v)} stroke="#ffffff08" strokeWidth="1" />
+            <text x={PAD_L - 4} y={toY(v) + 3.5} textAnchor="end" fontSize="7" fill="#666" fontFamily="monospace">
+              {v.toFixed(1)}
+            </text>
+          </g>
+        ))}
+
+        {/* X labels */}
+        {xLabels.map(({ i, label }) => (
+          <text key={i} x={toX(i)} y={H - 4} textAnchor="middle" fontSize="7" fill="#555" fontFamily="monospace">{label}</text>
+        ))}
+
+        {/* SMA line */}
+        {smaPath && <path d={smaPath} fill="none" stroke="#60a5fa" strokeWidth="1.2" strokeLinejoin="round" opacity="0.8" />}
+
+        {/* Candles */}
         {candles.map((c, i) => {
-          const x = i * 8 + 4;
+          const x = toX(i);
           const bodyTop = Math.min(toY(c.open), toY(c.close));
-          const bodyH = Math.max(1.5, Math.abs(toY(c.open) - toY(c.close)));
+          const bodyH = Math.max(2, Math.abs(toY(c.open) - toY(c.close)));
           const color = c.bullish ? '#22c55e' : '#ef4444';
+          const bw = Math.max(4, candleW - 4);
           return (
             <g key={i}>
-              {/* Wick */}
-              <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth="0.8" />
-              {/* Body */}
-              <rect x={x - 2} y={bodyTop} width={4} height={bodyH} fill={color} rx="0.5" />
+              <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth="1" />
+              <rect x={x - bw / 2} y={bodyTop} width={bw} height={bodyH} fill={color} rx="1" />
             </g>
           );
         })}
+
+        {/* Last price line */}
+        {(() => {
+          const last = candles[N - 1];
+          const lp = (last.open + last.close) / 2;
+          const ly = toY(lp);
+          return (
+            <g>
+              <line x1={PAD_L} y1={ly} x2={W - PAD_R} y2={ly} stroke={isUp ? '#22c55e' : '#ef4444'} strokeWidth="0.8" strokeDasharray="3,3" opacity="0.6" />
+              <rect x={W - PAD_R - 1} y={ly - 5} width={PAD_R + 1} height={10} fill={isUp ? '#22c55e' : '#ef4444'} rx="2" />
+              <text x={W - PAD_R + 1} y={ly + 3.5} fontSize="6.5" fill="#000" fontFamily="monospace" fontWeight="bold">{lp.toFixed(1)}</text>
+            </g>
+          );
+        })()}
       </svg>
-      <div className="flex justify-between text-[9px] text-muted-foreground mt-1 font-mono">
-        <span>30 días</span>
-        <span>Hoy</span>
-      </div>
     </div>
   );
 }
