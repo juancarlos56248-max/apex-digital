@@ -3,8 +3,74 @@ import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Zap, Star, Crown, Clock, CheckCircle2, Flame, Building2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Zap, Star, Crown, Clock, CheckCircle2, Flame, Building2, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const STOCKS = [
+  {
+    symbol: "AAPL",
+    name: "Apple Inc.",
+    category: "Tecnología",
+    desc: "Lidera en tecnología de consumo y ecosistemas cerrados.",
+    color: "text-blue-400",
+    bg: "bg-blue-400/10",
+    border: "border-blue-400/20",
+  },
+  {
+    symbol: "MSFT",
+    name: "Microsoft Corp.",
+    category: "Tecnología",
+    desc: "Domina la computación en la nube y software empresarial.",
+    color: "text-sky-400",
+    bg: "bg-sky-400/10",
+    border: "border-sky-400/20",
+  },
+  {
+    symbol: "NVDA",
+    name: "NVIDIA Corp.",
+    category: "Chips & IA",
+    desc: "Lidera el desarrollo de chips e inteligencia artificial.",
+    color: "text-emerald-400",
+    bg: "bg-emerald-400/10",
+    border: "border-emerald-400/20",
+  },
+  {
+    symbol: "AMZN",
+    name: "Amazon.com Inc.",
+    category: "E-Commerce",
+    desc: "Domina el comercio electrónico global y servicios de infraestructura digital.",
+    color: "text-orange-400",
+    bg: "bg-orange-400/10",
+    border: "border-orange-400/20",
+  },
+  {
+    symbol: "BRK.B",
+    name: "Berkshire Hathaway",
+    category: "Valor",
+    desc: "Conglomerado financiero diversificado gestionado por Warren Buffett.",
+    color: "text-gold",
+    bg: "bg-gold/10",
+    border: "border-gold/20",
+  },
+  {
+    symbol: "JPM",
+    name: "JPMorgan Chase",
+    category: "Valor",
+    desc: "La institución bancaria más grande de Estados Unidos.",
+    color: "text-purple-400",
+    bg: "bg-purple-400/10",
+    border: "border-purple-400/20",
+  },
+  {
+    symbol: "XOM",
+    name: "Exxon Mobil",
+    category: "Valor",
+    desc: "Gigante del sector energético, petróleo y gas tradicional.",
+    color: "text-rose-400",
+    bg: "bg-rose-400/10",
+    border: "border-rose-400/20",
+  },
+];
 
 const PLANS = [
   {
@@ -159,6 +225,30 @@ export default function Trading() {
       >
         <span className="text-xs text-muted-foreground">Saldo disponible</span>
         <span className="text-sm font-bold font-mono text-gold">${(user?.balance || 0).toLocaleString()} USDT</span>
+      </motion.div>
+
+      {/* Activos del portafolio */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
+        <div className="flex items-center gap-2">
+          <BarChart2 className="w-4 h-4 text-gold" />
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Activos del portafolio</p>
+        </div>
+        <div className="grid grid-cols-1 gap-2">
+          {STOCKS.map((s) => (
+            <div key={s.symbol} className={`rounded-xl border ${s.border} bg-card px-4 py-3 flex items-center gap-3`}>
+              <div className={`w-10 h-10 rounded-lg ${s.bg} flex items-center justify-center flex-shrink-0`}>
+                <span className={`text-[11px] font-black ${s.color}`}>{s.symbol.replace(".","")}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className={`text-sm font-bold ${s.color}`}>{s.symbol}</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground">{s.category}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 truncate">{s.name} · {s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </motion.div>
 
       {/* Planes */}
