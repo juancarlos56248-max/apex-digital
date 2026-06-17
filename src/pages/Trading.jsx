@@ -178,15 +178,31 @@ export default function Trading() {
         </p>
       </motion.div>
 
-      {/* Aviso de riesgo */}
+      {/* Aviso de riesgo + capital */}
       <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl border border-yellow-500/30 bg-yellow-500/8 p-3 flex gap-2.5 items-start"
+        className="rounded-xl border border-border bg-card p-4 space-y-3"
       >
-        <span className="text-yellow-400 text-base leading-none mt-0.5">⚠️</span>
-        <p className="text-[12px] text-yellow-300/80 leading-relaxed">
-          El trading implica <span className="font-bold text-yellow-400">riesgo de pérdida</span>. Cada día el mercado puede generar ganancia o pérdida. Al finalizar el ciclo recibes tu <span className="font-semibold text-foreground">capital ± resultado neto acumulado</span>.
-        </p>
+        {/* Capital retirable */}
+        <div className="flex items-start gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/8 p-3">
+          <span className="text-emerald-400 text-base leading-none mt-0.5">✅</span>
+          <div>
+            <p className="text-[12px] font-bold text-emerald-400">Tu capital siempre es retirable</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+              Al completar el ciclo, tu capital invertido te es <span className="font-semibold text-foreground">devuelto íntegramente</span> más el resultado neto acumulado. En cualquier momento puedes solicitar retiro del saldo disponible en tu cuenta.
+            </p>
+          </div>
+        </div>
+        {/* Riesgo */}
+        <div className="flex items-start gap-3 rounded-lg border border-yellow-500/30 bg-yellow-500/8 p-3">
+          <span className="text-yellow-400 text-base leading-none mt-0.5">⚠️</span>
+          <div>
+            <p className="text-[12px] font-bold text-yellow-400">Mercado con ganancia y pérdida real</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+              Cada día el mercado puede cerrar en <span className="text-emerald-400 font-semibold">ganancia</span> o en <span className="text-destructive font-semibold">pérdida</span>. El resultado neto acumulado puede ser positivo o negativo según el comportamiento de la acción durante el ciclo.
+            </p>
+          </div>
+        </div>
       </motion.div>
 
       {/* Balance disponible */}
