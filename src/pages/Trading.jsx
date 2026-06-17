@@ -324,12 +324,152 @@ function PositionCard({ pos, stock }) {
   );
 }
 
+function MiniChart({ stock }) {
+  // Simulated 15-day price movement based on change direction
+  const isUp = stock.change.startsWith('+');
+  const seed = stock.id.charCodeAt(0);
+  const bars = Array.from({ length: 15 }, (_, i) => {
+    const base = 50 + (isUp ? 1 : -1) * i * 1.5;
+    const noise = ((seed * (i + 7) * 13) % 20) - 10;
+    return Math.max(10, Math.min(95, base + noise));
+  });
+  const max = Math.max(...bars);
+  const min = Math.min(...bars);
+
+  return (
+    <div className="mt-3 mb-1">
+      <div className="flex items-end gap-0.5 h-16">
+        {bars.map((v, i) => {
+          const h = ((v - min) / (max - min)) * 100;
+          const isLast = i === bars.length - 1;
+          return (
+            <div key={i} className="flex-1 rounded-t-sm transition-all"
+              style={{
+                height: `${Math.max(8, h)}%`,
+                background: isLast
+                  ? stock.accent
+                  : isUp
+                  ? `${stock.accent}55`
+                  : '#ef444455',
+              }}
+            />
+          );
+        })}
+      </div>
+      <div className="flex justify-between text-[9px] text-muted-foreground mt-1 font-mono">
+        <span>15 días</span>
+        <span>Hoy</span>
+      </div>
+    </div>
+  );
+}
+
+function MarketPulseModal({ onClose }) {
+  const [selected, setSelected] = useState(null);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ y: 60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 60, opacity: 0 }}
+          transition={{ type: "spring", damping: 25 }}
+          className="w-full max-w-lg bg-card border border-border rounded-2xl overflow-hidden"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <div>
+              <p className="text-sm font-bold">📊 Pulso del mercado</p>
+              <p className="text-[10px] text-muted-foreground">NYSE · NASDAQ — variación 24h</p>
+            </div>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-lg leading-none">✕</button>
+          </div>
+
+          {/* Stock list */}
+          <div className="overflow-y-auto max-h-[70vh] p-3 space-y-1.5">
+            {STOCKS.map(s => {
+              const isUp = s.change.startsWith('+');
+              const isOpen = selected === s.id;
+              return (
+                <div key={s.id} className={`rounded-xl border overflow-hidden transition-all ${isUp ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-destructive/20 bg-destructive/5'}`}>
+                  <button
+                    onClick={() => setSelected(isOpen ? null : s.id)}
+                    className="w-full flex items-center justify-between p-3"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 rounded-lg ${s.logoBg} border border-white/10 flex items-center justify-center overflow-hidden p-1 flex-shrink-0`}>
+                        <img src={s.logo} alt={s.symbol} className="w-full h-full object-contain"
+                          onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+                        <span className={`text-[9px] font-black ${s.color} hidden`}>{s.symbol}</span>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-bold">{s.symbol}</p>
+                        <p className="text-[10px] text-muted-foreground">{s.name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-mono font-bold ${isUp ? 'text-emerald-400' : 'text-destructive'}`}>
+                        {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                        {s.change}
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </button>
+
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden px-3 pb-3"
+                      >
+                        <MiniChart stock={s} />
+                        <div className="grid grid-cols-3 gap-1.5 mt-2">
+                          <div className="rounded-lg bg-secondary/60 p-2 text-center">
+                            <p className="text-[9px] text-muted-foreground">Mín. inv.</p>
+                            <p className="text-[11px] font-bold font-mono">${s.minAmount.toLocaleString()}</p>
+                          </div>
+                          <div className="rounded-lg bg-secondary/60 p-2 text-center">
+                            <p className="text-[9px] text-muted-foreground">Ciclo</p>
+                            <p className="text-[11px] font-bold font-mono">{s.days}d</p>
+                          </div>
+                          <div className="rounded-lg bg-secondary/60 p-2 text-center">
+                            <p className="text-[9px] text-muted-foreground">Rend./día</p>
+                            <p className="text-[11px] font-bold font-mono text-emerald-400">
+                              {s.variable ? `${s.gainPctMin}–${s.gainPctMax}%` : `+${s.gainPct}%`}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 export default function Trading() {
   const { user, setUser } = useOutletContext();
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(null);
   const [tab, setTab] = useState("market");
+  const [showPulse, setShowPulse] = useState(false);
 
   useEffect(() => {
     if (!user?.email) return;
@@ -415,17 +555,24 @@ export default function Trading() {
       )}
 
       {/* Market Pulse */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-xl border border-border bg-card p-3">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">📊 Pulso del mercado</p>
-        <div className="flex flex-wrap gap-1.5">
-          {STOCKS.map(s => (
-            <div key={s.id} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-mono font-semibold border ${s.change.startsWith('+') ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-destructive/10 border-destructive/20 text-destructive'}`}>
-              {s.change.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-              {s.symbol} <span className="opacity-80">{s.change}</span>
-            </div>
-          ))}
-        </div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+        <button onClick={() => setShowPulse(true)} className="w-full rounded-xl border border-border bg-card p-3 text-left hover:border-gold/40 transition-colors group">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">📊 Pulso del mercado</p>
+            <span className="text-[10px] text-gold group-hover:underline flex items-center gap-0.5">Ver gráficas <ChevronRight className="w-3 h-3" /></span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {STOCKS.map(s => (
+              <div key={s.id} className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-mono font-semibold border ${s.change.startsWith('+') ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-destructive/10 border-destructive/20 text-destructive'}`}>
+                {s.change.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                {s.symbol} <span className="opacity-80">{s.change}</span>
+              </div>
+            ))}
+          </div>
+        </button>
       </motion.div>
+
+      {showPulse && <MarketPulseModal onClose={() => setShowPulse(false)} />}
 
       {/* Disclaimers */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="space-y-2">
