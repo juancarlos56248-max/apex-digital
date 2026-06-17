@@ -280,7 +280,7 @@ export default function Trading() {
                     <h3 className={`text-base font-bold ${plan.color}`}>{plan.name}</h3>
                     <span className="text-xs text-muted-foreground font-mono">${plan.amount.toLocaleString()} USDT</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 mt-3">
+                  <div className="grid grid-cols-2 gap-2 mt-3">
                     <div className="rounded-lg bg-secondary/60 p-2 text-center">
                       <p className="text-[10px] text-muted-foreground">Duración</p>
                       <p className="text-sm font-bold font-mono">{plan.days}d</p>
@@ -291,15 +291,12 @@ export default function Trading() {
                         {plan.variable ? `${plan.gainPctMin}–${plan.gainPctMax}%` : `+${plan.gainPct}%`}
                       </p>
                     </div>
-                    <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-2 text-center">
-                      <p className="text-[10px] text-destructive">Pérdida/día</p>
-                      <p className="text-sm font-bold font-mono text-destructive">-{plan.lossPct}%</p>
-                    </div>
+
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-2">
                     {plan.variable
-                      ? <>Ganancia variable según el mercado: <span className="text-emerald-400 font-mono">{plan.gainPctMin}%–{plan.gainPctMax}%/día</span></>
-                      : <>Máx. ganancia: <span className="text-emerald-400 font-mono">+${maxGain.toFixed(2)}</span> · Máx. pérdida: <span className="text-destructive font-mono">-${maxLoss.toFixed(2)}</span></>
+                      ? <>Ganancia variable: <span className="text-emerald-400 font-mono">{plan.gainPctMin}–{plan.gainPctMax}%/día</span></>
+                      : <>Potencial máx: <span className="text-emerald-400 font-mono">+${maxGain.toFixed(2)}</span></>
                     }
                   </p>
                 </div>
