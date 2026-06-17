@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Zap, Star, Crown, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Zap, Star, Crown, Clock, CheckCircle2, Flame, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const PLANS = [
@@ -43,6 +43,45 @@ const PLANS = [
     color: "text-purple-400",
     bg: "bg-purple-400/10",
     border: "border-purple-400/20",
+  },
+  {
+    id: "advance",
+    name: "Advance",
+    icon: Flame,
+    amount: 2500,
+    gainPct: 12,
+    lossPct: 4,
+    days: 8,
+    color: "text-orange-400",
+    bg: "bg-orange-400/10",
+    border: "border-orange-400/20",
+  },
+  {
+    id: "elite",
+    name: "Elite",
+    icon: Crown,
+    amount: 5000,
+    gainPct: 15,
+    lossPct: 5,
+    days: 9,
+    color: "text-rose-400",
+    bg: "bg-rose-400/10",
+    border: "border-rose-400/20",
+  },
+  {
+    id: "institutional",
+    name: "Institutional",
+    icon: Building2,
+    amount: 10000,
+    gainPct: 18,
+    gainPctMin: 14,
+    gainPctMax: 18,
+    lossPct: 5,
+    days: 10,
+    color: "text-emerald-400",
+    bg: "bg-emerald-400/10",
+    border: "border-emerald-400/20",
+    variable: true,
   },
 ];
 
@@ -109,7 +148,7 @@ export default function Trading() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Trading de Inversión</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Ciclos de 5–10 días con ganancias y pérdidas controladas por el mercado
+          Ciclos de 7–10 días con ganancias y pérdidas controladas por el mercado
         </p>
       </motion.div>
 
@@ -136,7 +175,7 @@ export default function Trading() {
               key={plan.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.07 }}
+              transition={{ delay: i * 0.06 }}
               className={`rounded-xl border bg-card p-5 relative overflow-hidden ${plan.border} ${plan.popular ? "ring-1 ring-gold/30" : ""}`}
             >
               {plan.popular && (
@@ -149,7 +188,7 @@ export default function Trading() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className={`text-base font-bold ${plan.color}`}>{plan.name}</h3>
-                    <span className="text-xs text-muted-foreground font-mono">${plan.amount} USDT</span>
+                    <span className="text-xs text-muted-foreground font-mono">${plan.amount.toLocaleString()} USDT</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 mt-3">
                     <div className="rounded-lg bg-secondary/60 p-2 text-center">
@@ -158,7 +197,9 @@ export default function Trading() {
                     </div>
                     <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-2 text-center">
                       <p className="text-[10px] text-emerald-400">Ganancia/día</p>
-                      <p className="text-sm font-bold font-mono text-emerald-400">+{plan.gainPct}%</p>
+                      <p className="text-sm font-bold font-mono text-emerald-400">
+                        {plan.variable ? `${plan.gainPctMin}–${plan.gainPctMax}%` : `+${plan.gainPct}%`}
+                      </p>
                     </div>
                     <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-2 text-center">
                       <p className="text-[10px] text-destructive">Pérdida/día</p>
@@ -166,7 +207,10 @@ export default function Trading() {
                     </div>
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-2">
-                    Máx. ganancia: <span className="text-emerald-400 font-mono">+${maxGain.toFixed(2)}</span> · Máx. pérdida: <span className="text-destructive font-mono">-${maxLoss.toFixed(2)}</span>
+                    {plan.variable
+                      ? <>Ganancia variable según el mercado: <span className="text-emerald-400 font-mono">{plan.gainPctMin}%–{plan.gainPctMax}%/día</span></>
+                      : <>Máx. ganancia: <span className="text-emerald-400 font-mono">+${maxGain.toFixed(2)}</span> · Máx. pérdida: <span className="text-destructive font-mono">-${maxLoss.toFixed(2)}</span></>
+                    }
                   </p>
                 </div>
               </div>
@@ -182,7 +226,7 @@ export default function Trading() {
                     disabled={activating === plan.id}
                     className={`w-full h-9 text-sm font-semibold ${plan.popular ? "bg-gold hover:bg-gold-dark text-black" : "bg-secondary hover:bg-secondary/80 text-foreground border border-border"}`}
                   >
-                    {activating === plan.id ? "Activando..." : `Invertir $${plan.amount} USDT`}
+                    {activating === plan.id ? "Activando..." : `Invertir $${plan.amount.toLocaleString()} USDT`}
                   </Button>
                 )}
               </div>
@@ -216,7 +260,7 @@ export default function Trading() {
                     </div>
                     <div>
                       <p className={`text-sm font-bold ${plan.color}`}>{plan.name}</p>
-                      <p className="text-[11px] text-muted-foreground font-mono">${pos.amount} USDT</p>
+                      <p className="text-[11px] text-muted-foreground font-mono">${pos.amount.toLocaleString()} USDT</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -235,11 +279,7 @@ export default function Trading() {
                       <div
                         key={idx}
                         className={`flex-1 h-1.5 rounded-full ${
-                          dayResult === undefined
-                            ? "bg-secondary"
-                            : dayResult >= 0
-                            ? "bg-emerald-500"
-                            : "bg-destructive"
+                          dayResult === undefined ? "bg-secondary" : dayResult >= 0 ? "bg-emerald-500" : "bg-destructive"
                         }`}
                       />
                     );

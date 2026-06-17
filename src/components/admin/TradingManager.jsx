@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, Zap, Star, Crown, RefreshCw } from "lucide-react";
+import { TrendingUp, TrendingDown, Zap, Star, Crown, RefreshCw, Flame, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const PLANS = {
-  basic:    { name: "Basic",    gainPct: 3,  lossPct: 1,  icon: Zap,   color: "text-blue-400",   amount: 100 },
-  standard: { name: "Standard", gainPct: 5,  lossPct: 2,  icon: Star,  color: "text-gold",        amount: 500 },
-  premium:  { name: "Premium",  gainPct: 8,  lossPct: 3,  icon: Crown, color: "text-purple-400",  amount: 1000 },
+  basic:         { name: "Basic",         gainPct: 3,  lossPct: 1, icon: Zap,       color: "text-blue-400",    amount: 100   },
+  standard:      { name: "Standard",      gainPct: 5,  lossPct: 2, icon: Star,      color: "text-gold",        amount: 500   },
+  premium:       { name: "Premium",       gainPct: 8,  lossPct: 3, icon: Crown,     color: "text-purple-400",  amount: 1000  },
+  advance:       { name: "Advance",       gainPct: 12, lossPct: 4, icon: Flame,     color: "text-orange-400",  amount: 2500  },
+  elite:         { name: "Elite",         gainPct: 15, lossPct: 5, icon: Crown,     color: "text-rose-400",    amount: 5000  },
+  institutional: { name: "Institutional", gainPct: 18, lossPct: 5, icon: Building2, color: "text-emerald-400", amount: 10000, gainPctMin: 14, gainPctMax: 18, variable: true },
 };
 
 export default function TradingManager() {
@@ -24,12 +27,14 @@ export default function TradingManager() {
 
   useEffect(() => { load(); }, []);
 
-  const processCycle = async (pos, type) => {
+  const processCycle = async (pos, type, customPct = null) => {
     const plan = PLANS[pos.plan];
     if (!plan) return;
     setProcessing(pos.id + type);
 
-    const pct = type === "win" ? plan.gainPct / 100 : -(plan.lossPct / 100);
+    const pct = type === "win"
+      ? (customPct !== null ? customPct : plan.gainPct) / 100
+      : -(plan.lossPct / 100);
     const result = parseFloat((pos.amount * pct).toFixed(2));
     const newResults = [...(pos.daily_results || []), result];
     const newTotal = parseFloat(((pos.total_result || 0) + result).toFixed(2));
@@ -37,7 +42,6 @@ export default function TradingManager() {
     const totalDays = pos.total_days || 7;
     const isCompleted = newDay > totalDays;
 
-    // Fetch user and update balance
     const users = await base44.asServiceRole.entities.User.filter({ email: pos.user_email });
     const u = users[0];
 
@@ -52,27 +56,21 @@ export default function TradingManager() {
     ];
 
     if (u) {
-      // On win: add earnings. On loss: deduct from balance. On completion: return capital + net result
-      const balanceDelta = isCompleted
-        ? pos.amount + newTotal  // return capital + total net
-        : result;
-
+      const balanceDelta = isCompleted ? pos.amount + newTotal : result;
       updates.push(
         base44.entities.User.update(u.id, {
           balance: parseFloat(((u.balance || 0) + balanceDelta).toFixed(2)),
         })
       );
-
       updates.push(
         base44.entities.Transaction.create({
           user_email: pos.user_email,
           type: "dividend",
           amount: result,
           status: "completed",
-          notes: `Trading ${plan.name} — Día ${pos.cycle_day} — ${type === "win" ? "Ganancia" : "Pérdida"} ${type === "win" ? "+" : ""}${result} USDT`,
+          notes: `Trading ${plan.name} — Día ${pos.cycle_day} — ${type === "win" ? "Ganancia" : "Pérdida"} ${result >= 0 ? "+" : ""}${result} USDT`,
         })
       );
-
       if (isCompleted) {
         updates.push(
           base44.entities.Transaction.create({
@@ -87,8 +85,7 @@ export default function TradingManager() {
     }
 
     await Promise.all(updates);
-
-    toast.success(`Ciclo procesado: ${type === "win" ? "+" : ""}$${result} para ${pos.user_email}`);
+    toast.success(`Ciclo procesado: ${result >= 0 ? "+" : ""}$${result} para ${pos.user_email}`);
     setProcessing(null);
     load();
   };
@@ -130,7 +127,7 @@ export default function TradingManager() {
                 <div>
                   <p className="text-sm font-bold">{plan.name} — {pos.user_email}</p>
                   <p className="text-[11px] text-muted-foreground font-mono">
-                    Capital: ${pos.amount} · Día {pos.cycle_day || 1}/{totalDays}
+                    Capital: ${pos.amount.toLocaleString()} · Día {pos.cycle_day || 1}/{totalDays}
                   </p>
                 </div>
               </div>
@@ -153,23 +150,34 @@ export default function TradingManager() {
 
             {/* Actions */}
             {(pos.cycle_day || 1) <= totalDays && (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  disabled={!!processing}
-                  onClick={() => processCycle(pos, "win")}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8"
-                >
-                  <TrendingUp className="w-3.5 h-3.5 mr-1" />
-                  Ganancia +{plan.gainPct}% (${(pos.amount * plan.gainPct / 100).toFixed(2)})
-                </Button>
-                <Button
-                  size="sm"
-                  disabled={!!processing}
+              <div className="space-y-2">
+                {plan.variable ? (
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      Ganancia variable ({plan.gainPctMin}%–{plan.gainPctMax}%)
+                    </p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[plan.gainPctMin, Math.round((plan.gainPctMin + plan.gainPctMax) / 2), plan.gainPctMax].map(pct => (
+                        <Button key={pct} size="sm" disabled={!!processing}
+                          onClick={() => processCycle(pos, "win", pct)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8">
+                          +{pct}% (${(pos.amount * pct / 100).toFixed(0)})
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <Button size="sm" disabled={!!processing}
+                    onClick={() => processCycle(pos, "win")}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8">
+                    <TrendingUp className="w-3.5 h-3.5 mr-1" />
+                    Ganancia +{plan.gainPct}% (${(pos.amount * plan.gainPct / 100).toFixed(2)})
+                  </Button>
+                )}
+                <Button size="sm" disabled={!!processing}
                   onClick={() => processCycle(pos, "loss")}
                   variant="outline"
-                  className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10 text-xs h-8"
-                >
+                  className="w-full border-destructive/40 text-destructive hover:bg-destructive/10 text-xs h-8">
                   <TrendingDown className="w-3.5 h-3.5 mr-1" />
                   Pérdida -{plan.lossPct}% (-${(pos.amount * plan.lossPct / 100).toFixed(2)})
                 </Button>
