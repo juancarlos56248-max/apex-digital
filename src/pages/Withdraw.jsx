@@ -10,8 +10,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Clock, Shield, AlertCircle, TrendingUp } from "lucide-react";
 import WithdrawalTicker from "../components/landing/WithdrawalTicker";
 
-const COMMISSION_RATE = 0.08;
-const WELCOME_BONUS = 5; // Los $5 de bienvenida no son retirables
+const WELCOME_BONUS = 5;
+
+const getCommissionRate = (amount) => {
+  if (amount >= 5000) return 0.02;
+  if (amount >= 1000) return 0.035;
+  if (amount >= 500)  return 0.05;
+  if (amount >= 100)  return 0.065;
+  return 0.08;
+};
+
+const getCommissionLabel = (amount) => {
+  if (amount >= 5000) return "2%";
+  if (amount >= 1000) return "3.5%";
+  if (amount >= 500)  return "5%";
+  if (amount >= 100)  return "6.5%";
+  return "8%";
+};
 
 const isValidUSDTAddress = (addr) => addr.trim().length >= 10;
 
@@ -30,7 +45,7 @@ export default function Withdraw() {
   }, [user?.email]);
 
   const amtNum = parseFloat(amount) || 0;
-  const commission = amtNum * COMMISSION_RATE;
+  const commission = amtNum * getCommissionRate(amtNum);
   const netAmount = amtNum - commission;
 
   const totalBalance = user?.balance || 0;
@@ -249,7 +264,7 @@ export default function Withdraw() {
               <span className="font-mono">${amtNum.toFixed(2)} USDT</span>
             </div>
             <div className="flex items-center justify-between text-destructive">
-              <span>Comisión de red (8%)</span>
+              <span>Comisión de red ({getCommissionLabel(amtNum)})</span>
               <span className="font-mono">-${commission.toFixed(2)} USDT</span>
             </div>
             <div className="flex items-center justify-between border-t border-border pt-1.5 text-emerald-400 font-semibold">
@@ -274,7 +289,7 @@ export default function Withdraw() {
           </div>
           <div className="flex items-start gap-2 text-[11px] text-muted-foreground/70 border border-border/40 rounded-lg p-2.5 bg-secondary/20">
             <AlertCircle className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0 mt-0.5" />
-            <span>La comisión de red del 8% cubre costos operativos de procesamiento blockchain. No existen cargos adicionales ocultos.</span>
+            <span>Comisión de red escalonada: &lt;$100 → 8% · $100+ → 6.5% · $500+ → 5% · $1000+ → 3.5% · $5000+ → 2%</span>
           </div>
         </div>
       </motion.div>
