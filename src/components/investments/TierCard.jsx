@@ -14,6 +14,7 @@ const tierConfig = {
     totalReturn: "100%",
     duration: "3 días",
     exampleEarning: "$1.67 diario · $5.00 en 3 días",
+    stockDesc: "Plan introductorio para conocer la plataforma. Sin riesgo de capital.",
     features: ["Los $5 son 100% ganancia tuya", "Sin riesgo de capital", "Liquidación cada 24 horas"],
     gradient: "from-slate-500/15 via-slate-500/5 to-transparent",
     border: "hover:border-slate-500/40",
@@ -36,6 +37,7 @@ const tierConfig = {
     totalReturn: "300%",
     duration: "30 días",
     exampleEarning: "Est. +$1,497 (sobre $10)*",
+    stockDesc: "Apple Inc. es el fabricante de iPhone, Mac y AirPods. Con más de $3T de capitalización, es la empresa más valiosa del mundo y un referente de innovación tecnológica.",
     features: ["Estrategia algorítmica de bajo perfil", "Análisis técnico en acciones Apple", "Liquidación cada 24 horas"],
     gradient: "from-emerald-500/15 via-emerald-500/5 to-transparent",
     border: "hover:border-emerald-500/40",
@@ -58,6 +60,7 @@ const tierConfig = {
     totalReturn: "600%",
     duration: "60 días",
     exampleEarning: "Est. +$3,000 (sobre $500)*",
+    stockDesc: "Amazon.com domina el comercio electrónico global y es líder en servicios cloud con AWS. Su modelo de negocio diversificado la posiciona como una de las empresas de mayor crecimiento del S&P 500.",
     features: ["Análisis de arbitraje activo", "Seguimiento de acciones Amazon", "Liquidación cada 24 horas"],
     gradient: "from-blue-500/15 via-blue-500/5 to-transparent",
     border: "hover:border-blue-500/40",
@@ -80,6 +83,7 @@ const tierConfig = {
     totalReturn: "900%",
     duration: "90 días",
     exampleEarning: "Est. +$18,000 (sobre $2,000)*",
+    stockDesc: "NVIDIA Corp. es el fabricante de GPUs líder mundial e infraestructura clave para inteligencia artificial. Su dominio en chips para centros de datos la convierte en el motor del boom de la IA.",
     features: ["Motor de análisis de alta frecuencia", "Seguimiento de acciones NVIDIA", "Liquidación cada 24 horas"],
     gradient: "from-purple-500/15 via-purple-500/5 to-transparent",
     border: "hover:border-purple-500/40",
@@ -102,6 +106,7 @@ const tierConfig = {
     totalReturn: "1,200%",
     duration: "120 días",
     exampleEarning: "Est. +$120,000 (sobre $10,000)*",
+    stockDesc: "El S&P 500 agrupa las 500 empresas más grandes de EE.UU. Es el índice bursátil de referencia mundial, incluyendo Apple, Microsoft, Amazon, NVIDIA y más. Diversificación máxima en un solo activo.",
     features: ["Acceso a cartera diversificada", "Seguimiento del índice S&P 500", "Liquidación cada 24 horas"],
     gradient: "from-gold/15 via-gold/5 to-transparent",
     border: "hover:border-gold/40",
@@ -148,7 +153,14 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
         {/* Name & range */}
         <h3 className="text-base font-bold mb-0.5 tracking-tight">{config.name}</h3>
         <p className="text-[11px] text-muted-foreground mb-0.5">{config.subtitle}</p>
-        <p className="text-[11px] font-mono text-gold/80 mb-4">{rangeLabel}</p>
+        <p className="text-[11px] font-mono text-gold/80 mb-3">{rangeLabel}</p>
+
+        {/* Stock description */}
+        {config.stockDesc && (
+          <p className="text-[11px] text-muted-foreground/70 leading-relaxed mb-4 border-l-2 border-border pl-2.5 italic">
+            {config.stockDesc}
+          </p>
+        )}
 
         {/* Key metrics */}
         <div className="grid grid-cols-3 gap-1.5 mb-4">
