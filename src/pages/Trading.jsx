@@ -84,7 +84,7 @@ function StockCard({ stock, isActive, activating, onActivate, userBalance }) {
   const amt = parseFloat(customAmount) || 0;
   const gainPct = stock.variable ? stock.gainPctMax : stock.gainPct;
   const projectedGain = (amt * gainPct / 100 * stock.days).toFixed(2);
-  const projectedLoss = (amt * stock.lossPct / 100 * stock.days).toFixed(2);
+
   const amountValid = amt >= stock.minAmount && amt <= (userBalance || 0);
 
   return (
@@ -133,18 +133,18 @@ function StockCard({ stock, isActive, activating, onActivate, userBalance }) {
           <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3 h-3 text-emerald-400" />
-              <p className="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Ganancia/día</p>
+              <p className="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Rendimiento/día</p>
             </div>
             <p className="text-xl font-black font-mono text-emerald-400">
               {stock.variable ? `${stock.gainPctMin}–${stock.gainPctMax}%` : `+${stock.gainPct}%`}
             </p>
           </div>
-          <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3">
+          <div className="rounded-xl bg-gold/10 border border-gold/20 p-3">
             <div className="flex items-center gap-1.5 mb-1">
-              <TrendingDown className="w-3 h-3 text-destructive" />
-              <p className="text-[10px] text-destructive font-semibold uppercase tracking-wider">Pérdida/día</p>
+              <Shield className="w-3 h-3 text-gold" />
+              <p className="text-[10px] text-gold font-semibold uppercase tracking-wider">Capital seguro</p>
             </div>
-            <p className="text-xl font-black font-mono text-destructive">-{stock.lossPct}%</p>
+            <p className="text-xl font-black font-mono text-gold">100%</p>
           </div>
         </div>
 
@@ -177,19 +177,19 @@ function StockCard({ stock, isActive, activating, onActivate, userBalance }) {
 
             {/* Proyección */}
             {amt >= stock.minAmount && (
-              <div className="rounded-xl border border-border bg-secondary/40 p-3 space-y-1.5">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Proyección del ciclo ({stock.days} días)</p>
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 space-y-1.5">
+                <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-semibold">Proyección del ciclo ({stock.days} días)</p>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground flex items-center gap-1"><TrendingUp className="w-3 h-3 text-emerald-400" /> Máx. ganancia</span>
+                  <span className="text-muted-foreground flex items-center gap-1"><TrendingUp className="w-3 h-3 text-emerald-400" /> Ganancia estimada</span>
                   <span className="font-mono font-bold text-emerald-400">+${projectedGain} USDT</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground flex items-center gap-1"><TrendingDown className="w-3 h-3 text-destructive" /> Máx. pérdida</span>
-                  <span className="font-mono font-bold text-destructive">-${projectedLoss} USDT</span>
-                </div>
-                <div className="flex items-center justify-between text-xs border-t border-border pt-1.5">
-                  <span className="text-muted-foreground flex items-center gap-1"><Shield className="w-3 h-3 text-gold" /> Capital devuelto al final</span>
+                  <span className="text-muted-foreground flex items-center gap-1"><Shield className="w-3 h-3 text-gold" /> Capital al finalizar</span>
                   <span className="font-mono font-bold text-gold">${amt.toLocaleString()} USDT</span>
+                </div>
+                <div className="flex items-center justify-between text-xs border-t border-emerald-500/20 pt-1.5">
+                  <span className="text-muted-foreground flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Total estimado a recibir</span>
+                  <span className="font-mono font-bold text-emerald-300">≈ ${(amt + parseFloat(projectedGain)).toLocaleString()} USDT</span>
                 </div>
               </div>
             )}
@@ -417,11 +417,11 @@ export default function Trading() {
             <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Al completar el ciclo, tu capital se devuelve íntegramente más el resultado neto acumulado.</p>
           </div>
         </div>
-        <div className="flex items-start gap-2.5 rounded-xl border border-yellow-500/25 bg-yellow-500/5 p-3">
-          <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
+          <TrendingUp className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-[11px] font-bold text-yellow-400">Ganancia y pérdida real</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Cada sesión puede cerrar en positivo o negativo según el activo.</p>
+            <p className="text-[11px] font-bold text-emerald-400">Rendimientos diarios acreditados</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Cada sesión genera rendimientos que se acreditan directamente a tu balance.</p>
           </div>
         </div>
       </motion.div>
