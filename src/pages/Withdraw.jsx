@@ -60,11 +60,19 @@ export default function Withdraw() {
 
   useEffect(() => {
     if (!user?.email) return;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Peru timezone (UTC-5): get today's date boundaries
+    const now = new Date();
+    const todayStart = new Date(now.toLocaleString('en-US', { timeZone: 'America/Lima' }));
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    
     base44.entities.Transaction.filter({ user_email: user.email, type: "withdrawal" })
       .then(txs => {
-        const count = txs.filter(t => new Date(t.created_date) >= today).length;
+        const count = txs.filter(t => {
+          const txDate = new Date(t.created_date);
+          return txDate >= todayStart && txDate < todayEnd;
+        }).length;
         setTodayWithdrawals(count);
       });
   }, [user?.email]);
@@ -72,9 +80,24 @@ export default function Withdraw() {
   const canWithdraw = () => todayWithdrawals < MAX_DAILY;
   const getTimeRemaining = () => null;
 
+  const refreshTodayWithdrawals = async () => {
+    const now = new Date();
+    const todayStart = new Date(now.toLocaleString('en-US', { timeZone: 'America/Lima' }));
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    
+    const txs = await base44.entities.Transaction.filter({ user_email: user.email, type: "withdrawal" });
+    const count = txs.filter(t => {
+      const txDate = new Date(t.created_date);
+      return txDate >= todayStart && txDate < todayEnd;
+    }).length;
+    setTodayWithdrawals(count);
+  };
+
   const handleSubmit = async () => {
     if (!canWithdraw()) {
-      toast.error(`Límite diario alcanzado. Solo se permiten ${MAX_DAILY} retiros por día.`);
+      toast.error(`Límite diario alcanzado (${todayWithdrawals}/${MAX_DAILY}). El contador se reinicia a medianoche hora Perú.`);
       return;
     }
     if (!amount || !wallet) {
@@ -95,43 +118,42 @@ export default function Withdraw() {
       return;
     }
     if (amt > withdrawableBalance) {
-      toast.error(`Los $5 del plan prueba están bloqueados hasta completar los 3 días. Disponible: $${withdrawableBalance.toFixed(2)} USDT`);
+      toast.error(`Saldo insuficiente — Disponible: $${withdrawableBalance.toFixed(2)} USDT`);
       return;
     }
 
     setSubmitting(true);
-    const freshUser = await base44.auth.me();
-    const currentBalance = freshUser?.balance || 0;
-    const freshWithdrawable = Math.max(0, currentBalance - lockedBonus);
-    if (amt > freshWithdrawable) {
-      toast.error(`Saldo insuficiente — Disponible: $${freshWithdrawable.toFixed(2)} USDT`);
+    try {
+      const freshUser = await base44.auth.me();
+      const currentBalance = freshUser?.balance || 0;
+      if (amt > currentBalance) {
+        toast.error(`Saldo insuficiente — Disponible: $${currentBalance.toFixed(2)} USDT`);
+        setSubmitting(false);
+        return;
+      }
+      await base44.entities.Transaction.create({
+        user_email: user.email,
+        type: "withdrawal",
+        amount: amt,
+        status: "pending",
+        network,
+        wallet_address: wallet.trim(),
+      });
+      const newBalance = currentBalance - amt;
+      await base44.auth.updateMe({ balance: newBalance });
+      setUser(prev => ({ ...prev, balance: newBalance }));
+      
+      // Recargar contador real desde la base de datos
+      await refreshTodayWithdrawals();
+      
+      toast.success("✅ Solicitud de retiro enviada. Recibirás un correo de confirmación.");
+      setAmount("");
+      setWallet("");
+    } catch (err) {
+      toast.error("Error al procesar el retiro: " + err.message);
+    } finally {
       setSubmitting(false);
-      return;
     }
-    await base44.entities.Transaction.create({
-      user_email: user.email,
-      type: "withdrawal",
-      amount: amt,
-      status: "pending",
-      network,
-      wallet_address: wallet.trim(),
-    });
-    const newBalance = currentBalance - amt;
-    await base44.auth.updateMe({
-      balance: newBalance,
-      last_withdrawal_date: new Date().toISOString(),
-    });
-    setUser(prev => ({
-      ...prev,
-      balance: newBalance,
-      last_withdrawal_date: new Date().toISOString(),
-    }));
-
-    setTodayWithdrawals(prev => prev + 1);
-    toast.success("Solicitud de retiro enviada a la cola de cumplimiento");
-    setAmount("");
-    setWallet("");
-    setSubmitting(false);
   };
 
   if (!user) return null;
