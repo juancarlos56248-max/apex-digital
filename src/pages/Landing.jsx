@@ -125,16 +125,16 @@ export default function Landing() {
             {/* Big % stat */}
             <div className="inline-flex flex-col items-center my-5">
               <div className="flex items-end gap-2 leading-none">
-                <span className="text-7xl md:text-9xl font-black text-gold-gradient tracking-tighter">+18%</span>
+                <span className="text-7xl md:text-9xl font-black text-gold-gradient tracking-tighter">+10%</span>
               </div>
-              <span className="text-sm md:text-base text-muted-foreground font-medium tracking-widest uppercase mt-1">rendimiento diario</span>
+              <span className="text-sm md:text-base text-muted-foreground font-medium tracking-widest uppercase mt-1">rendimiento diario desde</span>
             </div>
 
             {/* Subheadline */}
             <p className="text-base md:text-xl text-muted-foreground max-w-xl mx-auto mb-4 leading-relaxed">
-              Accede a estrategias algorítmicas de alto rendimiento con hasta{" "}
+              Accede a estrategias algorítmicas de alto rendimiento desde{" "}
               <span className="relative inline-block">
-                <span className="text-foreground font-black text-lg md:text-2xl">+18% diario</span>
+                <span className="text-foreground font-black text-lg md:text-2xl">+10% diario</span>
                 <span className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-gold to-gold-light rounded-full" />
               </span>
               .
