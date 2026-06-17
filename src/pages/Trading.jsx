@@ -14,7 +14,7 @@ const PLANS = [
     amount: 100,
     gainPct: 3,
     lossPct: 1,
-    days: 7,
+    days: 3,
     color: "text-blue-400",
     bg: "bg-blue-400/10",
     border: "border-blue-400/20",
@@ -26,7 +26,7 @@ const PLANS = [
     amount: 500,
     gainPct: 5,
     lossPct: 2,
-    days: 7,
+    days: 5,
     color: "text-gold",
     bg: "bg-gold/10",
     border: "border-gold/20",
@@ -51,7 +51,7 @@ const PLANS = [
     amount: 2500,
     gainPct: 12,
     lossPct: 4,
-    days: 8,
+    days: 9,
     color: "text-orange-400",
     bg: "bg-orange-400/10",
     border: "border-orange-400/20",
@@ -63,7 +63,7 @@ const PLANS = [
     amount: 5000,
     gainPct: 15,
     lossPct: 5,
-    days: 9,
+    days: 12,
     color: "text-rose-400",
     bg: "bg-rose-400/10",
     border: "border-rose-400/20",
@@ -77,7 +77,7 @@ const PLANS = [
     gainPctMin: 14,
     gainPctMax: 18,
     lossPct: 5,
-    days: 10,
+    days: 15,
     color: "text-emerald-400",
     bg: "bg-emerald-400/10",
     border: "border-emerald-400/20",
@@ -148,7 +148,7 @@ export default function Trading() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Trading de Inversión</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Ciclos de 7–10 días con ganancias y pérdidas controladas por el mercado
+          Ciclos de 3 a 15 días con ganancias y pérdidas controladas por el mercado
         </p>
       </motion.div>
 
