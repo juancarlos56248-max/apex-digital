@@ -324,137 +324,134 @@ function PositionCard({ pos, stock }) {
   );
 }
 
+// Generate a single candle for a given absolute hour index
+function makeCandle(seed, isUp, hourIndex) {
+  const PRICE_BASE = 100 + (seed % 200);
+  const trend = (isUp ? 1 : -1) * (hourIndex % 200) * 0.25;
+  const noise = ((seed * (hourIndex + 3) * 17 + hourIndex * 31) % 22) - 11;
+  const base = PRICE_BASE + trend + noise;
+  const bodySize = 1.5 + ((seed * (hourIndex + 5) * 7) % 5);
+  const wickTop = 0.8 + ((seed * (hourIndex + 11) * 3) % 3);
+  const wickBot = 0.8 + ((seed * (hourIndex + 2) * 9) % 3);
+  const bullish = ((seed * 3 + hourIndex * 7) % 5) !== 0 ? isUp || hourIndex % 3 !== 0 : !isUp;
+  const open = base;
+  const close = bullish ? base + bodySize : base - bodySize;
+  return { open, close, high: Math.max(open, close) + wickTop, low: Math.min(open, close) - wickBot, bullish, hourIndex };
+}
+
 function CandlestickChart({ stock }) {
   const isUp = stock.change.startsWith('+');
   const seed = stock.id.charCodeAt(0);
-  const N = 72; // 72 hourly candles (~3 days)
-  const CANDLE_W = 18; // px per candle (fixed, scroll to see more)
-  const W = N * CANDLE_W;
+  const N = 72;
+  const CANDLE_W = 18;
   const H = 160;
-  const PRICE_BASE = 100 + (seed % 200);
+  const PAD_L = 44; const PAD_R = 10; const PAD_T = 10; const PAD_B = 22;
+  const plotH = H - PAD_T - PAD_B;
 
-  // Generate 72 hourly candles
-  const candles = Array.from({ length: N }, (_, i) => {
-    const trend = (isUp ? 1 : -1) * i * 0.25;
-    const noise = ((seed * (i + 3) * 17 + i * 31) % 22) - 11;
-    const base = PRICE_BASE + trend + noise;
-    const bodySize = 1.5 + ((seed * (i + 5) * 7) % 5);
-    const wickTop = 0.8 + ((seed * (i + 11) * 3) % 3);
-    const wickBot = 0.8 + ((seed * (i + 2) * 9) % 3);
-    const bullish = ((seed * 3 + i * 7) % 5) !== 0 ? isUp || i % 3 !== 0 : !isUp;
-    const open = base;
-    const close = bullish ? base + bodySize : base - bodySize;
-    const high = Math.max(open, close) + wickTop;
-    const low = Math.min(open, close) - wickBot;
-    return { open, close, high, low, bullish };
-  });
+  // epoch = current hour number since unix epoch
+  const getEpoch = () => Math.floor(Date.now() / 3600000);
+
+  const buildCandles = (epoch) =>
+    Array.from({ length: N }, (_, i) => makeCandle(seed, isUp, epoch - (N - 1 - i)));
+
+  const [epoch, setEpoch] = useState(getEpoch);
+  const [candles, setCandles] = useState(() => buildCandles(getEpoch()));
+  const [lastUpdate, setLastUpdate] = useState(() => new Date());
+
+  // Update every hour — check every minute if the hour has changed
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newEpoch = getEpoch();
+      if (newEpoch !== epoch) {
+        setEpoch(newEpoch);
+        setCandles(buildCandles(newEpoch));
+        setLastUpdate(new Date());
+      }
+    }, 60000); // check every minute
+    return () => clearInterval(interval);
+  }, [epoch]);
 
   const allVals = candles.flatMap(c => [c.high, c.low]);
   const chartMin = Math.min(...allVals) - 1.5;
   const chartMax = Math.max(...allVals) + 1.5;
   const range = chartMax - chartMin;
-  const PAD_L = 44;
-  const PAD_R = 10;
-  const PAD_T = 10;
-  const PAD_B = 22;
-  const plotH = H - PAD_T - PAD_B;
+  const totalW = N * CANDLE_W + PAD_L + PAD_R;
 
   const toY = v => PAD_T + plotH - ((v - chartMin) / range) * plotH;
   const toX = i => PAD_L + i * CANDLE_W + CANDLE_W / 2;
 
-  // SMA(8)
   const sma = candles.map((_, i) => {
     if (i < 7) return null;
-    const avg = candles.slice(i - 7, i + 1).reduce((s, c) => s + (c.open + c.close) / 2, 0) / 8;
-    return avg;
+    return candles.slice(i - 7, i + 1).reduce((s, c) => s + (c.open + c.close) / 2, 0) / 8;
   });
-  const smaPath = sma
-    .map((v, i) => v === null ? null : `${i === 7 ? 'M' : 'L'}${toX(i)},${toY(v)}`)
-    .filter(Boolean).join(' ');
+  const smaPath = sma.map((v, i) => v === null ? null : `${i === 7 ? 'M' : 'L'}${toX(i)},${toY(v)}`).filter(Boolean).join(' ');
 
-  const gridLines = 4;
-  const yTicks = Array.from({ length: gridLines + 1 }, (_, i) => chartMin + (range / gridLines) * i);
-
-  const now = new Date();
-  // X label every 12 candles
-  const xLabels = Array.from({ length: N }, (_, i) => i).filter(i => i % 12 === 0 || i === N - 1).map(i => {
-    const h = new Date(now.getTime() - (N - 1 - i) * 3600000);
-    const dayStr = h.toLocaleDateString('es-PE', { month: 'short', day: 'numeric' });
-    const hourStr = `${String(h.getHours()).padStart(2, '0')}:00`;
-    return { i, label: h.getHours() === 0 ? dayStr : hourStr };
+  const yTicks = Array.from({ length: 5 }, (_, i) => chartMin + (range / 4) * i);
+  const xLabels = [0, 12, 24, 36, 48, 60, 71].map(i => {
+    const h = new Date((epoch - (N - 1 - i)) * 3600000);
+    const label = h.getHours() === 0
+      ? h.toLocaleDateString('es-PE', { month: 'short', day: 'numeric' })
+      : `${String(h.getHours()).padStart(2, '0')}:00`;
+    return { i, label };
   });
+  const dayLines = candles.map((_, i) => {
+    const h = new Date((epoch - (N - 1 - i)) * 3600000);
+    return h.getHours() === 0 ? i : null;
+  }).filter(v => v !== null);
 
-  const totalW = W + PAD_L + PAD_R;
+  const last = candles[N - 1];
+  const lastPrice = (last.open + last.close) / 2;
+  const lastPriceY = toY(lastPrice);
+  const col = isUp ? '#22c55e' : '#ef4444';
+
+  const updStr = `${String(lastUpdate.getHours()).padStart(2,'0')}:${String(lastUpdate.getMinutes()).padStart(2,'0')}`;
 
   return (
     <div className="mt-2 mb-1 rounded-lg overflow-hidden bg-[#060606] border border-border/40">
-      {/* Header */}
       <div className="flex items-center justify-between px-3 pt-2 pb-1">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-mono text-blue-400">── SMA(8)</span>
           <span className="text-[10px] font-mono text-muted-foreground/60">desliza →</span>
         </div>
-        <span className="text-[10px] font-mono text-muted-foreground font-semibold">{stock.symbol} · 1H · 72 velas</span>
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Act. {updStr}
+          </span>
+          <span className="text-[10px] font-mono text-muted-foreground font-semibold">{stock.symbol} · 1H</span>
+        </div>
       </div>
-
-      {/* Scrollable chart area */}
       <div className="overflow-x-auto" style={{ touchAction: 'pan-x pan-y' }}>
         <svg width={totalW} height={H} style={{ display: 'block', minWidth: totalW }}>
-          {/* Y grid + labels (sticky feel via fixed x position) */}
           {yTicks.map((v, i) => (
             <g key={i}>
               <line x1={PAD_L} y1={toY(v)} x2={totalW - PAD_R} y2={toY(v)} stroke="#ffffff07" strokeWidth="1" />
-              <text x={PAD_L - 4} y={toY(v) + 3.5} textAnchor="end" fontSize="8" fill="#555" fontFamily="monospace">
-                {v.toFixed(1)}
-              </text>
+              <text x={PAD_L - 4} y={toY(v) + 3.5} textAnchor="end" fontSize="8" fill="#555" fontFamily="monospace">{v.toFixed(1)}</text>
             </g>
           ))}
-
-          {/* X labels */}
           {xLabels.map(({ i, label }) => (
             <text key={i} x={toX(i)} y={H - 5} textAnchor="middle" fontSize="7.5" fill="#555" fontFamily="monospace">{label}</text>
           ))}
-
-          {/* Day separator lines */}
-          {Array.from({ length: N }, (_, i) => i).filter(i => {
-            const h = new Date(now.getTime() - (N - 1 - i) * 3600000);
-            return h.getHours() === 0;
-          }).map(i => (
+          {dayLines.map(i => (
             <line key={i} x1={toX(i) - CANDLE_W / 2} y1={PAD_T} x2={toX(i) - CANDLE_W / 2} y2={H - PAD_B} stroke="#ffffff15" strokeWidth="1" strokeDasharray="3,3" />
           ))}
-
-          {/* SMA line */}
           {smaPath && <path d={smaPath} fill="none" stroke="#60a5fa" strokeWidth="1.4" strokeLinejoin="round" opacity="0.85" />}
-
-          {/* Candles */}
           {candles.map((c, i) => {
             const x = toX(i);
             const bodyTop = Math.min(toY(c.open), toY(c.close));
             const bodyH = Math.max(2.5, Math.abs(toY(c.open) - toY(c.close)));
             const color = c.bullish ? '#22c55e' : '#ef4444';
-            const bw = CANDLE_W - 6;
             return (
               <g key={i}>
                 <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth="1.2" />
-                <rect x={x - bw / 2} y={bodyTop} width={bw} height={bodyH} fill={color} rx="1" />
+                <rect x={x - (CANDLE_W - 6) / 2} y={bodyTop} width={CANDLE_W - 6} height={bodyH} fill={color} rx="1" />
               </g>
             );
           })}
-
-          {/* Last price dashed line */}
-          {(() => {
-            const last = candles[N - 1];
-            const lp = (last.open + last.close) / 2;
-            const ly = toY(lp);
-            const col = isUp ? '#22c55e' : '#ef4444';
-            return (
-              <g>
-                <line x1={PAD_L} y1={ly} x2={totalW - PAD_R} y2={ly} stroke={col} strokeWidth="0.8" strokeDasharray="4,3" opacity="0.55" />
-                <rect x={totalW - PAD_R - 32} y={ly - 7} width={32} height={13} fill={col} rx="2" />
-                <text x={totalW - PAD_R - 16} y={ly + 4} textAnchor="middle" fontSize="7.5" fill="#000" fontFamily="monospace" fontWeight="bold">{lp.toFixed(1)}</text>
-              </g>
-            );
-          })()}
+          <g>
+            <line x1={PAD_L} y1={lastPriceY} x2={totalW - PAD_R} y2={lastPriceY} stroke={col} strokeWidth="0.8" strokeDasharray="4,3" opacity="0.55" />
+            <rect x={totalW - PAD_R - 32} y={lastPriceY - 7} width={32} height={13} fill={col} rx="2" />
+            <text x={totalW - PAD_R - 16} y={lastPriceY + 4} textAnchor="middle" fontSize="7.5" fill="#000" fontFamily="monospace" fontWeight="bold">{lastPrice.toFixed(1)}</text>
+          </g>
         </svg>
       </div>
     </div>
