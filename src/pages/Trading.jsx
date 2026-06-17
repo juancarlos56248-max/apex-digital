@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -343,22 +343,32 @@ function CandlestickChart({ stock }) {
   const isUp = stock.change.startsWith('+');
   const seed = stock.id.charCodeAt(0);
   const N = 72;
-  const CANDLE_W = 18;
-  const H = 160;
-  const PAD_L = 44; const PAD_R = 10; const PAD_T = 10; const PAD_B = 22;
+  const CANDLE_W = 22; // wider candles for touch
+  const H = 200;       // taller chart for mobile
+  const PAD_L = 48; const PAD_R = 12; const PAD_T = 12; const PAD_B = 28;
   const plotH = H - PAD_T - PAD_B;
 
-  // epoch = current hour number since unix epoch
-  const getEpoch = () => Math.floor(Date.now() / 3600000);
+  const scrollRef = useState(null)[0];
+  const containerRef = { current: null };
 
+  const getEpoch = () => Math.floor(Date.now() / 3600000);
   const buildCandles = (epoch) =>
     Array.from({ length: N }, (_, i) => makeCandle(seed, isUp, epoch - (N - 1 - i)));
 
   const [epoch, setEpoch] = useState(getEpoch);
   const [candles, setCandles] = useState(() => buildCandles(getEpoch()));
   const [lastUpdate, setLastUpdate] = useState(() => new Date());
+  const scrollDivRef = useState(null);
 
-  // Update every hour — check every minute if the hour has changed
+  // Scroll to the rightmost (latest) candle on mount
+  const scrollRef2 = useRef(null);
+  useEffect(() => {
+    if (scrollRef2.current) {
+      scrollRef2.current.scrollLeft = scrollRef2.current.scrollWidth;
+    }
+  }, []);
+
+  // Update every hour
   useEffect(() => {
     const interval = setInterval(() => {
       const newEpoch = getEpoch();
@@ -367,13 +377,13 @@ function CandlestickChart({ stock }) {
         setCandles(buildCandles(newEpoch));
         setLastUpdate(new Date());
       }
-    }, 60000); // check every minute
+    }, 60000);
     return () => clearInterval(interval);
   }, [epoch]);
 
   const allVals = candles.flatMap(c => [c.high, c.low]);
-  const chartMin = Math.min(...allVals) - 1.5;
-  const chartMax = Math.max(...allVals) + 1.5;
+  const chartMin = Math.min(...allVals) - 2;
+  const chartMax = Math.max(...allVals) + 2;
   const range = chartMax - chartMin;
   const totalW = N * CANDLE_W + PAD_L + PAD_R;
 
@@ -403,56 +413,91 @@ function CandlestickChart({ stock }) {
   const lastPrice = (last.open + last.close) / 2;
   const lastPriceY = toY(lastPrice);
   const col = isUp ? '#22c55e' : '#ef4444';
-
   const updStr = `${String(lastUpdate.getHours()).padStart(2,'0')}:${String(lastUpdate.getMinutes()).padStart(2,'0')}`;
 
   return (
-    <div className="mt-2 mb-1 rounded-lg overflow-hidden bg-[#060606] border border-border/40">
-      <div className="flex items-center justify-between px-3 pt-2 pb-1">
+    <div className="mt-2 mb-1 rounded-xl overflow-hidden bg-[#060606] border border-border/40">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-mono text-blue-400">── SMA(8)</span>
-          <span className="text-[10px] font-mono text-muted-foreground/60">desliza →</span>
+          <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" /> {updStr}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-mono">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Act. {updStr}
-          </span>
-          <span className="text-[10px] font-mono text-muted-foreground font-semibold">{stock.symbol} · 1H</span>
+          <span className="text-[9px] text-muted-foreground/50 font-mono">← desliza →</span>
+          <span className="text-[10px] font-mono text-muted-foreground font-semibold">{stock.symbol} · 1H · 3d</span>
         </div>
       </div>
-      <div className="overflow-x-auto" style={{ touchAction: 'pan-x pan-y' }}>
-        <svg width={totalW} height={H} style={{ display: 'block', minWidth: totalW }}>
-          {yTicks.map((v, i) => (
-            <g key={i}>
-              <line x1={PAD_L} y1={toY(v)} x2={totalW - PAD_R} y2={toY(v)} stroke="#ffffff07" strokeWidth="1" />
-              <text x={PAD_L - 4} y={toY(v) + 3.5} textAnchor="end" fontSize="8" fill="#555" fontFamily="monospace">{v.toFixed(1)}</text>
-            </g>
-          ))}
-          {xLabels.map(({ i, label }) => (
-            <text key={i} x={toX(i)} y={H - 5} textAnchor="middle" fontSize="7.5" fill="#555" fontFamily="monospace">{label}</text>
-          ))}
-          {dayLines.map(i => (
-            <line key={i} x1={toX(i) - CANDLE_W / 2} y1={PAD_T} x2={toX(i) - CANDLE_W / 2} y2={H - PAD_B} stroke="#ffffff15" strokeWidth="1" strokeDasharray="3,3" />
-          ))}
-          {smaPath && <path d={smaPath} fill="none" stroke="#60a5fa" strokeWidth="1.4" strokeLinejoin="round" opacity="0.85" />}
-          {candles.map((c, i) => {
-            const x = toX(i);
-            const bodyTop = Math.min(toY(c.open), toY(c.close));
-            const bodyH = Math.max(2.5, Math.abs(toY(c.open) - toY(c.close)));
-            const color = c.bullish ? '#22c55e' : '#ef4444';
-            return (
+
+      {/* Scrollable chart — relative wrapper for fade edges */}
+      <div className="relative">
+        {/* Left fade */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 z-10"
+          style={{ background: 'linear-gradient(to right, #060606, transparent)' }} />
+        {/* Right fade */}
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 z-10"
+          style={{ background: 'linear-gradient(to left, #060606, transparent)' }} />
+
+        <div
+          ref={scrollRef2}
+          className="overflow-x-auto scrollbar-none"
+          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+        >
+          <svg width={totalW} height={H} style={{ display: 'block', minWidth: totalW }}>
+            {/* Y grid + labels */}
+            {yTicks.map((v, i) => (
               <g key={i}>
-                <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth="1.2" />
-                <rect x={x - (CANDLE_W - 6) / 2} y={bodyTop} width={CANDLE_W - 6} height={bodyH} fill={color} rx="1" />
+                <line x1={PAD_L} y1={toY(v)} x2={totalW - PAD_R} y2={toY(v)} stroke="#ffffff08" strokeWidth="1" />
+                <text x={PAD_L - 5} y={toY(v) + 4} textAnchor="end" fontSize="9" fill="#444" fontFamily="monospace">{v.toFixed(1)}</text>
               </g>
-            );
-          })}
-          <g>
-            <line x1={PAD_L} y1={lastPriceY} x2={totalW - PAD_R} y2={lastPriceY} stroke={col} strokeWidth="0.8" strokeDasharray="4,3" opacity="0.55" />
-            <rect x={totalW - PAD_R - 32} y={lastPriceY - 7} width={32} height={13} fill={col} rx="2" />
-            <text x={totalW - PAD_R - 16} y={lastPriceY + 4} textAnchor="middle" fontSize="7.5" fill="#000" fontFamily="monospace" fontWeight="bold">{lastPrice.toFixed(1)}</text>
-          </g>
-        </svg>
+            ))}
+
+            {/* X labels */}
+            {xLabels.map(({ i, label }) => (
+              <text key={i} x={toX(i)} y={H - 6} textAnchor="middle" fontSize="8" fill="#444" fontFamily="monospace">{label}</text>
+            ))}
+
+            {/* Day separator lines */}
+            {dayLines.map(i => (
+              <g key={i}>
+                <line x1={toX(i) - CANDLE_W / 2} y1={PAD_T} x2={toX(i) - CANDLE_W / 2} y2={H - PAD_B}
+                  stroke="#ffffff20" strokeWidth="1" strokeDasharray="3,3" />
+              </g>
+            ))}
+
+            {/* SMA line */}
+            {smaPath && <path d={smaPath} fill="none" stroke="#60a5fa" strokeWidth="1.5" strokeLinejoin="round" opacity="0.9" />}
+
+            {/* Candles */}
+            {candles.map((c, i) => {
+              const x = toX(i);
+              const bodyTop = Math.min(toY(c.open), toY(c.close));
+              const bodyH = Math.max(3, Math.abs(toY(c.open) - toY(c.close)));
+              const color = c.bullish ? '#22c55e' : '#ef4444';
+              const bw = CANDLE_W - 8; // body width
+              return (
+                <g key={i}>
+                  {/* Wick */}
+                  <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth="1.5" opacity="0.9" />
+                  {/* Body */}
+                  <rect x={x - bw / 2} y={bodyTop} width={bw} height={bodyH} fill={color} rx="1.5" opacity="0.95" />
+                </g>
+              );
+            })}
+
+            {/* Last price line */}
+            <g>
+              <line x1={PAD_L} y1={lastPriceY} x2={totalW - PAD_R} y2={lastPriceY}
+                stroke={col} strokeWidth="1" strokeDasharray="4,3" opacity="0.6" />
+              <rect x={totalW - PAD_R - 36} y={lastPriceY - 8} width={36} height={15} fill={col} rx="3" />
+              <text x={totalW - PAD_R - 18} y={lastPriceY + 4.5} textAnchor="middle" fontSize="8" fill="#000" fontFamily="monospace" fontWeight="bold">
+                {lastPrice.toFixed(1)}
+              </text>
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
   );
