@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Zap, TrendingUp, BarChart3, Building2, Check, Lock } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 
 const tierConfig = {
   prueba: {
     name: "Apex Prueba",
     subtitle: "Plan de prueba — Solo ganancias",
-    icon: Zap,
+    logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
+    logoBg: "bg-white",
     minDeposit: 5,
     maxDeposit: 5,
     dailyReturn: "33.33%",
@@ -27,7 +28,8 @@ const tierConfig = {
   starter: {
     name: "Apex Starter",
     subtitle: "Apple Inc. (AAPL)",
-    icon: Zap,
+    logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
+    logoBg: "bg-white",
     minDeposit: 10,
     maxDeposit: 499,
     dailyReturn: "10%",
@@ -48,7 +50,8 @@ const tierConfig = {
   advance: {
     name: "Apex Advance",
     subtitle: "Amazon.com (AMZN)",
-    icon: TrendingUp,
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
+    logoBg: "bg-white",
     minDeposit: 500,
     maxDeposit: 1999,
     dailyReturn: "10%",
@@ -69,7 +72,8 @@ const tierConfig = {
   elite: {
     name: "Apex Elite",
     subtitle: "NVIDIA Corp. (NVDA)",
-    icon: BarChart3,
+    logo: "https://upload.wikimedia.org/wikipedia/en/6/6d/Nvidia_image_logo.svg",
+    logoBg: "bg-black",
     minDeposit: 2000,
     maxDeposit: 9999,
     dailyReturn: "10%",
@@ -90,7 +94,8 @@ const tierConfig = {
   institutional: {
     name: "Apex Institutional",
     subtitle: "S&P 500 Index",
-    icon: Building2,
+    logo: "https://upload.wikimedia.org/wikipedia/commons/b/b7/S%26P_500_logo.svg",
+    logoBg: "bg-white",
     minDeposit: 10000,
     maxDeposit: null,
     dailyReturn: "10%",
@@ -113,7 +118,6 @@ const tierConfig = {
 export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, activeCount = 0 }) {
   const config = tierConfig[tier];
   if (!config) return null;
-  const Icon = config.icon;
 
   const rangeLabel = config.maxDeposit
     ? `$${config.minDeposit.toLocaleString()} – $${config.maxDeposit.toLocaleString()} USDT`
@@ -133,8 +137,8 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
       <div className="relative flex flex-col flex-1 p-5">
         {/* Header */}
         <div className="flex items-start justify-between mb-5">
-          <div className={`w-11 h-11 rounded-xl ${config.iconBg} flex items-center justify-center ring-1 ring-white/5`}>
-            <Icon className={`w-5 h-5 ${config.iconColor}`} />
+          <div className={`w-11 h-11 rounded-xl ${config.logoBg} border border-white/10 flex items-center justify-center overflow-hidden p-1.5`}>
+            <img src={config.logo} alt={config.name} className="w-full h-full object-contain" />
           </div>
           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider border ${config.badge}`}>
             +{config.dailyReturn}/día
