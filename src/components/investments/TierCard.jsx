@@ -7,7 +7,7 @@ const tierConfig = {
     name: "Apex Prueba",
     subtitle: "Plan de prueba — Solo ganancias",
     logo: null,
-    logoEmoji: "🧪",
+    logoEmoji: "🏢",
     logoBg: "bg-slate-700",
     minDeposit: 5,
     maxDeposit: 5,
