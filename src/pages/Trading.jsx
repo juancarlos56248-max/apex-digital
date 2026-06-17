@@ -18,6 +18,8 @@ const STOCKS = [
     minAmount: 100, gainPct: 3, lossPct: 1, days: 3,
     color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/20", accent: "#60a5fa",
     change: "+1.24%",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
+    logoBg: "bg-white",
   },
   {
     id: "msft", symbol: "MSFT", name: "Microsoft Corp.",
@@ -25,6 +27,8 @@ const STOCKS = [
     minAmount: 500, gainPct: 5, lossPct: 2, days: 5,
     color: "text-sky-400", bg: "bg-sky-400/10", border: "border-sky-400/20", accent: "#38bdf8",
     change: "+2.07%", popular: true,
+    logo: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
+    logoBg: "bg-white",
   },
   {
     id: "nvda", symbol: "NVDA", name: "NVIDIA Corp.",
@@ -32,6 +36,8 @@ const STOCKS = [
     minAmount: 1000, gainPct: 8, lossPct: 3, days: 7,
     color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20", accent: "#34d399",
     change: "+3.85%",
+    logo: "https://upload.wikimedia.org/wikipedia/en/6/6d/Nvidia_image_logo.svg",
+    logoBg: "bg-black",
   },
   {
     id: "amzn", symbol: "AMZN", name: "Amazon.com Inc.",
@@ -39,6 +45,8 @@ const STOCKS = [
     minAmount: 2500, gainPct: 12, lossPct: 4, days: 9,
     color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20", accent: "#fb923c",
     change: "+1.63%",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
+    logoBg: "bg-white",
   },
   {
     id: "brkb", symbol: "BRK.B", name: "Berkshire Hathaway",
@@ -46,6 +54,8 @@ const STOCKS = [
     minAmount: 5000, gainPct: 15, lossPct: 5, days: 12,
     color: "text-gold", bg: "bg-gold/10", border: "border-gold/20", accent: "#c9a84c",
     change: "+0.89%",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Berkshire_Hathaway_Logo.png",
+    logoBg: "bg-white",
   },
   {
     id: "jpm", symbol: "JPM", name: "JPMorgan Chase",
@@ -53,6 +63,8 @@ const STOCKS = [
     minAmount: 7500, gainPct: 16, lossPct: 5, days: 13,
     color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20", accent: "#c084fc",
     change: "+1.12%",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/af/J_P_Morgan_Logo_2008_1.svg",
+    logoBg: "bg-white",
   },
   {
     id: "xom", symbol: "XOM", name: "Exxon Mobil",
@@ -60,6 +72,8 @@ const STOCKS = [
     minAmount: 10000, gainPct: 18, gainPctMin: 14, gainPctMax: 18, lossPct: 5, days: 15,
     color: "text-rose-400", bg: "bg-rose-400/10", border: "border-rose-400/20", accent: "#fb7185",
     change: "+0.74%", variable: true,
+    logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/ExxonMobil_logo.svg",
+    logoBg: "bg-white",
   },
 ];
 
@@ -88,10 +102,11 @@ function StockCard({ stock, isActive, activating, onActivate, userBalance }) {
       {/* Header */}
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 rounded-xl ${stock.bg} border ${stock.border} flex items-center justify-center flex-shrink-0`}>
-              <span className={`text-xs font-black ${stock.color}`}>{stock.symbol}</span>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className={`w-12 h-12 rounded-xl ${stock.logoBg} border ${stock.border} flex items-center justify-center flex-shrink-0 overflow-hidden p-1.5`}>
+            <img src={stock.logo} alt={stock.symbol} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+            <span className={`text-xs font-black ${stock.color} hidden`}>{stock.symbol}</span>
+          </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-sm font-bold text-foreground">{stock.symbol}</h3>
@@ -231,8 +246,9 @@ function PositionCard({ pos, stock }) {
       <button onClick={() => setExpanded(v => !v)} className="w-full text-left p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${stock.bg} border ${stock.border} flex items-center justify-center`}>
-              <span className={`text-[10px] font-black ${stock.color}`}>{stock.symbol}</span>
+            <div className={`w-10 h-10 rounded-xl ${stock.logoBg} border ${stock.border} flex items-center justify-center overflow-hidden p-1`}>
+              <img src={stock.logo} alt={stock.symbol} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+              <span className={`text-[10px] font-black ${stock.color} hidden`}>{stock.symbol}</span>
             </div>
             <div>
               <p className="text-sm font-bold">{stock.symbol} <span className="text-muted-foreground text-xs font-normal">{stock.name}</span></p>
