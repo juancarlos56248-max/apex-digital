@@ -324,40 +324,53 @@ function PositionCard({ pos, stock }) {
   );
 }
 
-function MiniChart({ stock }) {
-  // Simulated 15-day price movement based on change direction
+function CandlestickChart({ stock }) {
   const isUp = stock.change.startsWith('+');
   const seed = stock.id.charCodeAt(0);
-  const bars = Array.from({ length: 15 }, (_, i) => {
-    const base = 50 + (isUp ? 1 : -1) * i * 1.5;
-    const noise = ((seed * (i + 7) * 13) % 20) - 10;
-    return Math.max(10, Math.min(95, base + noise));
+
+  // Generate 30 candles with open/high/low/close
+  const candles = Array.from({ length: 30 }, (_, i) => {
+    const trend = (isUp ? 1 : -1) * i * 0.6;
+    const base = 50 + trend + ((seed * (i + 3) * 17 + i * 31) % 18) - 9;
+    const bodySize = 2 + ((seed * (i + 5) * 7) % 6);
+    const wickTop = 1 + ((seed * (i + 11) * 3) % 4);
+    const wickBot = 1 + ((seed * (i + 2) * 9) % 4);
+    const bullish = ((seed + i) % 3) !== 0;
+    const open = base;
+    const close = bullish ? base + bodySize : base - bodySize;
+    const high = Math.max(open, close) + wickTop;
+    const low = Math.min(open, close) - wickBot;
+    return { open, close, high, low, bullish };
   });
-  const max = Math.max(...bars);
-  const min = Math.min(...bars);
+
+  const allVals = candles.flatMap(c => [c.high, c.low]);
+  const chartMin = Math.min(...allVals) - 2;
+  const chartMax = Math.max(...allVals) + 2;
+  const range = chartMax - chartMin;
+  const H = 80; // chart height px
+
+  const toY = v => H - ((v - chartMin) / range) * H;
 
   return (
     <div className="mt-3 mb-1">
-      <div className="flex items-end gap-0.5 h-16">
-        {bars.map((v, i) => {
-          const h = ((v - min) / (max - min)) * 100;
-          const isLast = i === bars.length - 1;
+      <svg width="100%" height={H} viewBox={`0 0 ${candles.length * 8} ${H}`} preserveAspectRatio="none" className="overflow-visible">
+        {candles.map((c, i) => {
+          const x = i * 8 + 4;
+          const bodyTop = Math.min(toY(c.open), toY(c.close));
+          const bodyH = Math.max(1.5, Math.abs(toY(c.open) - toY(c.close)));
+          const color = c.bullish ? '#22c55e' : '#ef4444';
           return (
-            <div key={i} className="flex-1 rounded-t-sm transition-all"
-              style={{
-                height: `${Math.max(8, h)}%`,
-                background: isLast
-                  ? stock.accent
-                  : isUp
-                  ? `${stock.accent}55`
-                  : '#ef444455',
-              }}
-            />
+            <g key={i}>
+              {/* Wick */}
+              <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth="0.8" />
+              {/* Body */}
+              <rect x={x - 2} y={bodyTop} width={4} height={bodyH} fill={color} rx="0.5" />
+            </g>
           );
         })}
-      </div>
+      </svg>
       <div className="flex justify-between text-[9px] text-muted-foreground mt-1 font-mono">
-        <span>15 días</span>
+        <span>30 días</span>
         <span>Hoy</span>
       </div>
     </div>
@@ -433,7 +446,7 @@ function MarketPulseModal({ onClose }) {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden px-3 pb-3"
                       >
-                        <MiniChart stock={s} />
+                        <CandlestickChart stock={s} />
                         <div className="grid grid-cols-3 gap-1.5 mt-2">
                           <div className="rounded-lg bg-secondary/60 p-2 text-center">
                             <p className="text-[9px] text-muted-foreground">Mín. inv.</p>
