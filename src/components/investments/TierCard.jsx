@@ -6,8 +6,9 @@ const tierConfig = {
   prueba: {
     name: "Apex Prueba",
     subtitle: "Plan de prueba — Solo ganancias",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
-    logoBg: "bg-white",
+    logo: null,
+    logoEmoji: "🧪",
+    logoBg: "bg-slate-700",
     minDeposit: 5,
     maxDeposit: 5,
     dailyReturn: "33.33%",
@@ -143,7 +144,10 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
         {/* Header */}
         <div className="flex items-start justify-between mb-5">
           <div className={`w-11 h-11 rounded-xl ${config.logoBg} border border-white/10 flex items-center justify-center overflow-hidden p-1.5`}>
-            <img src={config.logo} alt={config.name} className="w-full h-full object-contain" />
+            {config.logo
+              ? <img src={config.logo} alt={config.name} className="w-full h-full object-contain" />
+              : <span className="text-2xl">{config.logoEmoji}</span>
+            }
           </div>
           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider border ${config.badge}`}>
             +{config.dailyReturn}/día
