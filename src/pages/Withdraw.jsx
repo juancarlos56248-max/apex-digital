@@ -40,10 +40,28 @@ export default function Withdraw() {
 
   const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
 
-  const canWithdraw = () => true;
+  const [todayWithdrawals, setTodayWithdrawals] = useState(0);
+  const MAX_DAILY = 2;
+
+  useEffect(() => {
+    if (!user?.email) return;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    base44.entities.Transaction.filter({ user_email: user.email, type: "withdrawal" })
+      .then(txs => {
+        const count = txs.filter(t => new Date(t.created_date) >= today).length;
+        setTodayWithdrawals(count);
+      });
+  }, [user?.email]);
+
+  const canWithdraw = () => todayWithdrawals < MAX_DAILY;
   const getTimeRemaining = () => null;
 
   const handleSubmit = async () => {
+    if (!canWithdraw()) {
+      toast.error(`Límite diario alcanzado. Solo se permiten ${MAX_DAILY} retiros por día.`);
+      return;
+    }
     if (!amount || !wallet) {
       toast.error("Completa todos los campos");
       return;
@@ -94,6 +112,7 @@ export default function Withdraw() {
       last_withdrawal_date: new Date().toISOString(),
     }));
 
+    setTodayWithdrawals(prev => prev + 1);
     toast.success("Solicitud de retiro enviada a la cola de cumplimiento");
     setAmount("");
     setWallet("");
@@ -116,7 +135,16 @@ export default function Withdraw() {
         </p>
       </motion.div>
 
-      {/* 24h Restriction Notice */}
+      {/* Daily limit notice */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-border bg-secondary/30 p-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Clock className="w-4 h-4 text-gold" />
+          <span>Retiros realizados hoy</span>
+        </div>
+        <span className={`text-sm font-bold font-mono ${todayWithdrawals >= MAX_DAILY ? "text-destructive" : "text-gold"}`}>
+          {todayWithdrawals} / {MAX_DAILY}
+        </span>
+      </motion.div>
       {!withdrawAllowed && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -125,10 +153,9 @@ export default function Withdraw() {
         >
           <Clock className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-destructive">Restricción de Liquidez Activa</p>
+            <p className="text-sm font-medium text-destructive">Límite Diario Alcanzado</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Próximo retiro disponible en <span className="font-mono text-foreground">{timeRemaining}</span>.
-              Esta restricción garantiza la estabilidad de los nodos de inversión.
+              Has realizado {MAX_DAILY} retiros hoy. El contador se reinicia a medianoche.
             </p>
           </div>
         </motion.div>
@@ -234,7 +261,7 @@ export default function Withdraw() {
 
         <Button
           onClick={handleSubmit}
-          disabled={submitting || !amount || !wallet}
+          disabled={submitting || !amount || !wallet || !canWithdraw()}
           className="w-full bg-gold hover:bg-gold-dark text-black font-semibold h-11"
         >
           {submitting ? "Procesando..." : "Solicitar Retiro"}
