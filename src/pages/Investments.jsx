@@ -162,6 +162,16 @@ export default function Investments() {
     // Update local user state so Dashboard reflects the new balance immediately
     setUser(prev => ({ ...prev, balance: newBalance, total_invested: realTotalInvested }));
 
+    // Process referral bonus on first node activation (non-blocking, best-effort)
+    const codeToUse = referralCode || user.referral_code_used;
+    if (codeToUse && codeToUse !== user.referral_code && selectedTier !== "prueba") {
+      base44.functions.invoke('procesarReferido', {
+        referral_code: codeToUse,
+        tier: selectedTier,
+        referred_email: user.email,
+      }).catch(() => {}); // fire-and-forget, idempotency is handled server-side
+    }
+
     const cert = {
       name: user.full_name || user.email,
       asset: selectedConfig?.subtitle || selectedTier,

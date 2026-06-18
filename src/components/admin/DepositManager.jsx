@@ -28,22 +28,15 @@ export default function DepositManager() {
       });
       toast.success(`Depósito de $${deposit.amount} acreditado a ${deposit.user_email}`);
 
-      // Procesar bono de referido si el usuario fue referido y aún no se ha acreditado
+      // Procesar bono de referido si el usuario fue referido (idempotency handled server-side)
       if (u.referral_code_used) {
-        const existing = await base44.entities.Referral.filter({
+        const amt = deposit.amount;
+        const tier = amt >= 10000 ? "institutional" : amt >= 2000 ? "elite" : amt >= 500 ? "advance" : "starter";
+        base44.functions.invoke('procesarReferido', {
+          referral_code: u.referral_code_used,
+          tier,
           referred_email: deposit.user_email,
-          status: "credited",
-        });
-        if (existing.length === 0) {
-          // Determinar tier según monto del depósito
-          const amt = deposit.amount;
-          const tier = amt >= 10000 ? "institutional" : amt >= 2000 ? "elite" : amt >= 500 ? "advance" : "starter";
-          await base44.functions.invoke('procesarReferido', {
-            referral_code: u.referral_code_used,
-            tier,
-            referred_email: deposit.user_email,
-          });
-        }
+        }).catch(() => {}); // fire-and-forget, server handles duplicates
       }
     }
     loadDeposits();
