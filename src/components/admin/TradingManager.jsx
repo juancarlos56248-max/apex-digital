@@ -1,45 +1,226 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, Zap, Star, Crown, RefreshCw, Flame, Building2 } from "lucide-react";
+import {
+  TrendingUp, TrendingDown, RefreshCw, CheckCircle2,
+  ChevronDown, AlertCircle, Zap
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const PLANS = {
-  basic:         { name: "Basic",         gainPct: 3,  lossPct: 1, icon: Zap,       color: "text-blue-400",    amount: 100   },
-  standard:      { name: "Standard",      gainPct: 5,  lossPct: 2, icon: Star,      color: "text-gold",        amount: 500   },
-  premium:       { name: "Premium",       gainPct: 8,  lossPct: 3, icon: Crown,     color: "text-purple-400",  amount: 1000  },
-  advance:       { name: "Advance",       gainPct: 12, lossPct: 4, icon: Flame,     color: "text-orange-400",  amount: 2500  },
-  elite:         { name: "Elite",         gainPct: 15, lossPct: 5, icon: Crown,     color: "text-rose-400",    amount: 5000  },
-  institutional: { name: "Institutional", gainPct: 18, lossPct: 5, icon: Building2, color: "text-emerald-400", amount: 10000, gainPctMin: 14, gainPctMax: 18, variable: true },
+// Must match STOCKS in pages/Trading exactly
+const STOCKS = {
+  aapl:  { symbol: "AAPL", name: "Apple Inc.",          gainPct: 3,  gainPctMin: 3,  gainPctMax: 3,  lossPct: 1, days: 3,  color: "text-blue-400",    accent: "#60a5fa", variable: false },
+  msft:  { symbol: "MSFT", name: "Microsoft Corp.",     gainPct: 5,  gainPctMin: 5,  gainPctMax: 5,  lossPct: 2, days: 5,  color: "text-sky-400",     accent: "#38bdf8", variable: false },
+  nvda:  { symbol: "NVDA", name: "NVIDIA Corp.",        gainPct: 8,  gainPctMin: 8,  gainPctMax: 8,  lossPct: 3, days: 7,  color: "text-emerald-400", accent: "#34d399", variable: false },
+  amzn:  { symbol: "AMZN", name: "Amazon.com Inc.",     gainPct: 12, gainPctMin: 12, gainPctMax: 12, lossPct: 4, days: 9,  color: "text-orange-400",  accent: "#fb923c", variable: false },
+  brkb:  { symbol: "BRK.B", name: "Berkshire Hathaway", gainPct: 15, gainPctMin: 15, gainPctMax: 15, lossPct: 5, days: 12, color: "text-gold",         accent: "#c9a84c", variable: false },
+  jpm:   { symbol: "JPM",  name: "JPMorgan Chase",      gainPct: 16, gainPctMin: 16, gainPctMax: 16, lossPct: 5, days: 13, color: "text-purple-400",  accent: "#c084fc", variable: false },
+  xom:   { symbol: "XOM",  name: "Exxon Mobil",         gainPct: 18, gainPctMin: 14, gainPctMax: 18, lossPct: 5, days: 15, color: "text-rose-400",    accent: "#fb7185", variable: true  },
 };
+
+function PositionRow({ pos, processing, onProcess }) {
+  const stock = STOCKS[pos.plan];
+  const [expanded, setExpanded] = useState(false);
+  const [customWinPct, setCustomWinPct] = useState("");
+
+  if (!stock) return null;
+
+  const totalDays = pos.total_days || stock.days;
+  const cycleDay = pos.cycle_day || 1;
+  const isCompleted = cycleDay > totalDays;
+  const totalResult = pos.total_result || 0;
+  const isPositive = totalResult >= 0;
+  const progress = Math.min((cycleDay - 1) / totalDays, 1);
+  const isProcessing = !!processing && processing.startsWith(pos.id);
+
+  const presets = stock.variable
+    ? [stock.gainPctMin, Math.round((stock.gainPctMin + stock.gainPctMax) / 2), stock.gainPctMax]
+    : [stock.gainPct];
+
+  return (
+    <div
+      className="rounded-xl border bg-card overflow-hidden transition-all"
+      style={{ borderColor: `${stock.accent}30` }}
+    >
+      {/* Top accent line */}
+      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, transparent, ${stock.accent}, transparent)` }} />
+
+      {/* Main row */}
+      <button
+        onClick={() => setExpanded(v => !v)}
+        className="w-full text-left p-4 flex items-center justify-between gap-3"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex-shrink-0 text-center">
+            <p className={`text-base font-black font-mono ${stock.color}`}>{stock.symbol}</p>
+            <p className="text-[9px] text-muted-foreground">Día {cycleDay}/{totalDays}</p>
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold truncate">{pos.user_email}</p>
+            <p className="text-[10px] text-muted-foreground font-mono">
+              ${pos.amount.toLocaleString()} capital
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {isCompleted ? (
+            <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
+              <CheckCircle2 className="w-3 h-3" /> Completado
+            </span>
+          ) : (
+            <span className={`text-base font-black font-mono ${isPositive ? "text-emerald-400" : "text-destructive"}`}>
+              {isPositive ? "+" : ""}${totalResult.toFixed(2)}
+            </span>
+          )}
+          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+        </div>
+      </button>
+
+      {/* Progress bar */}
+      <div className="px-4 pb-2">
+        <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all"
+            style={{ width: `${progress * 100}%`, background: stock.accent }}
+          />
+        </div>
+        <div className="flex gap-0.5 mt-1">
+          {Array.from({ length: totalDays }).map((_, idx) => {
+            const r = pos.daily_results?.[idx];
+            return (
+              <div
+                key={idx}
+                className={`flex-1 h-1 rounded-sm ${r === undefined ? "bg-secondary/80" : r >= 0 ? "bg-emerald-500" : "bg-destructive"}`}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Expanded controls */}
+      {expanded && (
+        <div className="border-t border-border/50 mx-4 mb-4 pt-3 space-y-3">
+
+          {/* Session history */}
+          {(pos.daily_results?.length > 0) && (
+            <div className="space-y-1">
+              <p className="text-[9px] uppercase tracking-widest text-muted-foreground">Historial</p>
+              {pos.daily_results.map((r, idx) => (
+                <div key={idx} className="flex items-center justify-between text-xs py-0.5 border-b border-border/20 last:border-0">
+                  <span className="text-muted-foreground">Sesión {idx + 1}</span>
+                  <span className={`font-mono font-bold ${r >= 0 ? "text-emerald-400" : "text-destructive"}`}>
+                    {r >= 0 ? "+" : ""}${r.toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!isCompleted && (
+            <div className="space-y-2">
+              <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-semibold">
+                Procesar sesión {cycleDay}{cycleDay === totalDays ? " (ÚLTIMA — devolverá capital)" : ""}
+              </p>
+
+              {/* Win buttons */}
+              <div className={`grid gap-1.5 ${stock.variable ? "grid-cols-3" : "grid-cols-1"}`}>
+                {presets.map(pct => (
+                  <Button
+                    key={pct}
+                    size="sm"
+                    disabled={isProcessing}
+                    onClick={() => onProcess(pos, "win", pct)}
+                    className="text-xs h-9 font-bold"
+                    style={{ background: stock.accent, color: "#000" }}
+                  >
+                    <TrendingUp className="w-3.5 h-3.5 mr-1" />
+                    +{pct}% · +${(pos.amount * pct / 100).toFixed(2)}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Custom win % */}
+              <div className="flex gap-1.5">
+                <input
+                  type="number"
+                  value={customWinPct}
+                  onChange={e => setCustomWinPct(e.target.value)}
+                  placeholder="% personalizado"
+                  className="flex-1 h-8 rounded-md bg-secondary border border-border text-xs px-3 font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  min="0" max="100" step="0.1"
+                />
+                <Button
+                  size="sm"
+                  disabled={isProcessing || !customWinPct || parseFloat(customWinPct) <= 0}
+                  onClick={() => { onProcess(pos, "win", parseFloat(customWinPct)); setCustomWinPct(""); }}
+                  className="h-8 px-3 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  <Zap className="w-3 h-3 mr-1" /> Aplicar
+                </Button>
+              </div>
+
+              {/* Loss button */}
+              <Button
+                size="sm"
+                disabled={isProcessing}
+                onClick={() => onProcess(pos, "loss")}
+                variant="outline"
+                className="w-full h-8 border-destructive/40 text-destructive hover:bg-destructive/10 text-xs font-bold"
+              >
+                <TrendingDown className="w-3.5 h-3.5 mr-1" />
+                Pérdida -{stock.lossPct}% · -${(pos.amount * stock.lossPct / 100).toFixed(2)}
+              </Button>
+            </div>
+          )}
+
+          {isCompleted && (
+            <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+              Ciclo completado — capital + resultado acreditados al usuario
+            </div>
+          )}
+        </div>
+      )}
+
+      {isProcessing && (
+        <div className="absolute inset-0 bg-background/60 flex items-center justify-center rounded-xl">
+          <div className="w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function TradingManager() {
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(null);
+  const [filter, setFilter] = useState("active"); // active | completed | all
 
   const load = async () => {
     setLoading(true);
-    const data = await base44.entities.TradingPosition.filter({ status: "active" });
+    const query = filter === "all" ? {} : { status: filter };
+    const data = await base44.entities.TradingPosition.filter(query, "-created_date", 100);
     setPositions(data);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [filter]);
 
   const processCycle = async (pos, type, customPct = null) => {
-    const plan = PLANS[pos.plan];
-    if (!plan) return;
+    const stock = STOCKS[pos.plan];
+    if (!stock) return;
     setProcessing(pos.id + type);
 
     const pct = type === "win"
-      ? (customPct !== null ? customPct : plan.gainPct) / 100
-      : -(plan.lossPct / 100);
+      ? (customPct !== null ? customPct : stock.gainPct) / 100
+      : -(stock.lossPct / 100);
     const result = parseFloat((pos.amount * pct).toFixed(2));
     const newResults = [...(pos.daily_results || []), result];
     const newTotal = parseFloat(((pos.total_result || 0) + result).toFixed(2));
     const newDay = (pos.cycle_day || 1) + 1;
-    const totalDays = pos.total_days || 7;
+    const totalDays = pos.total_days || stock.days;
     const isCompleted = newDay > totalDays;
 
     const users = await base44.asServiceRole.entities.User.filter({ email: pos.user_email });
@@ -56,9 +237,14 @@ export default function TradingManager() {
     ];
 
     if (u) {
-      const balanceDelta = isCompleted ? pos.amount + newTotal : result;
+      // Each session: credit the daily result to balance
+      // On completion: also return the capital
+      const balanceDelta = isCompleted
+        ? pos.amount + newTotal - (pos.total_result || 0) // capital + full final result, minus already credited
+        : result;
+
       updates.push(
-        base44.entities.User.update(u.id, {
+        base44.asServiceRole.entities.User.update(u.id, {
           balance: parseFloat(((u.balance || 0) + balanceDelta).toFixed(2)),
         })
       );
@@ -68,7 +254,7 @@ export default function TradingManager() {
           type: "dividend",
           amount: result,
           status: "completed",
-          notes: `Trading ${plan.name} — Día ${pos.cycle_day} — ${type === "win" ? "Ganancia" : "Pérdida"} ${result >= 0 ? "+" : ""}${result} USDT`,
+          notes: `Trading ${stock.symbol} — Sesión ${pos.cycle_day || 1}/${totalDays} — ${type === "win" ? "Ganancia" : "Pérdida"} ${result >= 0 ? "+" : ""}$${result} USDT`,
         })
       );
       if (isCompleted) {
@@ -78,118 +264,93 @@ export default function TradingManager() {
             type: "dividend",
             amount: pos.amount,
             status: "completed",
-            notes: `Trading ${plan.name} — Capital devuelto al completar ciclo`,
+            notes: `Trading ${stock.symbol} — Capital devuelto al completar ciclo de ${totalDays} días`,
           })
         );
       }
     }
 
     await Promise.all(updates);
-    toast.success(`Ciclo procesado: ${result >= 0 ? "+" : ""}$${result} para ${pos.user_email}`);
+
+    const label = type === "win" ? `+$${result}` : `-$${Math.abs(result)}`;
+    toast.success(`${stock.symbol} · ${label} acreditado a ${pos.user_email}${isCompleted ? " · Ciclo completado ✓" : ""}`);
     setProcessing(null);
     load();
   };
 
-  if (loading) return (
-    <div className="space-y-3">
-      {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-secondary/50 animate-pulse" />)}
-    </div>
-  );
-
-  if (positions.length === 0) return (
-    <div className="text-center py-12 text-muted-foreground text-sm">
-      No hay posiciones de trading activas
-    </div>
-  );
+  const activeCount = positions.filter(p => p.status === "active").length;
+  const completedCount = positions.filter(p => p.status === "completed").length;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-muted-foreground">{positions.length} posición(es) activa(s)</p>
+      {/* Header + filters */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1">
+          {[
+            { id: "active", label: `Activas (${filter === "active" ? positions.length : activeCount})` },
+            { id: "completed", label: `Completadas` },
+            { id: "all", label: "Todas" },
+          ].map(f => (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${filter === f.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
         <button onClick={load} className="text-xs text-muted-foreground hover:text-gold flex items-center gap-1">
-          <RefreshCw className="w-3 h-3" /> Actualizar
+          <RefreshCw className="w-3 h-3" /> Refrescar
         </button>
       </div>
 
-      {positions.map((pos) => {
-        const plan = PLANS[pos.plan];
-        if (!plan) return null;
-        const Icon = plan.icon;
-        const totalDays = pos.total_days || 7;
-        const isPositive = (pos.total_result || 0) >= 0;
-
-        return (
-          <div key={pos.id} className="rounded-xl border border-border bg-card p-4 space-y-3">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon className={`w-4 h-4 ${plan.color}`} />
-                <div>
-                  <p className="text-sm font-bold">{plan.name} — {pos.user_email}</p>
-                  <p className="text-[11px] text-muted-foreground font-mono">
-                    Capital: ${pos.amount.toLocaleString()} · Día {pos.cycle_day || 1}/{totalDays}
-                  </p>
-                </div>
-              </div>
-              <span className={`text-sm font-bold font-mono ${isPositive ? "text-emerald-400" : "text-destructive"}`}>
-                {isPositive ? "+" : ""}${(pos.total_result || 0).toFixed(2)}
-              </span>
-            </div>
-
-            {/* Progress */}
-            <div className="flex gap-1">
-              {Array.from({ length: totalDays }).map((_, idx) => {
-                const r = pos.daily_results?.[idx];
-                return (
-                  <div key={idx} className={`flex-1 h-1.5 rounded-full ${
-                    r === undefined ? "bg-secondary" : r >= 0 ? "bg-emerald-500" : "bg-destructive"
-                  }`} />
-                );
-              })}
-            </div>
-
-            {/* Actions */}
-            {(pos.cycle_day || 1) <= totalDays && (
-              <div className="space-y-2">
-                {plan.variable ? (
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                      Ganancia variable ({plan.gainPctMin}%–{plan.gainPctMax}%)
-                    </p>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {[plan.gainPctMin, Math.round((plan.gainPctMin + plan.gainPctMax) / 2), plan.gainPctMax].map(pct => (
-                        <Button key={pct} size="sm" disabled={!!processing}
-                          onClick={() => processCycle(pos, "win", pct)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8">
-                          +{pct}% (${(pos.amount * pct / 100).toFixed(0)})
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <Button size="sm" disabled={!!processing}
-                    onClick={() => processCycle(pos, "win")}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8">
-                    <TrendingUp className="w-3.5 h-3.5 mr-1" />
-                    Ganancia +{plan.gainPct}% (${(pos.amount * plan.gainPct / 100).toFixed(2)})
-                  </Button>
-                )}
-                <Button size="sm" disabled={!!processing}
-                  onClick={() => processCycle(pos, "loss")}
-                  variant="outline"
-                  className="w-full border-destructive/40 text-destructive hover:bg-destructive/10 text-xs h-8">
-                  <TrendingDown className="w-3.5 h-3.5 mr-1" />
-                  Pérdida -{plan.lossPct}% (-${(pos.amount * plan.lossPct / 100).toFixed(2)})
-                </Button>
-              </div>
-            )}
-
-            {(pos.cycle_day || 1) > totalDays && (
-              <p className="text-xs text-center text-emerald-400 font-medium">✓ Ciclo completado</p>
-            )}
+      {/* Stats summary */}
+      {filter === "active" && positions.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-lg bg-card border border-border p-2.5 text-center">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Posiciones</p>
+            <p className="text-lg font-black font-mono">{positions.length}</p>
           </div>
-        );
-      })}
+          <div className="rounded-lg bg-card border border-border p-2.5 text-center">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Capital total</p>
+            <p className="text-sm font-black font-mono text-gold">
+              ${positions.reduce((s, p) => s + (p.amount || 0), 0).toLocaleString()}
+            </p>
+          </div>
+          <div className="rounded-lg bg-card border border-border p-2.5 text-center">
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">P&L total</p>
+            <p className={`text-sm font-black font-mono ${positions.reduce((s, p) => s + (p.total_result || 0), 0) >= 0 ? "text-emerald-400" : "text-destructive"}`}>
+              {(() => { const t = positions.reduce((s, p) => s + (p.total_result || 0), 0); return `${t >= 0 ? "+" : ""}$${t.toFixed(2)}`; })()}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Positions */}
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-xl bg-secondary/50 animate-pulse" />)}
+        </div>
+      ) : positions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+          <AlertCircle className="w-8 h-8 text-muted-foreground/30" />
+          <p className="text-sm text-muted-foreground">
+            {filter === "active" ? "No hay posiciones de trading activas" : "No hay posiciones en esta vista"}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3 relative">
+          {positions.map(pos => (
+            <PositionRow
+              key={pos.id}
+              pos={pos}
+              processing={processing}
+              onProcess={processCycle}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
