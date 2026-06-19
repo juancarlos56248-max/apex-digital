@@ -207,6 +207,8 @@ export default function Investments() {
   }, {});
   const tierKeys = ["starter", "advance", "elite", "institutional"];
   const trialKey = "prueba";
+  // Prueba solo puede usarse 1 vez en toda la vida del usuario (cualquier estado)
+  const hasEverUsedTrial = investments.some(i => i.tier === "prueba");
 
   return (
     <div className="space-y-6 pb-8" style={{ touchAction: "pan-y" }}>
@@ -247,7 +249,7 @@ export default function Investments() {
             tier={trialKey}
             onSubscribe={handleSubscribe}
             delay={0}
-            hasActive={(activeTierCounts[trialKey] || 0) >= 1}
+            hasActive={hasEverUsedTrial}
           />
         </div>
       </div>
