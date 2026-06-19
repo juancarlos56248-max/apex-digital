@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import {
   TrendingUp, TrendingDown, RefreshCw, CheckCircle2,
-  ChevronDown, AlertCircle, Zap
+  ChevronDown, AlertCircle, Zap, Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -197,6 +197,8 @@ export default function TradingManager() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(null);
   const [filter, setFilter] = useState("active"); // active | completed | all
+  const [globalProcessing, setGlobalProcessing] = useState(false);
+  const [globalPct, setGlobalPct] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -207,6 +209,74 @@ export default function TradingManager() {
   };
 
   useEffect(() => { load(); }, [filter]);
+
+  // Apply a win or loss to ALL active positions at once
+  const applyGlobal = async (type, pct) => {
+    const active = positions.filter(p => p.status === "active");
+    if (active.length === 0) { toast.error("No hay posiciones activas"); return; }
+    setGlobalProcessing(true);
+
+    let processed = 0;
+    await Promise.all(active.map(async (pos) => {
+      const stock = STOCKS[pos.plan];
+      if (!stock) return;
+      const totalDays = pos.total_days || stock.days;
+      const cycleDay = pos.cycle_day || 1;
+      if (cycleDay > totalDays) return;
+
+      const effectivePct = type === "win"
+        ? (pct > 0 ? pct : stock.gainPct)
+        : -(pct > 0 ? pct : stock.lossPct);
+      const result = parseFloat((pos.amount * effectivePct / 100).toFixed(2));
+      const newResults = [...(pos.daily_results || []), result];
+      const newTotal = parseFloat(((pos.total_result || 0) + result).toFixed(2));
+      const newDay = cycleDay + 1;
+      const isCompleted = newDay > totalDays;
+
+      const updates = [
+        base44.entities.TradingPosition.update(pos.id, {
+          cycle_day: newDay,
+          total_result: newTotal,
+          daily_results: newResults,
+          last_cycle_date: new Date().toISOString(),
+          ...(isCompleted ? { status: "completed" } : {}),
+        }),
+      ];
+
+      const users = await base44.entities.User.filter({ email: pos.user_email });
+      const u = users[0];
+      if (u) {
+        const balanceDelta = isCompleted ? pos.amount + result : result;
+        updates.push(base44.entities.User.update(u.id, {
+          balance: parseFloat(((u.balance || 0) + balanceDelta).toFixed(2)),
+        }));
+        updates.push(base44.entities.Transaction.create({
+          user_email: pos.user_email,
+          type: "dividend",
+          amount: result,
+          status: "completed",
+          notes: `Trading ${stock.symbol} — Control Global — ${type === "win" ? "Ganancia" : "Pérdida"} ${result >= 0 ? "+" : ""}$${result} USDT`,
+        }));
+        if (isCompleted) {
+          updates.push(base44.entities.Transaction.create({
+            user_email: pos.user_email,
+            type: "dividend",
+            amount: pos.amount,
+            status: "completed",
+            notes: `Trading ${stock.symbol} — Capital devuelto al completar ciclo`,
+          }));
+        }
+      }
+
+      await Promise.all(updates);
+      processed++;
+    }));
+
+    toast.success(`${type === "win" ? "📈 Subida" : "📉 Bajada"} aplicada a ${processed} posiciones`);
+    setGlobalProcessing(false);
+    setGlobalPct("");
+    load();
+  };
 
   const processCycle = async (pos, type, customPct = null) => {
     const stock = STOCKS[pos.plan];
@@ -283,6 +353,51 @@ export default function TradingManager() {
 
   return (
     <div className="space-y-4">
+
+      {/* Global Market Control */}
+      <div className="rounded-xl border border-gold/20 bg-gold/5 p-4 space-y-3">
+        <div className="flex items-center gap-2 mb-1">
+          <Globe className="w-4 h-4 text-gold" />
+          <p className="text-sm font-bold text-gold">Control Global de Mercado</p>
+          <span className="text-[10px] text-muted-foreground ml-auto font-mono">
+            {positions.filter(p => p.status === "active").length} posiciones activas
+          </span>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Aplica un movimiento a <strong>todas</strong> las posiciones activas simultáneamente.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={globalPct}
+            onChange={e => setGlobalPct(e.target.value)}
+            placeholder="% (vacío = default)"
+            className="flex-1 h-9 rounded-lg bg-secondary border border-border text-xs px-3 font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-gold"
+            min="0" max="100" step="0.1"
+            disabled={globalProcessing}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            disabled={globalProcessing}
+            onClick={() => applyGlobal("win", parseFloat(globalPct) || 0)}
+            className="h-10 font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            {globalProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4 mr-1" />}
+            📈 Subida Global
+          </Button>
+          <Button
+            disabled={globalProcessing}
+            onClick={() => applyGlobal("loss", parseFloat(globalPct) || 0)}
+            variant="outline"
+            className="h-10 font-bold text-sm border-destructive/40 text-destructive hover:bg-destructive/10"
+          >
+            {globalProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <TrendingDown className="w-4 h-4 mr-1" />}
+            📉 Bajada Global
+          </Button>
+        </div>
+      </div>
+
       {/* Header + filters */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1">
