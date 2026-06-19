@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Headphones, ChevronDown, MessageCircle, Clock, Shield, Zap, Mail, BookOpen, ArrowRight } from "lucide-react";
+import { Headphones, ChevronDown, MessageCircle, Clock, Shield, Zap, Mail, BookOpen, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import InlineSupportChat from "../components/support/InlineSupportChat";
 
 const FAQS = [
@@ -80,6 +82,11 @@ const HIGHLIGHTS = [
 export default function Soporte() {
   const [activeTab, setActiveTab] = useState("faq");
   const [activeCat, setActiveCat] = useState(FAQS[0].cat);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then(u => { if (u?.role === "admin") setIsAdmin(true); }).catch(() => {});
+  }, []);
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -108,6 +115,22 @@ export default function Soporte() {
           ))}
         </div>
       </motion.div>
+
+      {/* Admin shortcut */}
+      {isAdmin && (
+        <Link to="/admin" state={{ section: "support" }}>
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-gold/30 bg-gold/5 hover:bg-gold/10 transition-colors">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-4 h-4 text-gold" />
+              <div>
+                <p className="text-sm font-bold text-gold">Panel de Soporte — Admin</p>
+                <p className="text-xs text-muted-foreground">Ver y responder mensajes de usuarios</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-gold" />
+          </div>
+        </Link>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-secondary rounded-xl">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOutletContext, Navigate } from "react-router-dom";
+import { useOutletContext, Navigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet,
@@ -78,7 +78,8 @@ const TITLES = {
 
 export default function AdminPanel() {
   const { user } = useOutletContext();
-  const [active, setActive] = useState(null);
+  const location = useLocation();
+  const [active, setActive] = useState(location.state?.section || null);
 
   if (!user) return null;
   if (user.role !== "admin") return <Navigate to="/dashboard" replace />;
