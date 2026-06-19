@@ -19,18 +19,25 @@ const PLAN_DURATION_DAYS = {
 };
 
 // Trading stocks — must match STOCKS in pages/Trading
+// gainPctMin/gainPctMax: rango variable de ganancia diaria (simula mercado real)
+// lossPctMin/lossPctMax: rango variable de pérdida
 const STOCK_CONFIG = {
-  aapl: { symbol: "AAPL", gainPct: 3,  lossPct: 1, days: 3 },
-  msft: { symbol: "MSFT", gainPct: 5,  lossPct: 2, days: 5 },
-  nvda: { symbol: "NVDA", gainPct: 8,  lossPct: 3, days: 7 },
-  amzn: { symbol: "AMZN", gainPct: 12, lossPct: 4, days: 9 },
-  brkb: { symbol: "BRK.B", gainPct: 15, lossPct: 5, days: 12 },
-  jpm:  { symbol: "JPM",  gainPct: 16, lossPct: 5, days: 13 },
-  xom:  { symbol: "XOM",  gainPct: 18, lossPct: 5, days: 15 },
+  aapl: { symbol: "AAPL", gainPctMin: 1.5, gainPctMax: 3,   lossPctMin: 0.5, lossPctMax: 1,   days: 3  },
+  msft: { symbol: "MSFT", gainPctMin: 2.5, gainPctMax: 5,   lossPctMin: 1,   lossPctMax: 2,   days: 5  },
+  nvda: { symbol: "NVDA", gainPctMin: 4,   gainPctMax: 8,   lossPctMin: 1.5, lossPctMax: 3,   days: 7  },
+  amzn: { symbol: "AMZN", gainPctMin: 6,   gainPctMax: 12,  lossPctMin: 2,   lossPctMax: 4,   days: 9  },
+  brkb: { symbol: "BRK.B", gainPctMin: 8,  gainPctMax: 15,  lossPctMin: 2.5, lossPctMax: 5,   days: 12 },
+  jpm:  { symbol: "JPM",  gainPctMin: 8,   gainPctMax: 16,  lossPctMin: 2.5, lossPctMax: 5,   days: 13 },
+  xom:  { symbol: "XOM",  gainPctMin: 14,  gainPctMax: 18,  lossPctMin: 2.5, lossPctMax: 5,   days: 15 },
 };
 
-// Probabilidad de que una sesión sea ganadora (el resto baja)
+// 60% probabilidad de sesión positiva, 40% negativa (simula volatilidad de mercado)
 const WIN_PROBABILITY = 0.6;
+
+// Genera un % aleatorio dentro de un rango
+function randPct(min, max) {
+  return min + Math.random() * (max - min);
+}
 
 Deno.serve(async (req) => {
   try {
@@ -143,13 +150,15 @@ Deno.serve(async (req) => {
       const cyclesElapsed = Math.floor(hoursElapsed / 24);
       const sessions = Math.min(cyclesElapsed, sessionsLeft);
 
-      // El mercado sube o baja automáticamente en cada sesión.
-      // Ganancia = +gainPct% de la inversión; pérdida = -lossPct% de la inversión.
+      // El mercado sube o baja automáticamente en cada sesión con % variable.
+      // Ganancia: entre gainPctMin y gainPctMax. Pérdida: entre lossPctMin y lossPctMax.
       const newResults = [...(pos.daily_results || [])];
       let totalGain = 0;
       for (let k = 0; k < sessions; k++) {
         const isWin = Math.random() < WIN_PROBABILITY;
-        const pct = isWin ? cfg.gainPct : -(cfg.lossPct || 0);
+        const pct = isWin
+          ? randPct(cfg.gainPctMin, cfg.gainPctMax)
+          : -randPct(cfg.lossPctMin, cfg.lossPctMax);
         const sessionResult = parseFloat((pos.amount * pct / 100).toFixed(2));
         newResults.push(sessionResult);
         totalGain += sessionResult;
