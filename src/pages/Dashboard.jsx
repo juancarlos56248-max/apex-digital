@@ -107,19 +107,20 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Acciones rápidas</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        {/* Mobile: fila scroll horizontal · Desktop: grid */}
+        <div className="flex gap-2.5 overflow-x-auto pb-1 sm:pb-0 sm:grid sm:grid-cols-4 scrollbar-none" style={{ scrollSnapType: "x mandatory" }}>
           {quickActions.map((a, i) => (
-            <Link key={a.to} to={a.to}>
+            <Link key={a.to} to={a.to} className="flex-shrink-0 w-[calc(50%-5px)] sm:w-auto" style={{ scrollSnapAlign: "start" }}>
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                className={`rounded-xl border ${a.border} bg-card p-3 sm:p-4 flex flex-col gap-2 cursor-pointer transition-all hover:bg-secondary/40 active:scale-95 group`}
+                className={`rounded-xl border ${a.border} bg-card p-3 sm:p-4 flex flex-row sm:flex-col items-center sm:items-start gap-3 sm:gap-2 cursor-pointer transition-all hover:bg-secondary/40 active:scale-95 group h-full`}
               >
-                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg ${a.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <a.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${a.color}`} />
+                <div className={`w-10 h-10 rounded-xl ${a.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                  <a.icon className={`w-5 h-5 ${a.color}`} />
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm font-bold">{a.label}</p>
-                  <p className="text-[10px] sm:text-[11px] text-muted-foreground hidden sm:block">{a.desc}</p>
+                  <p className="text-sm font-bold">{a.label}</p>
+                  <p className="text-[10px] text-muted-foreground">{a.desc}</p>
                 </div>
               </motion.div>
             </Link>
