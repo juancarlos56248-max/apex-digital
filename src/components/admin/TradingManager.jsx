@@ -223,7 +223,7 @@ export default function TradingManager() {
     const totalDays = pos.total_days || stock.days;
     const isCompleted = newDay > totalDays;
 
-    const users = await base44.asServiceRole.entities.User.filter({ email: pos.user_email });
+    const users = await base44.entities.User.filter({ email: pos.user_email });
     const u = users[0];
 
     const updates = [
@@ -244,7 +244,7 @@ export default function TradingManager() {
         : result;
 
       updates.push(
-        base44.asServiceRole.entities.User.update(u.id, {
+        base44.entities.User.update(u.id, {
           balance: parseFloat(((u.balance || 0) + balanceDelta).toFixed(2)),
         })
       );
