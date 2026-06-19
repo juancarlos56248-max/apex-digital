@@ -217,7 +217,115 @@ Deno.serve(async (req) => {
       });
     }));
 
-    return Response.json({ ok: true, credited, tradingCredited, timestamp: now.toISOString() });
+    // ===== Enviar notificaciones de balance por email =====
+    // Construir mapa de dividendos de inversiones procesadas en este ciclo
+    const investmentDividends = {}; // email -> amount
+    for (const inv of activeInvestments) {
+      if (!completedIds.has(inv.id)) continue;
+      const rate = DAILY_RATES[inv.tier] || 0.10;
+      const div = parseFloat((inv.amount * rate).toFixed(4));
+      investmentDividends[inv.user_email] = (investmentDividends[inv.user_email] || 0) + div;
+    }
+
+    // Unir todos los usuarios que tuvieron movimiento hoy
+    const notifyEmails = new Set([
+      ...Object.keys(investmentDividends),
+      ...Object.keys(tradingDeltas),
+    ]);
+
+    await Promise.allSettled([...notifyEmails].map(async (email) => {
+      const u = userMap[email];
+      if (!u?.email) return;
+
+      const invDiv = investmentDividends[email] || 0;
+      const tradingResult = tradingDeltas[email]?.earned || 0;
+      const totalMovement = parseFloat((invDiv + tradingResult).toFixed(2));
+      const newBalance = parseFloat(((u.balance || 0) + (tradingDeltas[email]?.balance || 0) + invDiv).toFixed(2));
+
+      const isPositive = totalMovement >= 0;
+      const icon = isPositive ? "📈" : "📉";
+      const movColor = isPositive ? "#4ade80" : "#f87171";
+      const movLabel = isPositive
+        ? `+$${totalMovement.toFixed(2)} USDT`
+        : `-$${Math.abs(totalMovement).toFixed(2)} USDT`;
+
+      const rows = [];
+      if (invDiv > 0) {
+        rows.push(`<tr>
+          <td style="padding:10px 14px;border-bottom:1px solid #1a1a1a;color:#ccc;">💼 Nodos de Liquidez</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #1a1a1a;font-family:monospace;font-weight:bold;color:#4ade80;text-align:right;">+$${invDiv.toFixed(2)}</td>
+        </tr>`);
+      }
+      if (tradingResult !== 0) {
+        const tc = tradingResult >= 0 ? "#4ade80" : "#f87171";
+        const tl = tradingResult >= 0 ? `+$${tradingResult.toFixed(2)}` : `-$${Math.abs(tradingResult).toFixed(2)}`;
+        rows.push(`<tr>
+          <td style="padding:10px 14px;border-bottom:1px solid #1a1a1a;color:#ccc;">📊 Trading de Acciones</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #1a1a1a;font-family:monospace;font-weight:bold;color:${tc};text-align:right;">${tl}</td>
+        </tr>`);
+      }
+
+      const subject = isPositive
+        ? `${icon} Tu balance subió ${movLabel} hoy — Apex Digital`
+        : `${icon} Movimiento de mercado: ${movLabel} — Apex Digital`;
+
+      const body = `<div style="background:#050505;padding:32px;font-family:Inter,sans-serif;max-width:600px;margin:auto;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="display:inline-block;background:linear-gradient(135deg,#c5a059,#e8c97a);padding:10px 28px;border-radius:8px;">
+            <span style="color:#000;font-weight:900;font-size:18px;letter-spacing:3px;">APEX DIGITAL</span>
+          </div>
+        </div>
+
+        <div style="background:#0f0f0f;border:1px solid #222;border-radius:16px;padding:24px;margin-bottom:20px;text-align:center;">
+          <div style="font-size:36px;margin-bottom:10px;">${icon}</div>
+          <h2 style="color:#e8c97a;font-size:17px;margin:0 0 6px 0;">Cierre de Ciclo Diario</h2>
+          <p style="color:#888;font-size:13px;margin:0 0 18px 0;">Tu portafolio registró el siguiente movimiento:</p>
+          <div style="display:inline-block;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:14px 28px;">
+            <p style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px 0;">Movimiento del día</p>
+            <p style="color:${movColor};font-size:26px;font-weight:900;font-family:monospace;margin:0;">${movLabel}</p>
+          </div>
+        </div>
+
+        <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;margin-bottom:20px;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:#111;">
+                <th style="padding:8px 14px;text-align:left;color:#555;font-size:10px;text-transform:uppercase;">Fuente</th>
+                <th style="padding:8px 14px;text-align:right;color:#555;font-size:10px;text-transform:uppercase;">Resultado</th>
+              </tr>
+            </thead>
+            <tbody>${rows.join("")}</tbody>
+          </table>
+        </div>
+
+        <div style="background:#0a0a0a;border:1px solid #222;border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <p style="color:#555;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px 0;">Balance actualizado</p>
+            <p style="color:#e8c97a;font-size:22px;font-weight:900;font-family:monospace;margin:0;">$${newBalance.toFixed(2)} USDT</p>
+          </div>
+          <div style="text-align:right;">
+            <p style="color:#555;font-size:10px;margin:0 0 4px 0;">Hoy</p>
+            <p style="color:${movColor};font-size:16px;font-weight:bold;font-family:monospace;margin:0;">${movLabel}</p>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-bottom:24px;">
+          <a href="https://apex-digital.base44.app/dashboard"
+             style="display:inline-block;background:linear-gradient(135deg,#c5a059,#e8c97a);color:#000;font-weight:900;font-size:14px;padding:13px 30px;border-radius:10px;text-decoration:none;">
+            Ver Dashboard →
+          </a>
+        </div>
+
+        <p style="color:#333;font-size:11px;text-align:center;margin:0;">
+          © 2026 Apex Digital · Singapore Division<br/>
+          <span style="color:#222;">Este reporte se genera automáticamente tras el cierre de cada ciclo diario.</span>
+        </p>
+      </div>`;
+
+      await base44.asServiceRole.integrations.Core.SendEmail({ to: email, subject, body });
+    }));
+
+    return Response.json({ ok: true, credited, tradingCredited, notified: notifyEmails.size, timestamp: now.toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
