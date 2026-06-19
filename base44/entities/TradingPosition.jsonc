@@ -9,11 +9,15 @@
     "plan": {
       "type": "string",
       "enum": [
-        "basic",
-        "standard",
-        "premium"
+        "aapl",
+        "msft",
+        "nvda",
+        "amzn",
+        "brkb",
+        "jpm",
+        "xom"
       ],
-      "description": "Plan de trading"
+      "description": "S\u00edmbolo de la acci\u00f3n"
     },
     "amount": {
       "type": "number",
@@ -31,7 +35,7 @@
     "cycle_day": {
       "type": "number",
       "default": 1,
-      "description": "D\u00eda actual del ciclo (1-10)"
+      "description": "D\u00eda actual del ciclo"
     },
     "total_days": {
       "type": "number",
@@ -45,9 +49,9 @@
     "daily_results": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "number"
       },
-      "description": "Historial de resultados diarios"
+      "description": "Historial de resultados diarios (ganancia/p\u00e9rdida por sesi\u00f3n)"
     },
     "last_cycle_date": {
       "type": "string",

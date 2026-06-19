@@ -18,6 +18,17 @@ const PLAN_DURATION_DAYS = {
   institutional: 120,
 };
 
+// Trading stocks — must match STOCKS in pages/Trading
+const STOCK_CONFIG = {
+  aapl: { symbol: "AAPL", gainPct: 3,  days: 3 },
+  msft: { symbol: "MSFT", gainPct: 5,  days: 5 },
+  nvda: { symbol: "NVDA", gainPct: 8,  days: 7 },
+  amzn: { symbol: "AMZN", gainPct: 12, days: 9 },
+  brkb: { symbol: "BRK.B", gainPct: 15, days: 12 },
+  jpm:  { symbol: "JPM",  gainPct: 16, days: 13 },
+  xom:  { symbol: "XOM",  gainPct: 18, days: 15 },
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -94,7 +105,98 @@ Deno.serve(async (req) => {
       if (u) await base44.asServiceRole.entities.User.update(u.id, { total_invested: total });
     }));
 
-    return Response.json({ ok: true, credited, timestamp: now.toISOString() });
+    // ===== Trading Positions — acreditar ganancias automáticamente cada 24h =====
+    const activePositions = await base44.asServiceRole.entities.TradingPosition.filter({ status: "active" });
+    let tradingCredited = 0;
+    // Acumular deltas por usuario para evitar condiciones de carrera (varias posiciones por usuario)
+    const tradingDeltas = {}; // email -> { balance, earned }
+
+    // Cargar usuarios faltantes
+    const posEmails = [...new Set(activePositions.map(p => p.user_email))];
+    await Promise.all(posEmails.map(async (email) => {
+      if (!userMap[email]) {
+        const users = await base44.asServiceRole.entities.User.filter({ email });
+        if (users.length > 0) userMap[email] = users[0];
+      }
+    }));
+
+    // Procesar posiciones (solo TradingPosition + Transaction; los User.update se hacen al final)
+    await Promise.all(activePositions.map(async (pos) => {
+      const cfg = STOCK_CONFIG[pos.plan];
+      if (!cfg) return;
+
+      const lastDate = pos.last_cycle_date ? new Date(pos.last_cycle_date) : new Date(pos.created_date);
+      const hoursElapsed = (now - lastDate) / (1000 * 60 * 60);
+      if (hoursElapsed < 24) return;
+
+      const totalDays = pos.total_days || cfg.days;
+      const cycleDay = pos.cycle_day || 1;
+      const sessionsLeft = totalDays - (cycleDay - 1);
+      if (sessionsLeft <= 0) {
+        await base44.asServiceRole.entities.TradingPosition.update(pos.id, { status: "completed" });
+        return;
+      }
+
+      const cyclesElapsed = Math.floor(hoursElapsed / 24);
+      const sessions = Math.min(cyclesElapsed, sessionsLeft);
+      const dailyGain = parseFloat((pos.amount * cfg.gainPct / 100).toFixed(2));
+      const totalGain = parseFloat((dailyGain * sessions).toFixed(2));
+
+      const newResults = [...(pos.daily_results || [])];
+      for (let k = 0; k < sessions; k++) newResults.push(dailyGain);
+      const newTotal = parseFloat(((pos.total_result || 0) + totalGain).toFixed(2));
+      const newDay = cycleDay + sessions;
+      const isCompleted = newDay > totalDays;
+
+      // Balance: ganancias diarias; al completar, también devuelve el capital
+      const balanceDelta = isCompleted ? totalGain + pos.amount : totalGain;
+
+      // Acumular delta por usuario
+      const d = tradingDeltas[pos.user_email] || { balance: 0, earned: 0 };
+      d.balance += balanceDelta;
+      d.earned += totalGain;
+      tradingDeltas[pos.user_email] = d;
+
+      const ops = [
+        base44.asServiceRole.entities.TradingPosition.update(pos.id, {
+          cycle_day: newDay,
+          total_result: newTotal,
+          daily_results: newResults,
+          last_cycle_date: now.toISOString(),
+          ...(isCompleted ? { status: "completed" } : {}),
+        }),
+        base44.asServiceRole.entities.Transaction.create({
+          user_email: pos.user_email,
+          type: "dividend",
+          amount: totalGain,
+          status: "completed",
+          notes: `Trading ${cfg.symbol} — ${sessions} sesión(es) — Ganancia +$${totalGain} USDT`,
+        }),
+      ];
+      if (isCompleted) {
+        ops.push(base44.asServiceRole.entities.Transaction.create({
+          user_email: pos.user_email,
+          type: "dividend",
+          amount: pos.amount,
+          status: "completed",
+          notes: `Trading ${cfg.symbol} — Capital devuelto al completar ciclo de ${totalDays} días`,
+        }));
+      }
+      await Promise.all(ops);
+      tradingCredited++;
+    }));
+
+    // Aplicar los deltas acumulados a cada usuario una sola vez
+    await Promise.all(Object.entries(tradingDeltas).map(async ([email, d]) => {
+      const u = userMap[email];
+      if (!u) return;
+      await base44.asServiceRole.entities.User.update(u.id, {
+        balance: parseFloat(((u.balance || 0) + d.balance).toFixed(2)),
+        total_earned: parseFloat(((u.total_earned || 0) + d.earned).toFixed(2)),
+      });
+    }));
+
+    return Response.json({ ok: true, credited, tradingCredited, timestamp: now.toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
