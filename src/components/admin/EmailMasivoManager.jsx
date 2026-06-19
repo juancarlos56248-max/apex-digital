@@ -50,12 +50,15 @@ export default function EmailMasivoManager() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-secondary/40 p-4 text-xs text-muted-foreground leading-relaxed space-y-2">
+      <div className="rounded-lg border border-border bg-secondary/40 p-4 text-xs text-muted-foreground leading-relaxed space-y-2.5">
         <p className="text-foreground font-semibold text-sm">Vista previa del mensaje:</p>
-        <p>Estimados usuarios,</p>
-        <p>Queremos expresar nuestro más sincero agradecimiento por haberse registrado en nuestra plataforma. Su confianza es fundamental para nosotros y nos motiva a seguir creciendo junto a ustedes.</p>
-        <p>Nos complace informarles que actualmente el mercado presenta una <span className="text-emerald-400 font-semibold">tendencia al alza</span>, y nuestras alertas indican que es un <span className="text-gold font-semibold">buen momento para la compra de acciones</span>...</p>
-        <p className="italic text-muted-foreground">Gracias por ser parte de este proyecto.</p>
+        <p>🎉 <span className="text-gold font-semibold">¡Bienvenidos nuevamente a todos nuestros usuarios!</span></p>
+        <p>Gracias por seguir confiando en nuestra plataforma. Queremos brindarles un breve resumen de cómo funciona nuestro trabajo y compartir algunas novedades.</p>
+        <p>📊 <span className="text-foreground">Nuestro trabajo consiste en realizar trading</span>, es decir, la compra y venta de acciones en los mercados financieros. Contamos con un equipo de profesionales que analiza constantemente las mejores oportunidades de inversión para generar beneficios.</p>
+        <p>💰 El capital aportado por los usuarios nos permite realizar operaciones de mayor volumen, buscando aprovechar las oportunidades del mercado y generar ganancias a través del trading.</p>
+        <p>📈 Las utilidades obtenidas de estas operaciones son <span className="text-emerald-400 font-semibold">compartidas con nuestros usuarios</span> de acuerdo con las condiciones de la plataforma.</p>
+        <p>🚀 Estamos realizando <span className="text-gold font-semibold">mejoras continuas</span> en nuestra plataforma para brindarles un servicio más eficiente, seguro y estable.</p>
+        <p>🤝 <span className="italic">Gracias por su confianza y por formar parte de nuestra comunidad.</span></p>
       </div>
 
       {result && (
