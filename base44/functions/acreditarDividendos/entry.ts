@@ -20,14 +20,17 @@ const PLAN_DURATION_DAYS = {
 
 // Trading stocks — must match STOCKS in pages/Trading
 const STOCK_CONFIG = {
-  aapl: { symbol: "AAPL", gainPct: 3,  days: 3 },
-  msft: { symbol: "MSFT", gainPct: 5,  days: 5 },
-  nvda: { symbol: "NVDA", gainPct: 8,  days: 7 },
-  amzn: { symbol: "AMZN", gainPct: 12, days: 9 },
-  brkb: { symbol: "BRK.B", gainPct: 15, days: 12 },
-  jpm:  { symbol: "JPM",  gainPct: 16, days: 13 },
-  xom:  { symbol: "XOM",  gainPct: 18, days: 15 },
+  aapl: { symbol: "AAPL", gainPct: 3,  lossPct: 1, days: 3 },
+  msft: { symbol: "MSFT", gainPct: 5,  lossPct: 2, days: 5 },
+  nvda: { symbol: "NVDA", gainPct: 8,  lossPct: 3, days: 7 },
+  amzn: { symbol: "AMZN", gainPct: 12, lossPct: 4, days: 9 },
+  brkb: { symbol: "BRK.B", gainPct: 15, lossPct: 5, days: 12 },
+  jpm:  { symbol: "JPM",  gainPct: 16, lossPct: 5, days: 13 },
+  xom:  { symbol: "XOM",  gainPct: 18, lossPct: 5, days: 15 },
 };
+
+// Probabilidad de que una sesión sea ganadora (el resto baja)
+const WIN_PROBABILITY = 0.6;
 
 Deno.serve(async (req) => {
   try {
@@ -139,11 +142,20 @@ Deno.serve(async (req) => {
 
       const cyclesElapsed = Math.floor(hoursElapsed / 24);
       const sessions = Math.min(cyclesElapsed, sessionsLeft);
-      const dailyGain = parseFloat((pos.amount * cfg.gainPct / 100).toFixed(2));
-      const totalGain = parseFloat((dailyGain * sessions).toFixed(2));
 
+      // El mercado sube o baja automáticamente en cada sesión.
+      // Ganancia = +gainPct% de la inversión; pérdida = -lossPct% de la inversión.
       const newResults = [...(pos.daily_results || [])];
-      for (let k = 0; k < sessions; k++) newResults.push(dailyGain);
+      let totalGain = 0;
+      for (let k = 0; k < sessions; k++) {
+        const isWin = Math.random() < WIN_PROBABILITY;
+        const pct = isWin ? cfg.gainPct : -(cfg.lossPct || 0);
+        const sessionResult = parseFloat((pos.amount * pct / 100).toFixed(2));
+        newResults.push(sessionResult);
+        totalGain += sessionResult;
+      }
+      totalGain = parseFloat(totalGain.toFixed(2));
+
       const newTotal = parseFloat(((pos.total_result || 0) + totalGain).toFixed(2));
       const newDay = cycleDay + sessions;
       const isCompleted = newDay > totalDays;
@@ -170,7 +182,7 @@ Deno.serve(async (req) => {
           type: "dividend",
           amount: totalGain,
           status: "completed",
-          notes: `Trading ${cfg.symbol} — ${sessions} sesión(es) — Ganancia +$${totalGain} USDT`,
+          notes: `Trading ${cfg.symbol} — ${sessions} sesión(es) — Resultado ${totalGain >= 0 ? "+" : ""}$${totalGain} USDT`,
         }),
       ];
       if (isCompleted) {
