@@ -53,15 +53,15 @@ const SECTIONS = [
 ];
 
 const CONTENT_MAP = {
-  deposits: <DepositManager />,
-  withdrawals: <WithdrawalManager />,
-  balances: <BalanceManager />,
-  users: <UserConsole />,
-  announcements: <AnnouncementManager />,
-  email: <EmailMasivoManager />,
-  support: <SupportManager />,
-  trading: <TradingManager />,
-  market: <MarketCrashManager />,
+  deposits: DepositManager,
+  withdrawals: WithdrawalManager,
+  balances: BalanceManager,
+  users: UserConsole,
+  announcements: AnnouncementManager,
+  email: EmailMasivoManager,
+  support: SupportManager,
+  trading: TradingManager,
+  market: MarketCrashManager,
 };
 
 const TITLES = {
@@ -185,7 +185,7 @@ export default function AdminPanel() {
 
               {/* Modal content */}
               <div className="flex-1 overflow-y-auto p-5">
-                {CONTENT_MAP[active]}
+                {active && (() => { const C = CONTENT_MAP[active]; return C ? <C /> : null; })()}
               </div>
             </motion.div>
           </>
