@@ -3,7 +3,7 @@ import { useOutletContext, Navigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet,
-  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2
+  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2, ClipboardList
 } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
@@ -14,6 +14,7 @@ import MarketCrashManager from "../../components/admin/MarketCrashManager";
 import EmailMasivoManager from "../../components/admin/EmailMasivoManager";
 import SupportManager from "../../components/admin/SupportManager";
 import TradingManager from "../../components/admin/TradingManager";
+import AdminLogViewer from "../../components/admin/AdminLogViewer";
 
 const SECTIONS = [
   {
@@ -42,6 +43,7 @@ const SECTIONS = [
     group: "Trading",
     items: [
       { id: "trading", label: "Control de Trading", icon: BarChart2 },
+      { id: "adminlog", label: "Bitácora de Ajustes", icon: ClipboardList },
     ],
   },
   {
@@ -62,6 +64,7 @@ const CONTENT_MAP = {
   support: SupportManager,
   trading: TradingManager,
   market: MarketCrashManager,
+  adminlog: AdminLogViewer,
 };
 
 const TITLES = {
@@ -74,6 +77,7 @@ const TITLES = {
   support: { label: "Soporte", icon: MessageCircle },
   trading: { label: "Control de Trading", icon: BarChart2 },
   market: { label: "Control de Mercado", icon: TrendingDown, danger: true },
+  adminlog: { label: "Bitácora de Ajustes", icon: ClipboardList },
 };
 
 export default function AdminPanel() {

@@ -1,0 +1,48 @@
+{
+  "name": "AdminLog",
+  "type": "object",
+  "properties": {
+    "admin_email": {
+      "type": "string",
+      "description": "Email del administrador que realiz\u00f3 la acci\u00f3n"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "trading_win",
+        "trading_loss",
+        "trading_win_global",
+        "trading_loss_global"
+      ],
+      "description": "Tipo de acci\u00f3n realizada"
+    },
+    "target_email": {
+      "type": "string",
+      "description": "Email del usuario afectado (vac\u00edo si es global)"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "S\u00edmbolo del activo (vac\u00edo si es global)"
+    },
+    "percentage": {
+      "type": "number",
+      "description": "Porcentaje aplicado"
+    },
+    "amount_usd": {
+      "type": "number",
+      "description": "Monto en USD resultante del ajuste"
+    },
+    "positions_affected": {
+      "type": "number",
+      "description": "N\u00famero de posiciones afectadas (para acciones globales)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas adicionales"
+    }
+  },
+  "required": [
+    "admin_email",
+    "action"
+  ]
+}

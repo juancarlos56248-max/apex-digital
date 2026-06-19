@@ -199,6 +199,11 @@ export default function TradingManager() {
   const [filter, setFilter] = useState("active"); // active | completed | all
   const [globalProcessing, setGlobalProcessing] = useState(false);
   const [globalPct, setGlobalPct] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+
+  useEffect(() => {
+    base44.auth.me().then(u => setAdminEmail(u?.email || "admin")).catch(() => {});
+  }, []);
 
   const load = async () => {
     setLoading(true);
@@ -272,6 +277,20 @@ export default function TradingManager() {
       processed++;
     }));
 
+    const effectivePct = parseFloat(globalPct) || 0;
+
+    // Bitácora global
+    await base44.entities.AdminLog.create({
+      admin_email: adminEmail,
+      action: type === "win" ? "trading_win_global" : "trading_loss_global",
+      target_email: "",
+      symbol: "GLOBAL",
+      percentage: effectivePct || (type === "win" ? 0 : 0),
+      amount_usd: 0,
+      positions_affected: processed,
+      notes: `Control global — ${processed} posiciones afectadas${effectivePct ? ` — ${effectivePct}% personalizado` : " — % default por activo"}`,
+    });
+
     toast.success(`${type === "win" ? "📈 Subida" : "📉 Bajada"} aplicada a ${processed} posiciones`);
     setGlobalProcessing(false);
     setGlobalPct("");
@@ -341,6 +360,18 @@ export default function TradingManager() {
     }
 
     await Promise.all(updates);
+
+    // Bitácora
+    await base44.entities.AdminLog.create({
+      admin_email: adminEmail,
+      action: type === "win" ? "trading_win" : "trading_loss",
+      target_email: pos.user_email,
+      symbol: stock.symbol,
+      percentage: type === "win" ? (customPct !== null ? customPct : stock.gainPct) : stock.lossPct,
+      amount_usd: result,
+      positions_affected: 1,
+      notes: `Sesión ${pos.cycle_day || 1}/${totalDays}${isCompleted ? " — Ciclo completado" : ""}`,
+    });
 
     const label = type === "win" ? `+$${result}` : `-$${Math.abs(result)}`;
     toast.success(`${stock.symbol} · ${label} acreditado a ${pos.user_email}${isCompleted ? " · Ciclo completado ✓" : ""}`);
