@@ -234,8 +234,11 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
           disabled={hasActive}
         >
           {hasActive ? (
-            <span className="flex items-center gap-2"><Lock className="w-3.5 h-3.5" /> 2/2 Nodos Activos</span>
-          ) : activeCount === 1 ? (
+            <span className="flex items-center gap-2">
+              <Lock className="w-3.5 h-3.5" />
+              {tier === "prueba" ? "Plan ya utilizado" : "2/2 Nodos Activos"}
+            </span>
+          ) : activeCount === 1 && tier !== "prueba" ? (
             "Activar 2° Contrato 🔥"
           ) : (
             "Activar Contrato"
