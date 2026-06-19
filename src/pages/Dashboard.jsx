@@ -11,6 +11,7 @@ import MarketAlerts from "../components/dashboard/MarketAlerts";
 import { motion } from "framer-motion";
 
 const PerformanceChart = lazy(() => import("../components/dashboard/PerformanceChart"));
+import EarningsChart from "../components/dashboard/EarningsChart";
 
 const quickActions = [
   { label: "Depositar", desc: "Añade fondos ahora", icon: ArrowDownToLine, to: "/deposit", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20 hover:border-emerald-500/40" },
@@ -125,6 +126,9 @@ export default function Dashboard() {
           ))}
         </div>
       </motion.div>
+
+      {/* Earnings history chart — real user data */}
+      {user?.email && <EarningsChart userEmail={user.email} />}
 
       {/* Chart — lazy loaded so it never blocks navigation */}
       <Suspense fallback={<div className="h-80 rounded-2xl border border-border bg-card animate-pulse" />}>
