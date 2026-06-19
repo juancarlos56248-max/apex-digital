@@ -44,17 +44,27 @@ export default function AppLayout() {
         if (!me.referral_code) {
           updates.referral_code = "APEX" + Math.random().toString(36).substring(2, 8).toUpperCase();
         }
-        if (me.balance === undefined || me.balance === null) {
-          updates.balance = 0;
+        const isNewUser = me.balance === undefined || me.balance === null;
+        if (isNewUser) {
+          updates.balance = 5; // bono de bienvenida $5 USDT
           updates.total_invested = 0;
           updates.total_earned = 0;
+          updates.welcome_bonus_claimed = true;
         }
         if (Object.keys(updates).length > 0) {
           await base44.auth.updateMe(updates);
           setUser(prev => ({ ...prev, ...updates }));
-          // Si es usuario nuevo, enviar email de bienvenida
-          if (updates.balance !== undefined) {
+          if (isNewUser) {
+            // Email de bienvenida (fire-and-forget)
             base44.functions.invoke('emailBienvenida', { data: { email: me.email, full_name: me.full_name } });
+            // Registrar el bono como transacción
+            base44.entities.Transaction.create({
+              user_email: me.email,
+              type: "deposit",
+              amount: 5,
+              status: "completed",
+              notes: "Bono de bienvenida — $5 USDT acreditados automáticamente",
+            });
           }
         }
       } catch (err) {

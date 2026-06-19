@@ -34,6 +34,15 @@
     "referral_code": {
       "type": "string",
       "description": "Unique referral code"
+    },
+    "referral_code_used": {
+      "type": "string",
+      "description": "Referral code used at registration"
+    },
+    "welcome_bonus_claimed": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if the $5 welcome bonus has been credited"
     }
   },
   "required": [
