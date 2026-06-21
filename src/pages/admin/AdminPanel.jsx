@@ -167,7 +167,7 @@ export default function AdminPanel() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 60 }}
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="fixed inset-x-0 bottom-0 top-16 z-50 flex flex-col bg-background rounded-t-2xl border-t border-border overflow-hidden"
+              className="fixed inset-x-0 bottom-0 top-16 z-50 flex flex-col bg-background rounded-t-2xl border-t border-border overflow-hidden pb-safe"
             >
               {/* Modal header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card flex-shrink-0">
@@ -188,7 +188,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Modal content */}
-              <div className="flex-1 overflow-y-auto p-5">
+              <div className="flex-1 overflow-y-auto p-5 min-h-0 pb-24">
                 {active && (() => { const C = CONTENT_MAP[active]; return C ? <C /> : null; })()}
               </div>
             </motion.div>

@@ -207,10 +207,15 @@ export default function TradingManager() {
 
   const load = async () => {
     setLoading(true);
-    const query = filter === "all" ? {} : { status: filter };
-    const data = await base44.entities.TradingPosition.filter(query, "-created_date", 100);
-    setPositions(data);
-    setLoading(false);
+    try {
+      const query = filter === "all" ? {} : { status: filter };
+      const data = await base44.entities.TradingPosition.filter(query, "-created_date", 100);
+      setPositions(data);
+    } catch (e) {
+      toast.error("Error cargando posiciones: " + e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, [filter]);
