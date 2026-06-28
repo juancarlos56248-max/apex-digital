@@ -8,6 +8,7 @@ import StatsCard from "../components/dashboard/StatsCard";
 import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActiveInvestments from "../components/dashboard/ActiveInvestments";
 import MarketAlerts from "../components/dashboard/MarketAlerts";
+import SorteoBanner from "../components/dashboard/SorteoBanner";
 import { motion } from "framer-motion";
 
 const PerformanceChart = lazy(() => import("../components/dashboard/PerformanceChart"));
@@ -95,6 +96,9 @@ export default function Dashboard() {
           </Link>
         </motion.div>
       )}
+
+      {/* Banner sorteo Fiestas Patrias */}
+      <SorteoBanner />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
