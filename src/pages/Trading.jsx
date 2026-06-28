@@ -650,6 +650,39 @@ export default function Trading() {
 
   if (!user) return null;
 
+  // Solo usuarios VIP pueden acceder al trading
+  if (user.role !== "vip" && user.role !== "admin") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6 space-y-6">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
+          <div className="w-20 h-20 rounded-2xl bg-gold/10 border border-gold/20 flex items-center justify-center mx-auto mb-5 shadow-xl shadow-gold/10">
+            <Shield className="w-10 h-10 text-gold" />
+          </div>
+          <span className="inline-block text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full border border-gold/30 text-gold bg-gold/10 mb-4">
+            Acceso Exclusivo VIP
+          </span>
+          <h2 className="text-2xl font-black text-foreground mb-2">Trading solo para miembros VIP</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
+            El módulo de trading algorítmico está disponible únicamente para usuarios con membresía <span className="text-gold font-bold">VIP</span>. Comunícate con soporte para actualizar tu cuenta.
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/soporte">
+              <Button className="bg-gold hover:bg-gold-dark text-black font-bold h-11 px-6 rounded-xl gap-2">
+                Contactar soporte
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </a>
+            <a href="/investments">
+              <Button variant="outline" className="h-11 px-6 rounded-xl text-sm font-semibold">
+                Ver planes de inversión
+              </Button>
+            </a>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5 max-w-2xl pb-10">
 
