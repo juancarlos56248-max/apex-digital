@@ -609,9 +609,18 @@ export default function Trading() {
   const [activating, setActivating] = useState(null);
   const [tab, setTab] = useState("market");
   const [showPulse, setShowPulse] = useState(false);
+  const [totalDeposited, setTotalDeposited] = useState(null); // null = cargando
 
   useEffect(() => {
     if (!user?.email) return;
+    // Calcular total depositado aprobado
+    base44.entities.Transaction.filter({ user_email: user.email, type: "deposit", status: "approved" })
+      .then(txs => {
+        const total = txs.reduce((sum, t) => sum + (t.amount || 0), 0);
+        setTotalDeposited(total);
+      })
+      .catch(() => setTotalDeposited(0));
+
     base44.entities.TradingPosition.filter({ user_email: user.email, status: "active" })
       .then(data => {
         setPositions(data);
@@ -650,8 +659,17 @@ export default function Trading() {
 
   if (!user) return null;
 
-  // Solo usuarios VIP pueden acceder al trading
-  if (user.role !== "vip" && user.role !== "admin") {
+  // Mostrar spinner mientras se verifica el total depositado
+  if (totalDeposited === null) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Solo usuarios que hayan depositado $500 o más pueden acceder al trading
+  if (totalDeposited < 500 && user.role !== "admin") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6 space-y-6">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
@@ -663,7 +681,7 @@ export default function Trading() {
           </span>
           <h2 className="text-2xl font-black text-foreground mb-2">Trading solo para miembros VIP</h2>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
-            El módulo de trading algorítmico está disponible únicamente para usuarios con membresía <span className="text-gold font-bold">VIP</span>. Comunícate con soporte para actualizar tu cuenta.
+            El módulo de trading está disponible para usuarios que hayan depositado <span className="text-gold font-bold">$500 USDT o más</span>. Deposita para desbloquear acceso completo.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <a href="/soporte">
