@@ -69,14 +69,14 @@ export default function Deposit() {
 
   return (
     <div className="space-y-6 max-w-2xl">
+      {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
+
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Depósito de Fondos</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Transfiere USDT a nuestra wallet corporativa y registra el hash de transacción
         </p>
       </motion.div>
-
-      {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
 
       {/* Steps */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
