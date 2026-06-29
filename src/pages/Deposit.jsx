@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
+import RuletaSuerte from "@/components/dashboard/RuletaSuerte";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -22,7 +23,7 @@ const NETWORK_INSTRUCTIONS = [
 ];
 
 export default function Deposit() {
-  const { user } = useOutletContext();
+  const { user, setUser } = useOutletContext();
   const [network, setNetwork] = useState("BEP20");
   const [amount, setAmount] = useState("");
   const [txid, setTxid] = useState("");
@@ -68,6 +69,8 @@ export default function Deposit() {
 
   return (
     <div className="space-y-6 max-w-2xl">
+      {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
+
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Depósito de Fondos</h1>
         <p className="text-sm text-muted-foreground mt-1">

@@ -9,7 +9,7 @@ import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActiveInvestments from "../components/dashboard/ActiveInvestments";
 import MarketAlerts from "../components/dashboard/MarketAlerts";
 import SorteoBanner from "../components/dashboard/SorteoBanner";
-import RuletaSuerte from "../components/dashboard/RuletaSuerte";
+
 import { motion } from "framer-motion";
 
 const PerformanceChart = lazy(() => import("../components/dashboard/PerformanceChart"));
@@ -97,9 +97,6 @@ export default function Dashboard() {
           </Link>
         </motion.div>
       )}
-
-      {/* Ruleta de la Suerte */}
-      {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
 
       {/* Banner sorteo Fiestas Patrias */}
       <SorteoBanner />
