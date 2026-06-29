@@ -77,6 +77,33 @@ export default function AppLayout() {
     loadUser();
   }, []);
 
+  // Real-time balance sync: re-fetch user every 30s and subscribe to User entity changes
+  useEffect(() => {
+    const refreshUser = async () => {
+      try {
+        const me = await base44.auth.me();
+        setUser(me);
+      } catch {}
+    };
+
+    const interval = setInterval(refreshUser, 30000);
+
+    // Subscribe to User entity changes (real-time)
+    const unsubscribe = base44.entities.User.subscribe((event) => {
+      if (event.data && event.data.email) {
+        setUser(prev => {
+          if (!prev || prev.email !== event.data.email) return prev;
+          return { ...prev, ...event.data };
+        });
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
+  }, []);
+
   // Market crash executor
   useEffect(() => {
     const checkCrash = async () => {
