@@ -18,9 +18,6 @@ const PLAN_DURATION_DAYS = {
   institutional: 120,
 };
 
-// Trading stocks — must match STOCKS in pages/Trading
-// gainPctMin/gainPctMax: rango variable de ganancia diaria (simula mercado real)
-// lossPctMin/lossPctMax: rango variable de pérdida
 const STOCK_CONFIG = {
   aapl: { symbol: "AAPL", gainPctMin: 1.5, gainPctMax: 3,   lossPctMin: 0.5, lossPctMax: 1,   days: 3  },
   msft: { symbol: "MSFT", gainPctMin: 2.5, gainPctMax: 5,   lossPctMin: 1,   lossPctMax: 2,   days: 5  },
@@ -31,10 +28,8 @@ const STOCK_CONFIG = {
   xom:  { symbol: "XOM",  gainPctMin: 14,  gainPctMax: 18,  lossPctMin: 2.5, lossPctMax: 5,   days: 15 },
 };
 
-// 60% probabilidad de sesión positiva, 40% negativa (simula volatilidad de mercado)
 const WIN_PROBABILITY = 0.6;
 
-// Genera un % aleatorio dentro de un rango
 function randPct(min, max) {
   return min + Math.random() * (max - min);
 }
@@ -42,21 +37,22 @@ function randPct(min, max) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const activeInvestments = await base44.asServiceRole.entities.Investment.filter({ status: "active" });
-
     const now = new Date();
+
+    // Deltas acumulados por usuario: { balance: number, earned: number }
+    // Usar esto para hacer UN SOLO update por usuario al final
+    const userDeltas = {}; // email -> { balance, earned }
+    const addDelta = (email, balanceDelta, earnedDelta) => {
+      if (!userDeltas[email]) userDeltas[email] = { balance: 0, earned: 0 };
+      userDeltas[email].balance += balanceDelta;
+      userDeltas[email].earned += earnedDelta;
+    };
+
+    // ===== Inversiones (nodos de liquidez) =====
+    const activeInvestments = await base44.asServiceRole.entities.Investment.filter({ status: "active" });
     let credited = 0;
     const completedIds = new Set();
 
-    // Group investments by user to batch user lookups
-    const userEmailSet = new Set(activeInvestments.map(i => i.user_email));
-    const userMap = {};
-    await Promise.all([...userEmailSet].map(async (email) => {
-      const users = await base44.asServiceRole.entities.User.filter({ email });
-      if (users.length > 0) userMap[email] = users[0];
-    }));
-
-    // Process dividends in parallel
     await Promise.all(activeInvestments.map(async (inv) => {
       const dailyRate = DAILY_RATES[inv.tier] || 0.10;
       const lastDate = inv.last_dividend_date ? new Date(inv.last_dividend_date) : new Date(inv.created_date);
@@ -70,17 +66,12 @@ Deno.serve(async (req) => {
         const dividend = parseFloat((inv.amount * dailyRate * cycles).toFixed(4));
 
         if (dividend > 0) {
-          const u = userMap[inv.user_email];
           await Promise.all([
             base44.asServiceRole.entities.Investment.update(inv.id, {
               total_earned: parseFloat(((inv.total_earned || 0) + dividend).toFixed(4)),
               last_dividend_date: now.toISOString(),
               ...(isExpired ? { status: "completed" } : {}),
             }),
-            u ? base44.asServiceRole.entities.User.update(u.id, {
-              balance: parseFloat(((u.balance || 0) + dividend).toFixed(4)),
-              total_earned: parseFloat(((u.total_earned || 0) + dividend).toFixed(4)),
-            }) : Promise.resolve(),
             base44.asServiceRole.entities.Transaction.create({
               user_email: inv.user_email,
               type: "dividend",
@@ -89,48 +80,33 @@ Deno.serve(async (req) => {
               notes: `Dividendo ${inv.tier} — ${cycles} ciclo(s) de 24h`,
             }),
           ]);
+          addDelta(inv.user_email, dividend, dividend);
           credited++;
           completedIds.add(inv.id);
         }
       }
 
-      // Mark expired investments not yet processed
       if (isExpired && !completedIds.has(inv.id)) {
         completedIds.add(inv.id);
         await base44.asServiceRole.entities.Investment.update(inv.id, { status: "completed" });
       }
     }));
 
-    // Sync total_invested for users with completed investments
+    // Sync total_invested para usuarios con inversiones completadas
     const affectedEmails = [...new Set(
-      activeInvestments
-        .filter(i => completedIds.has(i.id))
-        .map(i => i.user_email)
+      activeInvestments.filter(i => completedIds.has(i.id)).map(i => i.user_email)
     )];
-
     await Promise.all(affectedEmails.map(async (email) => {
       const remaining = await base44.asServiceRole.entities.Investment.filter({ user_email: email, status: "active" });
       const total = remaining.reduce((s, i) => s + (i.amount || 0), 0);
-      const u = userMap[email];
-      if (u) await base44.asServiceRole.entities.User.update(u.id, { total_invested: total });
+      const users = await base44.asServiceRole.entities.User.filter({ email });
+      if (users[0]) await base44.asServiceRole.entities.User.update(users[0].id, { total_invested: total });
     }));
 
-    // ===== Trading Positions — acreditar ganancias automáticamente cada 24h =====
+    // ===== Trading Positions =====
     const activePositions = await base44.asServiceRole.entities.TradingPosition.filter({ status: "active" });
     let tradingCredited = 0;
-    // Acumular deltas por usuario para evitar condiciones de carrera (varias posiciones por usuario)
-    const tradingDeltas = {}; // email -> { balance, earned }
 
-    // Cargar usuarios faltantes
-    const posEmails = [...new Set(activePositions.map(p => p.user_email))];
-    await Promise.all(posEmails.map(async (email) => {
-      if (!userMap[email]) {
-        const users = await base44.asServiceRole.entities.User.filter({ email });
-        if (users.length > 0) userMap[email] = users[0];
-      }
-    }));
-
-    // Procesar posiciones (solo TradingPosition + Transaction; los User.update se hacen al final)
     await Promise.all(activePositions.map(async (pos) => {
       const cfg = STOCK_CONFIG[pos.plan];
       if (!cfg) return;
@@ -150,8 +126,6 @@ Deno.serve(async (req) => {
       const cyclesElapsed = Math.floor(hoursElapsed / 24);
       const sessions = Math.min(cyclesElapsed, sessionsLeft);
 
-      // El mercado sube o baja automáticamente en cada sesión con % variable.
-      // Ganancia: entre gainPctMin y gainPctMax. Pérdida: entre lossPctMin y lossPctMax.
       const newResults = [...(pos.daily_results || [])];
       let totalGain = 0;
       for (let k = 0; k < sessions; k++) {
@@ -168,15 +142,9 @@ Deno.serve(async (req) => {
       const newTotal = parseFloat(((pos.total_result || 0) + totalGain).toFixed(2));
       const newDay = cycleDay + sessions;
       const isCompleted = newDay > totalDays;
-
-      // Balance: ganancias diarias; al completar, también devuelve el capital
       const balanceDelta = isCompleted ? totalGain + pos.amount : totalGain;
 
-      // Acumular delta por usuario
-      const d = tradingDeltas[pos.user_email] || { balance: 0, earned: 0 };
-      d.balance += balanceDelta;
-      d.earned += totalGain;
-      tradingDeltas[pos.user_email] = d;
+      addDelta(pos.user_email, balanceDelta, totalGain);
 
       const ops = [
         base44.asServiceRole.entities.TradingPosition.update(pos.id, {
@@ -207,40 +175,38 @@ Deno.serve(async (req) => {
       tradingCredited++;
     }));
 
-    // Aplicar los deltas acumulados a cada usuario una sola vez
-    await Promise.all(Object.entries(tradingDeltas).map(async ([email, d]) => {
-      const u = userMap[email];
-      if (!u) return;
+    // ===== Aplicar todos los deltas: leer balance FRESCO antes de actualizar =====
+    const allEmails = Object.keys(userDeltas);
+    await Promise.all(allEmails.map(async (email) => {
+      const delta = userDeltas[email];
+      if (!delta || (delta.balance === 0 && delta.earned === 0)) return;
+      // Leer balance fresco para evitar race conditions con retiros concurrentes
+      const users = await base44.asServiceRole.entities.User.filter({ email });
+      if (!users[0]) return;
+      const u = users[0];
       await base44.asServiceRole.entities.User.update(u.id, {
-        balance: parseFloat(((u.balance || 0) + d.balance).toFixed(2)),
-        total_earned: parseFloat(((u.total_earned || 0) + d.earned).toFixed(2)),
+        balance: parseFloat(((u.balance || 0) + delta.balance).toFixed(4)),
+        total_earned: parseFloat(((u.total_earned || 0) + delta.earned).toFixed(4)),
       });
     }));
 
-    // ===== Enviar notificaciones de balance por email =====
-    // Construir mapa de dividendos de inversiones procesadas en este ciclo
-    const investmentDividends = {}; // email -> amount
-    for (const inv of activeInvestments) {
-      if (!completedIds.has(inv.id)) continue;
-      const rate = DAILY_RATES[inv.tier] || 0.10;
-      const div = parseFloat((inv.amount * rate).toFixed(4));
-      investmentDividends[inv.user_email] = (investmentDividends[inv.user_email] || 0) + div;
-    }
-
-    // Unir todos los usuarios que tuvieron movimiento hoy
-    const notifyEmails = new Set([
-      ...Object.keys(investmentDividends),
-      ...Object.keys(tradingDeltas),
-    ]);
+    // ===== Notificaciones por email =====
+    const notifyEmails = new Set([...Object.keys(userDeltas)]);
 
     await Promise.allSettled([...notifyEmails].map(async (email) => {
-      const u = userMap[email];
+      const delta = userDeltas[email];
+      if (!delta) return;
+
+      const users = await base44.asServiceRole.entities.User.filter({ email });
+      const u = users[0];
       if (!u?.email) return;
 
-      const invDiv = investmentDividends[email] || 0;
-      const tradingResult = tradingDeltas[email]?.earned || 0;
-      const totalMovement = parseFloat((invDiv + tradingResult).toFixed(2));
-      const newBalance = parseFloat(((u.balance || 0) + (tradingDeltas[email]?.balance || 0) + invDiv).toFixed(2));
+      const invDiv = activeInvestments
+        .filter(i => completedIds.has(i.id) && i.user_email === email)
+        .reduce((s, i) => s + parseFloat((i.amount * (DAILY_RATES[i.tier] || 0.10)).toFixed(4)), 0);
+      const tradingResult = delta.earned - invDiv;
+      const totalMovement = parseFloat(delta.earned.toFixed(2));
+      const newBalance = parseFloat(((u.balance || 0) + delta.balance).toFixed(2));
 
       const isPositive = totalMovement >= 0;
       const icon = isPositive ? "📈" : "📉";
@@ -265,6 +231,8 @@ Deno.serve(async (req) => {
         </tr>`);
       }
 
+      if (rows.length === 0) return;
+
       const subject = isPositive
         ? `${icon} Tu balance subió ${movLabel} hoy — Apex Digital`
         : `${icon} Movimiento de mercado: ${movLabel} — Apex Digital`;
@@ -275,7 +243,6 @@ Deno.serve(async (req) => {
             <span style="color:#000;font-weight:900;font-size:18px;letter-spacing:3px;">APEX DIGITAL</span>
           </div>
         </div>
-
         <div style="background:#0f0f0f;border:1px solid #222;border-radius:16px;padding:24px;margin-bottom:20px;text-align:center;">
           <div style="font-size:36px;margin-bottom:10px;">${icon}</div>
           <h2 style="color:#e8c97a;font-size:17px;margin:0 0 6px 0;">Cierre de Ciclo Diario</h2>
@@ -285,7 +252,6 @@ Deno.serve(async (req) => {
             <p style="color:${movColor};font-size:26px;font-weight:900;font-family:monospace;margin:0;">${movLabel}</p>
           </div>
         </div>
-
         <div style="background:#0a0a0a;border:1px solid #1a1a1a;border-radius:12px;overflow:hidden;margin-bottom:20px;">
           <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead>
@@ -297,25 +263,16 @@ Deno.serve(async (req) => {
             <tbody>${rows.join("")}</tbody>
           </table>
         </div>
-
-        <div style="background:#0a0a0a;border:1px solid #222;border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <p style="color:#555;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px 0;">Balance actualizado</p>
-            <p style="color:#e8c97a;font-size:22px;font-weight:900;font-family:monospace;margin:0;">$${newBalance.toFixed(2)} USDT</p>
-          </div>
-          <div style="text-align:right;">
-            <p style="color:#555;font-size:10px;margin:0 0 4px 0;">Hoy</p>
-            <p style="color:${movColor};font-size:16px;font-weight:bold;font-family:monospace;margin:0;">${movLabel}</p>
-          </div>
+        <div style="background:#0a0a0a;border:1px solid #222;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+          <p style="color:#555;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px 0;">Balance actualizado</p>
+          <p style="color:#e8c97a;font-size:22px;font-weight:900;font-family:monospace;margin:0;">$${newBalance.toFixed(2)} USDT</p>
         </div>
-
         <div style="text-align:center;margin-bottom:24px;">
           <a href="https://apex-digital.base44.app/dashboard"
              style="display:inline-block;background:linear-gradient(135deg,#c5a059,#e8c97a);color:#000;font-weight:900;font-size:14px;padding:13px 30px;border-radius:10px;text-decoration:none;">
             Ver Dashboard →
           </a>
         </div>
-
         <p style="color:#333;font-size:11px;text-align:center;margin:0;">
           © 2026 Apex Digital · Singapore Division<br/>
           <span style="color:#222;">Este reporte se genera automáticamente tras el cierre de cada ciclo diario.</span>
