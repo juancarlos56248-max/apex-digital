@@ -105,14 +105,13 @@ export default function RuletaSuerte({ user, onWin }) {
   useEffect(() => {
     if (!user?.email) return;
     // Verificar elegibilidad: depósito > $100 y si ya usó la ruleta
-    Promise.all([
-      base44.entities.Transaction.filter({ user_email: user.email, type: "deposit", status: "approved" }),
-    ]).then(([txs]) => {
-      const total = txs.reduce((s, t) => s + (t.amount || 0), 0);
-      setTotalDeposited(total);
-      setAlreadyUsed(!!user.ruleta_usada);
-      setLoadingEligibility(false);
-    });
+    base44.entities.Transaction.filter({ user_email: user.email, type: "deposit", status: "approved" }, "-created_date", 1)
+      .then((txs) => {
+        const lastDeposit = txs[0];
+        setTotalDeposited(lastDeposit ? lastDeposit.amount : 0);
+        setAlreadyUsed(!!user.ruleta_usada);
+        setLoadingEligibility(false);
+      });
   }, [user?.email, user?.ruleta_usada]);
 
   const isEligible = totalDeposited >= 100;
