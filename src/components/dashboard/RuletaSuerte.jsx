@@ -19,15 +19,15 @@ const PRIZES = [
 const SEGMENTS = PRIZES.length;
 const SEGMENT_ANGLE = 360 / SEGMENTS;
 
-// El ganador siempre será el índice 0 ($1)
-// Para que el puntero (arriba = 270°) apunte al segmento 0, calculamos:
-// La ruleta gira N vueltas completas + el ajuste para que el centro del segmento 0 quede en 270°
-// Centro del segmento i = i * SEGMENT_ANGLE + SEGMENT_ANGLE/2
-// Queremos: finalAngle % 360 = 270 - (0 * 45 + 22.5) = 247.5°
-const SPINS = 8; // vueltas completas antes de parar
-const WIN_SEGMENT = 0; // siempre $1
-const WIN_STOP = 270 - (WIN_SEGMENT * SEGMENT_ANGLE + SEGMENT_ANGLE / 2); // 247.5°
-const FINAL_ANGLE = SPINS * 360 + WIN_STOP;
+// Segmentos: 0=$1, 7=$1000
+const SPINS = 8;
+const WIN_SEGMENT_DEFAULT = 0;  // $1 para usuarios normales
+const WIN_SEGMENT_ADMIN = 7;    // $1,000 para admins
+
+function getFinalAngle(winSegment, currentRotation) {
+  const stop = 270 - (winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE / 2);
+  return (currentRotation % 360) + SPINS * 360 + stop;
+}
 
 function WheelCanvas({ rotation }) {
   const size = 280;
@@ -125,7 +125,8 @@ export default function RuletaSuerte({ user, onWin }) {
     startAngleRef.current = rotation % 360;
     startTimeRef.current = null;
 
-    const targetAngle = startAngleRef.current + FINAL_ANGLE;
+    const winSegment = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT_DEFAULT;
+    const targetAngle = getFinalAngle(winSegment, rotation);
 
     const animate = (timestamp) => {
       if (!startTimeRef.current) startTimeRef.current = timestamp;
@@ -140,7 +141,8 @@ export default function RuletaSuerte({ user, onWin }) {
       } else {
         setRotation(targetAngle);
         setSpinning(false);
-        const prize = PRIZES[WIN_SEGMENT];
+        const winSeg = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT_DEFAULT;
+        const prize = PRIZES[winSeg];
         setResult(prize);
         // Acreditar $1 al balance del usuario
         creditPrize(prize.amount);
