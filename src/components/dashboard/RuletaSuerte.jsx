@@ -25,8 +25,15 @@ const WIN_SEGMENT_DEFAULT = 0;  // $1 para usuarios normales
 const WIN_SEGMENT_ADMIN = 7;    // $1,000 para admins
 
 function getFinalAngle(winSegment, currentRotation) {
-  const stop = 270 - (winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE / 2);
-  return (currentRotation % 360) + SPINS * 360 + stop;
+  // El puntero apunta hacia arriba (270°). Queremos que el centro del segmento ganador quede en 270°.
+  // El segmento i ocupa el rango [i*SEGMENT_ANGLE, (i+1)*SEGMENT_ANGLE] desde la rotación inicial de -90°.
+  // Para que el centro del segmento quede bajo el puntero (top = 270° en coordenadas SVG sin rotar),
+  // necesitamos rotar la rueda para que -(winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE/2) quede en 0°
+  // es decir: rotación final = 360 - (winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE/2)
+  const base = (currentRotation % 360 + 360) % 360;
+  const targetOffset = (360 - (winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE / 2)) % 360;
+  const diff = (targetOffset - base + 360) % 360;
+  return currentRotation + SPINS * 360 + diff;
 }
 
 function WheelCanvas({ rotation }) {
