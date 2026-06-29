@@ -212,10 +212,10 @@ export default function RuletaSuerte({ user, onWin }) {
               onClick={() => { if (!spinning) setOpen(false); }}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 40 }}
+              initial={{ opacity: 0, scale: 0.9, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 bg-[#080808] border border-yellow-500/20 rounded-3xl p-6 max-w-sm mx-auto"
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              className="fixed inset-x-4 top-4 z-50 bg-[#080808] border border-yellow-500/20 rounded-3xl p-6 max-w-sm mx-auto"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
