@@ -154,11 +154,17 @@ export default function Investments() {
     // Recalculate total_invested from all active investments (including the new one)
     const allInvs = await base44.entities.Investment.filter({ user_email: user.email, status: "active" });
     const realTotalInvested = allInvs.reduce((sum, i) => sum + (i.amount || 0), 0);
-    const newBalance = currentBalance - amount;
-    await base44.auth.updateMe({
-      balance: newBalance,
-      total_invested: realTotalInvested,
-    });
+    const newBalance = parseFloat((currentBalance - amount).toFixed(2));
+
+    // Update both auth profile and User entity atomically
+    const userRecords = await base44.entities.User.filter({ email: user.email });
+    await Promise.all([
+      base44.auth.updateMe({ balance: newBalance, total_invested: realTotalInvested }),
+      userRecords[0] && base44.entities.User.update(userRecords[0].id, {
+        balance: newBalance,
+        total_invested: realTotalInvested,
+      }),
+    ]);
     // Update local user state so Dashboard reflects the new balance immediately
     setUser(prev => ({ ...prev, balance: newBalance, total_invested: realTotalInvested }));
 
