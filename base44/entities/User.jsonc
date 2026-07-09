@@ -46,6 +46,10 @@
     "ruleta_usada": {
       "type": "boolean",
       "default": false
+    },
+    "ruleta_ultima_fecha": {
+      "type": "string",
+      "description": "ISO datetime del \u00faltimo giro de ruleta semanal"
     }
   }
 }

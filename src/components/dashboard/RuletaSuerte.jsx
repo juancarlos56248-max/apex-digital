@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { Star, X } from "lucide-react";
 
-// Premios en la ruleta — siempre cae en $1 (índice 0)
+// Premios en la ruleta — todos pueden ganar $1,000
 const PRIZES = [
   { label: "$1",    amount: 1,    color: "#c9a84c", bg: "#1a1400" },
   { label: "$10",   amount: 10,   color: "#60a5fa", bg: "#001433" },
@@ -18,18 +18,25 @@ const PRIZES = [
 
 const SEGMENTS = PRIZES.length;
 const SEGMENT_ANGLE = 360 / SEGMENTS;
-
-// Segmentos: 0=$1, 7=$1000
 const SPINS = 8;
-const WIN_SEGMENT_DEFAULT = 0;  // $1 para usuarios normales
-const WIN_SEGMENT_ADMIN = 7;    // $1,000 para admins
+const WIN_SEGMENT = 0;       // $1 para todos por defecto
+const WIN_SEGMENT_ADMIN = 7; // $1,000 para admins
+
+// Devuelve true si el usuario ya giró esta semana (lunes–domingo)
+function usedThisWeek(lastSpinDate) {
+  if (!lastSpinDate) return false;
+  const now = new Date();
+  const last = new Date(lastSpinDate);
+  // Inicio de la semana actual (lunes 00:00:00)
+  const startOfWeek = new Date(now);
+  const day = now.getDay(); // 0=dom
+  const diffToMonday = (day === 0 ? -6 : 1 - day);
+  startOfWeek.setDate(now.getDate() + diffToMonday);
+  startOfWeek.setHours(0, 0, 0, 0);
+  return last >= startOfWeek;
+}
 
 function getFinalAngle(winSegment, currentRotation) {
-  // El puntero apunta hacia arriba (270°). Queremos que el centro del segmento ganador quede en 270°.
-  // El segmento i ocupa el rango [i*SEGMENT_ANGLE, (i+1)*SEGMENT_ANGLE] desde la rotación inicial de -90°.
-  // Para que el centro del segmento quede bajo el puntero (top = 270° en coordenadas SVG sin rotar),
-  // necesitamos rotar la rueda para que -(winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE/2) quede en 0°
-  // es decir: rotación final = 360 - (winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE/2)
   const base = (currentRotation % 360 + 360) % 360;
   const targetOffset = (360 - (winSegment * SEGMENT_ANGLE + SEGMENT_ANGLE / 2)) % 360;
   const diff = (targetOffset - base + 360) % 360;
@@ -89,7 +96,6 @@ function WheelCanvas({ rotation }) {
     >
       <circle cx={cx} cy={cy} r={r + 6} fill="none" stroke="#c9a84c" strokeWidth="3" opacity="0.4" />
       {segments}
-      {/* Center hub */}
       <circle cx={cx} cy={cy} r={14} fill="#0a0a0a" stroke="#c9a84c" strokeWidth="2" />
       <circle cx={cx} cy={cy} r={6} fill="#c9a84c" />
     </svg>
@@ -102,26 +108,26 @@ export default function RuletaSuerte({ user, onWin }) {
   const [rotation, setRotation] = useState(0);
   const [result, setResult] = useState(null);
   const [alreadyUsed, setAlreadyUsed] = useState(false);
-  const [totalDeposited, setTotalDeposited] = useState(0);
+  const [isEligible, setIsEligible] = useState(false);
   const [loadingEligibility, setLoadingEligibility] = useState(true);
   const animRef = useRef(null);
   const startAngleRef = useRef(0);
   const startTimeRef = useRef(null);
-  const DURATION = 4500; // ms
+  const DURATION = 4500;
 
   useEffect(() => {
     if (!user?.email) return;
-    // Verificar elegibilidad: depósito > $100 y si ya usó la ruleta
+    // Elegibilidad: cualquier depósito aprobado >= $100
     base44.entities.Transaction.filter({ user_email: user.email, type: "deposit", status: "approved" }, "-created_date", 1)
       .then((txs) => {
         const lastDeposit = txs[0];
-        setTotalDeposited(lastDeposit ? lastDeposit.amount : 0);
-        setAlreadyUsed(!!user.ruleta_usada);
+        const eligible = lastDeposit && lastDeposit.amount >= 100;
+        setIsEligible(eligible);
+        // Verificar si ya giró esta semana
+        setAlreadyUsed(usedThisWeek(user.ruleta_ultima_fecha));
         setLoadingEligibility(false);
       });
-  }, [user?.email, user?.ruleta_usada]);
-
-  const isEligible = totalDeposited >= 100;
+  }, [user?.email, user?.ruleta_ultima_fecha]);
 
   const easeOut = (t) => 1 - Math.pow(1 - t, 4);
 
@@ -132,7 +138,7 @@ export default function RuletaSuerte({ user, onWin }) {
     startAngleRef.current = rotation % 360;
     startTimeRef.current = null;
 
-    const winSegment = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT_DEFAULT;
+    const winSegment = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT;
     const targetAngle = getFinalAngle(winSegment, rotation);
 
     const animate = (timestamp) => {
@@ -148,10 +154,9 @@ export default function RuletaSuerte({ user, onWin }) {
       } else {
         setRotation(targetAngle);
         setSpinning(false);
-        const winSeg = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT_DEFAULT;
-        const prize = PRIZES[winSeg];
+        const seg = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT;
+        const prize = PRIZES[seg];
         setResult(prize);
-        // Acreditar $1 al balance del usuario
         creditPrize(prize.amount);
       }
     };
@@ -160,20 +165,22 @@ export default function RuletaSuerte({ user, onWin }) {
 
   const creditPrize = async (amount) => {
     try {
+      const now = new Date().toISOString();
       await Promise.all([
-        base44.auth.updateMe({ ruleta_usada: true }),
+        base44.auth.updateMe({ ruleta_ultima_fecha: now }),
         base44.entities.Transaction.create({
           user_email: user.email,
           type: "dividend",
           amount,
           status: "completed",
-          notes: `🎰 Premio Ruleta de la Suerte — $${amount} USDT`,
+          notes: `🎰 Premio Ruleta Semanal — $${amount} USDT`,
         }),
         base44.entities.User.filter({ email: user.email }).then(async ([u]) => {
           if (u) {
             await base44.entities.User.update(u.id, {
               balance: parseFloat(((u.balance || 0) + amount).toFixed(2)),
               total_earned: parseFloat(((u.total_earned || 0) + amount).toFixed(2)),
+              ruleta_ultima_fecha: now,
             });
           }
         }),
@@ -200,8 +207,8 @@ export default function RuletaSuerte({ user, onWin }) {
             🎰
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold text-yellow-400">¡Ruleta de la Suerte disponible!</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Has desbloqueado 1 giro gratis. Premios de $1 hasta $1,000 USDT.</p>
+            <p className="text-sm font-bold text-yellow-400">¡Ruleta Semanal disponible!</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Tienes 1 giro gratis esta semana. Premios de $1 hasta $1,000 USDT.</p>
           </div>
           <Button size="sm" className="flex-shrink-0 bg-yellow-500 hover:bg-yellow-400 text-black font-bold">
             Girar
@@ -227,7 +234,7 @@ export default function RuletaSuerte({ user, onWin }) {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-yellow-400" />
-                  <h2 className="text-base font-bold text-yellow-400">Ruleta de la Suerte</h2>
+                  <h2 className="text-base font-bold text-yellow-400">Ruleta Semanal</h2>
                 </div>
                 {!spinning && (
                   <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground">
@@ -238,7 +245,6 @@ export default function RuletaSuerte({ user, onWin }) {
 
               {/* Wheel */}
               <div className="relative flex items-center justify-center mb-5">
-                {/* Puntero arriba */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10">
                   <div style={{ width: 0, height: 0, borderLeft: "10px solid transparent", borderRight: "10px solid transparent", borderTop: "22px solid #c9a84c" }} />
                 </div>
@@ -273,7 +279,7 @@ export default function RuletaSuerte({ user, onWin }) {
               )}
 
               <p className="text-center text-[10px] text-muted-foreground mt-3">
-                1 giro disponible por depósito &gt;$100 · Solo 1 uso por cuenta
+                1 giro semanal · Disponible para depósitos ≥$100 · Premios hasta $1,000 USDT
               </p>
             </motion.div>
           </>
