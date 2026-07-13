@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Copy, Shield, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Copy, Shield, AlertTriangle, RefreshCw } from "lucide-react";
 
 const WALLET_ADDRESSES = {
   BEP20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
@@ -70,6 +70,27 @@ export default function Deposit() {
   return (
     <div className="space-y-6 max-w-2xl">
       {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
+
+      {user?.role === "admin" && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs gap-1.5 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10"
+            onClick={async () => {
+              const users = await base44.entities.User.filter({ email: user.email });
+              if (users[0]) {
+                await base44.entities.User.update(users[0].id, { ruleta_ultima_fecha: null });
+                await base44.auth.updateMe({ ruleta_ultima_fecha: null });
+                setUser(prev => ({ ...prev, ruleta_ultima_fecha: null }));
+                toast.success("🎰 Ruleta reseteada — ya puedes probarla");
+              }
+            }}
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Resetear ruleta (admin)
+          </Button>
+        </div>
+      )}
 
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Depósito de Fondos</h1>
