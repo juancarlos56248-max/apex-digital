@@ -10,6 +10,7 @@ export default function TwoFactorGate({ user, onVerified }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  const [sendCount, setSendCount] = useState(0);
   const inputRefs = useRef([]);
 
   // Enviar PIN automáticamente al montar
@@ -24,10 +25,12 @@ export default function TwoFactorGate({ user, onVerified }) {
   }, [cooldown]);
 
   const sendPin = async () => {
+    if (sendCount >= 3) return;
     setSending(true);
     setError("");
     try {
       await base44.functions.invoke("enviar2FA", {});
+      setSendCount(c => c + 1);
       setCooldown(60);
     } catch {
       setError("Error al enviar el código. Intenta nuevamente.");
@@ -149,14 +152,18 @@ export default function TwoFactorGate({ user, onVerified }) {
           </Button>
 
           {/* Resend */}
-          <button
-            onClick={sendPin}
-            disabled={sending || cooldown > 0}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mx-auto disabled:opacity-40"
-          >
-            <RefreshCw className={`w-3 h-3 ${sending ? "animate-spin" : ""}`} />
-            {cooldown > 0 ? `Reenviar en ${cooldown}s` : "Reenviar código"}
-          </button>
+          {sendCount < 3 ? (
+            <button
+              onClick={sendPin}
+              disabled={sending || cooldown > 0}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mx-auto disabled:opacity-40"
+            >
+              <RefreshCw className={`w-3 h-3 ${sending ? "animate-spin" : ""}`} />
+              {cooldown > 0 ? `Reenviar en ${cooldown}s` : `Reenviar código (${3 - sendCount} restante${3 - sendCount !== 1 ? "s" : ""})`}
+            </button>
+          ) : (
+            <p className="text-xs text-destructive/80 mx-auto">Límite de reenvíos alcanzado. Recarga la página.</p>
+          )}
         </div>
 
         {/* Branding */}
