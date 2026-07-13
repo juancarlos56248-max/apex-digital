@@ -121,7 +121,7 @@ export default function Investments() {
     }
 
     // Leer el User entity directamente — es la fuente de verdad del balance
-    const userRecords = await base44.asServiceRole.entities.User.filter({ email: user.email });
+    const userRecords = await base44.entities.User.filter({ email: user.email });
     const userRecord = userRecords[0];
     if (!userRecord) {
       toast.error("⚠️ Error al verificar tu cuenta. Intenta nuevamente.");
