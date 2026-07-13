@@ -7,8 +7,8 @@ import { Star, X } from "lucide-react";
 // Premios en la ruleta
 const PRIZES = [
   { label: "$1",    amount: 1,    color: "#c9a84c", bg: "#1a1400" },
-  { label: "$50",   amount: 50,   color: "#a78bfa", bg: "#12003a" },
-  { label: "$100",  amount: 100,  color: "#34d399", bg: "#001a0d" },
+  { label: "$5",    amount: 5,    color: "#a78bfa", bg: "#12003a" },
+  { label: "$10",   amount: 10,   color: "#34d399", bg: "#001a0d" },
   { label: "$500",  amount: 500,  color: "#60a5fa", bg: "#001433" },
   { label: "$1000", amount: 1000, color: "#fb923c", bg: "#1a0800" },
 ];
@@ -16,8 +16,12 @@ const PRIZES = [
 const SEGMENTS = PRIZES.length;
 const SEGMENT_ANGLE = 360 / SEGMENTS;
 const SPINS = 8;
-const WIN_SEGMENT = 0;       // $1 para todos por defecto
 const WIN_SEGMENT_ADMIN = 4; // $1,000 para admins
+// Para usuarios normales: alterna entre $5 (seg 1) y $10 (seg 2) según la semana
+const getUserWinSegment = () => {
+  const week = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  return week % 2 === 0 ? 1 : 2; // seg 1=$50 → cambiar prizes abajo
+};
 
 // Devuelve true si el usuario ya giró esta semana (lunes–domingo)
 function usedThisWeek(lastSpinDate) {
@@ -135,7 +139,7 @@ export default function RuletaSuerte({ user, onWin }) {
     startAngleRef.current = rotation % 360;
     startTimeRef.current = null;
 
-    const winSegment = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT;
+    const winSegment = user?.role === "admin" ? WIN_SEGMENT_ADMIN : getUserWinSegment();
     const targetAngle = getFinalAngle(winSegment, rotation);
 
     const animate = (timestamp) => {
@@ -151,7 +155,7 @@ export default function RuletaSuerte({ user, onWin }) {
       } else {
         setRotation(targetAngle);
         setSpinning(false);
-        const seg = user?.role === "admin" ? WIN_SEGMENT_ADMIN : WIN_SEGMENT;
+        const seg = user?.role === "admin" ? WIN_SEGMENT_ADMIN : getUserWinSegment();
         const prize = PRIZES[seg];
         setResult(prize);
         creditPrize(prize.amount);
@@ -276,7 +280,7 @@ export default function RuletaSuerte({ user, onWin }) {
               )}
 
               <p className="text-center text-[10px] text-muted-foreground mt-3">
-                1 giro semanal · Disponible para depósitos ≥$100 · Premios hasta $1,000 USDT
+                1 giro semanal · Disponible para depósitos ≥$100 · Premio: $5 o $10 USDT
               </p>
             </motion.div>
           </>
