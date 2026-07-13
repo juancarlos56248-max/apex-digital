@@ -50,15 +50,15 @@ export default function EmailMasivoManager() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-secondary/40 p-4 text-xs text-muted-foreground leading-relaxed space-y-2.5">
+      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-xs text-muted-foreground leading-relaxed space-y-2.5">
         <p className="text-foreground font-semibold text-sm">Vista previa del mensaje:</p>
-        <p>🎉 <span className="text-gold font-semibold">¡Bienvenidos nuevamente a todos nuestros usuarios!</span></p>
-        <p>Gracias por seguir confiando en nuestra plataforma. Queremos brindarles un breve resumen de cómo funciona nuestro trabajo y compartir algunas novedades.</p>
-        <p>📊 <span className="text-foreground">Nuestro trabajo consiste en realizar trading</span>, es decir, la compra y venta de acciones en los mercados financieros. Contamos con un equipo de profesionales que analiza constantemente las mejores oportunidades de inversión para generar beneficios.</p>
-        <p>💰 El capital aportado por los usuarios nos permite realizar operaciones de mayor volumen, buscando aprovechar las oportunidades del mercado y generar ganancias a través del trading.</p>
-        <p>📈 Las utilidades obtenidas de estas operaciones son <span className="text-emerald-400 font-semibold">compartidas con nuestros usuarios</span> de acuerdo con las condiciones de la plataforma.</p>
-        <p>🚀 Estamos realizando <span className="text-gold font-semibold">mejoras continuas</span> en nuestra plataforma para brindarles un servicio más eficiente, seguro y estable.</p>
-        <p>🤝 <span className="italic">Gracias por su confianza y por formar parte de nuestra comunidad.</span></p>
+        <p>🔒 <span className="text-emerald-400 font-semibold">Actualización de Seguridad — Apex Digital</span></p>
+        <p>🔐 <span className="text-foreground font-medium">Cifrado de Nivel Bancario:</span> Protocolo AES-256, igual que los principales bancos internacionales.</p>
+        <p>🌐 <span className="text-foreground font-medium">Monitoreo 24/7:</span> Sistemas de detección automática de actividad sospechosa en tiempo real.</p>
+        <p>✅ <span className="text-foreground font-medium">Verificación Reforzada de Retiros:</span> Proceso de validación adicional para cada movimiento de fondos.</p>
+        <p>🚨 <span className="text-foreground font-medium">Sistema Anti-Fraude Avanzado:</span> Análisis inteligente de patrones de comportamiento.</p>
+        <p>🏦 <span className="text-foreground font-medium">Custodia Segregada de Fondos:</span> Sus activos están completamente separados de los operativos de la empresa.</p>
+        <p>💡 <span className="text-yellow-400 font-medium">Consejos de seguridad</span> para proteger su cuenta incluidos.</p>
       </div>
 
       {result && (
