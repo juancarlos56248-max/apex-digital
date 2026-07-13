@@ -4,15 +4,12 @@ import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { Star, X } from "lucide-react";
 
-// Premios en la ruleta — todos pueden ganar $1,000
+// Premios en la ruleta
 const PRIZES = [
   { label: "$1",    amount: 1,    color: "#c9a84c", bg: "#1a1400" },
-  { label: "$10",   amount: 10,   color: "#60a5fa", bg: "#001433" },
-  { label: "$1",    amount: 1,    color: "#c9a84c", bg: "#1a1400" },
   { label: "$50",   amount: 50,   color: "#a78bfa", bg: "#12003a" },
-  { label: "$1",    amount: 1,    color: "#c9a84c", bg: "#1a1400" },
   { label: "$100",  amount: 100,  color: "#34d399", bg: "#001a0d" },
-  { label: "$1",    amount: 1,    color: "#c9a84c", bg: "#1a1400" },
+  { label: "$500",  amount: 500,  color: "#60a5fa", bg: "#001433" },
   { label: "$1000", amount: 1000, color: "#fb923c", bg: "#1a0800" },
 ];
 
@@ -20,7 +17,7 @@ const SEGMENTS = PRIZES.length;
 const SEGMENT_ANGLE = 360 / SEGMENTS;
 const SPINS = 8;
 const WIN_SEGMENT = 0;       // $1 para todos por defecto
-const WIN_SEGMENT_ADMIN = 7; // $1,000 para admins
+const WIN_SEGMENT_ADMIN = 4; // $1,000 para admins
 
 // Devuelve true si el usuario ya giró esta semana (lunes–domingo)
 function usedThisWeek(lastSpinDate) {
