@@ -4,11 +4,17 @@ import { appParams } from '@/lib/app-params';
 
 const AuthContext = createContext();
 
+// Clave para recordar sesión 2FA verificada (por sesión de pestaña)
+const TWO_FA_KEY = 'apex_2fa_verified';
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(!!appParams.token); // only loading if token exists
   const [authError, setAuthError] = useState(null);
+  const [twoFaVerified, setTwoFaVerified] = useState(
+    () => sessionStorage.getItem(TWO_FA_KEY) === 'true'
+  );
 
   useEffect(() => {
     if (!appParams.token) {
@@ -40,9 +46,16 @@ export const AuthProvider = ({ children }) => {
       });
   }, []);
 
+  const completeTwoFa = () => {
+    sessionStorage.setItem(TWO_FA_KEY, 'true');
+    setTwoFaVerified(true);
+  };
+
   const logout = (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
+    sessionStorage.removeItem(TWO_FA_KEY);
+    setTwoFaVerified(false);
     base44.auth.logout(shouldRedirect ? window.location.href : undefined);
   };
 
@@ -56,12 +69,14 @@ export const AuthProvider = ({ children }) => {
       setUser,
       isAuthenticated,
       isLoadingAuth,
-      isLoadingPublicSettings: false, // no longer blocking
+      isLoadingPublicSettings: false,
       authError,
       appPublicSettings: null,
       logout,
       navigateToLogin,
       checkAppState: () => {},
+      twoFaVerified,
+      completeTwoFa,
     }}>
       {children}
     </AuthContext.Provider>

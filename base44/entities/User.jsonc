@@ -1,13 +1,11 @@
 {
-  "name": "User",
   "type": "object",
   "properties": {
     "role": {
       "type": "string",
       "enum": [
         "admin",
-        "user",
-        "vip"
+        "user"
       ],
       "default": "user"
     },
@@ -23,33 +21,21 @@
       "type": "number",
       "default": 0
     },
-    "total_deposited": {
-      "type": "number",
-      "default": 0
-    },
     "referral_code": {
       "type": "string"
     },
-    "referral_code_used": {
+    "referred_by": {
       "type": "string"
-    },
-    "dni": {
-      "type": "string"
-    },
-    "phone": {
-      "type": "string"
-    },
-    "welcome_bonus_claimed": {
-      "type": "boolean",
-      "default": false
-    },
-    "ruleta_usada": {
-      "type": "boolean",
-      "default": false
     },
     "ruleta_ultima_fecha": {
-      "type": "string",
-      "description": "ISO datetime del \u00faltimo giro de ruleta semanal"
+      "type": "string"
+    },
+    "two_fa_pin": {
+      "type": "string"
+    },
+    "two_fa_expires": {
+      "type": "string"
     }
-  }
+  },
+  "name": "User"
 }

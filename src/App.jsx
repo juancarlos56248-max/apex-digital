@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from './components/layout/AppLayout';
 import Landing from './pages/Landing';
+import TwoFactorGate from './components/auth/TwoFactorGate';
 
 // Lazy-load all authenticated pages for faster initial bundle
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -34,7 +35,7 @@ const PageSkeleton = () => (
 
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, authError, navigateToLogin, isAuthenticated, user, twoFaVerified, completeTwoFa } = useAuth();
 
   const pathname = window.location.pathname;
   const isPublicRoute = pathname === '/' || pathname === '/terms';
@@ -60,6 +61,11 @@ const AuthenticatedApp = () => {
         <div className="w-8 h-8 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />
       </div>
     );
+  }
+
+  // 2FA gate: mostrar solo en rutas protegidas cuando el usuario está autenticado pero no ha verificado 2FA
+  if (!isPublicRoute && isAuthenticated && user && !twoFaVerified) {
+    return <TwoFactorGate user={user} onVerified={completeTwoFa} />;
   }
 
   // Always render routes — public routes never wait
