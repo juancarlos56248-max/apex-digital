@@ -120,9 +120,15 @@ export default function Investments() {
       return;
     }
 
-    // Fetch fresh balance to avoid stale state issues
-    const freshUser = await base44.auth.me();
-    const currentBalance = freshUser?.balance || 0;
+    // Leer el User entity directamente — es la fuente de verdad del balance
+    const userRecords = await base44.entities.User.filter({ email: user.email });
+    const userRecord = userRecords[0];
+    if (!userRecord) {
+      toast.error("⚠️ Error al verificar tu cuenta. Intenta nuevamente.");
+      setSubmitting(false);
+      return;
+    }
+    const currentBalance = parseFloat((userRecord.balance || 0).toFixed(2));
 
     if (currentBalance <= 0) {
       toast.error("⚠️ Saldo Insuficiente — Tu balance es $0. Realiza un depósito primero.");
@@ -130,10 +136,15 @@ export default function Investments() {
       return;
     }
     if (currentBalance < amount) {
-      toast.error(`⚠️ Saldo Insuficiente — Tu balance es $${currentBalance.toFixed(2)} USDT`);
+      toast.error(`⚠️ Saldo Insuficiente — Tu balance disponible es $${currentBalance.toFixed(2)} USDT`);
       setSubmitting(false);
       return;
     }
+
+    const newBalance = parseFloat((currentBalance - amount).toFixed(2));
+
+    // Descontar el balance PRIMERO antes de crear la inversión
+    await base44.entities.User.update(userRecord.id, { balance: newBalance });
 
     const investmentData = {
       user_email: user.email,
@@ -151,21 +162,17 @@ export default function Investments() {
 
     await base44.entities.Investment.create(investmentData);
 
-    // Recalculate total_invested from all active investments (including the new one)
+    // Recalcular total_invested desde las inversiones activas
     const allInvs = await base44.entities.Investment.filter({ user_email: user.email, status: "active" });
     const realTotalInvested = allInvs.reduce((sum, i) => sum + (i.amount || 0), 0);
-    const newBalance = parseFloat((currentBalance - amount).toFixed(2));
 
-    // Update both auth profile and User entity atomically
-    const userRecords = await base44.entities.User.filter({ email: user.email });
+    // Actualizar total_invested y sincronizar auth profile
     await Promise.all([
+      base44.entities.User.update(userRecord.id, { total_invested: realTotalInvested }),
       base44.auth.updateMe({ balance: newBalance, total_invested: realTotalInvested }),
-      userRecords[0] && base44.entities.User.update(userRecords[0].id, {
-        balance: newBalance,
-        total_invested: realTotalInvested,
-      }),
     ]);
-    // Update local user state so Dashboard reflects the new balance immediately
+
+    // Actualizar estado local inmediatamente
     setUser(prev => ({ ...prev, balance: newBalance, total_invested: realTotalInvested }));
 
     // Process referral bonus on first node activation (non-blocking, best-effort)
