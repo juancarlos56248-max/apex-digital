@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const pin = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 115 * 60 * 1000).toISOString(); // 115 min
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 min
 
     // Guardar PIN hasheado en el User entity
     const users = await base44.asServiceRole.entities.User.filter({ email: user.email });
@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
         <div style="background:#1a1a1a;border:2px solid #c5a059;border-radius:12px;padding:20px 32px;display:inline-block;margin-bottom:20px;">
           <span style="color:#e8c97a;font-size:38px;font-weight:900;font-family:monospace;letter-spacing:10px;">${pin}</span>
         </div>
-        <p style="color:#555;font-size:12px;margin:0;">Válido por <strong style="color:#888;">115 minutos</strong>. No compartas este código.</p>
+        <p style="color:#555;font-size:12px;margin:0;">Válido por <strong style="color:#888;">15 minutos</strong>. No compartas este código.</p>
       </div>
       <p style="color:#333;font-size:11px;text-align:center;margin-top:20px;">
         Si no fuiste tú, ignora este correo. © 2026 Apex Digital
