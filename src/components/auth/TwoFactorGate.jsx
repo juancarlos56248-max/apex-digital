@@ -12,9 +12,12 @@ export default function TwoFactorGate({ user, onVerified }) {
   const [cooldown, setCooldown] = useState(0);
   const [sendCount, setSendCount] = useState(0);
   const inputRefs = useRef([]);
+  const sentOnMount = useRef(false);
 
-  // Enviar PIN automáticamente al montar
+  // Enviar PIN automáticamente al montar — solo una vez
   useEffect(() => {
+    if (sentOnMount.current) return;
+    sentOnMount.current = true;
     sendPin();
   }, []);
 
