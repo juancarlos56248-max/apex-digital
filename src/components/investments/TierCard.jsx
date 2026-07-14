@@ -121,13 +121,15 @@ const tierConfig = {
   },
 };
 
-export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, activeCount = 0 }) {
+export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, activeCount = 0, overrideMinDeposit }) {
   const config = tierConfig[tier];
   if (!config) return null;
 
+  const effectiveMin = overrideMinDeposit ?? config.minDeposit;
+
   const rangeLabel = config.maxDeposit
-    ? `$${config.minDeposit.toLocaleString()} – $${config.maxDeposit.toLocaleString()} USDT`
-    : `Desde $${config.minDeposit.toLocaleString()} USDT`;
+    ? `$${effectiveMin.toLocaleString()} – $${config.maxDeposit.toLocaleString()} USDT`
+    : `Desde $${effectiveMin.toLocaleString()} USDT`;
 
   return (
     <motion.div
@@ -225,7 +227,7 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
 
         {/* CTA */}
         <Button
-          onClick={() => onSubscribe(tier, config.minDeposit, config)}
+          onClick={() => onSubscribe(tier, effectiveMin, { ...config, minDeposit: effectiveMin })}
           className={`w-full font-semibold h-10 transition-all duration-200 ${
             hasActive
               ? "bg-secondary text-muted-foreground cursor-not-allowed"

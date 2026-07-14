@@ -54,16 +54,12 @@ export default function Investments() {
 
   // Usuarios con mínimo de inversión starter elevado a $100
   const RESTRICTED_USERS_MIN100 = ["dominguezromeroj0@gmail.com"];
+  const starterOverrideMin = RESTRICTED_USERS_MIN100.includes(user?.email) ? 100 : undefined;
 
   const handleSubscribe = (tier, deposit, config) => {
-    let effectiveConfig = config;
-    if (tier === "starter" && RESTRICTED_USERS_MIN100.includes(user?.email)) {
-      effectiveConfig = { ...config, minDeposit: 100 };
-      deposit = Math.max(deposit, 100);
-    }
     setSelectedTier(tier);
     setSelectedDeposit(deposit);
-    setSelectedConfig(effectiveConfig);
+    setSelectedConfig(config);
     setCustomAmount(String(deposit));
     setSelectedStocks([]);
     setDialogOpen(true);
@@ -289,6 +285,7 @@ export default function Investments() {
               delay={i * 0.08}
               hasActive={(activeTierCounts[tier] || 0) >= 2}
               activeCount={activeTierCounts[tier] || 0}
+              overrideMinDeposit={tier === "starter" ? starterOverrideMin : undefined}
             />
           ))}
         </div>
