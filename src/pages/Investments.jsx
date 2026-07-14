@@ -219,6 +219,12 @@ export default function Investments() {
   }
 
   const activeInvestments = investments.filter(i => i.status === "active");
+
+  // Inversiones parciales: activas pero por debajo del mínimo personalizado
+  const partialInvestments = activeInvestments.filter(inv => {
+    const tierMin = user?.tier_ranges?.[inv.tier]?.min;
+    return tierMin && inv.amount < tierMin;
+  });
   // Count active investments per tier (promo: max 2 per tier)
   const activeTierCounts = activeInvestments.reduce((acc, i) => {
     acc[i.tier] = (acc[i.tier] || 0) + 1;
@@ -255,6 +261,29 @@ export default function Investments() {
           <span className="font-semibold text-yellow-400">Aviso de Riesgo:</span> Los rendimientos mostrados son estimados y basados en análisis histórico. Los mercados financieros son volátiles y los resultados pasados no garantizan rendimientos futuros. Invierte solo lo que puedas permitirte perder.
         </p>
       </motion.div>
+
+      {partialInvestments.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-orange-500/40 bg-orange-500/10 p-4 space-y-2"
+        >
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
+            <p className="text-sm font-semibold text-orange-400">Inversión Parcial — Ganancias Suspendidas</p>
+          </div>
+          {partialInvestments.map(inv => {
+            const tierMin = user?.tier_ranges?.[inv.tier]?.min;
+            const faltante = tierMin - inv.amount;
+            return (
+              <div key={inv.id} className="rounded-lg bg-orange-500/10 border border-orange-500/20 px-3 py-2 text-[12px] text-orange-200">
+                Tu nodo <span className="font-bold uppercase">{inv.tier}</span> tiene <span className="font-mono font-bold">${inv.amount.toFixed(2)} USDT</span> depositados.
+                Necesitas depositar <span className="font-mono font-bold text-orange-300">${faltante.toFixed(2)} USDT</span> más para alcanzar el mínimo de <span className="font-mono font-bold">${tierMin} USDT</span> y activar las ganancias.
+              </div>
+            );
+          })}
+        </motion.div>
+      )}
 
       {activeInvestments.length > 0 && (
         <ActivePortfolio investments={activeInvestments} />

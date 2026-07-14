@@ -61,6 +61,15 @@ Deno.serve(async (req) => {
       const daysElapsed = (now - new Date(inv.created_date)) / (1000 * 60 * 60 * 24);
       const isExpired = daysElapsed >= durationDays;
 
+      // Verificar si el usuario tiene rango mínimo personalizado y no lo cumple
+      const userRecords = await base44.asServiceRole.entities.User.filter({ email: inv.user_email });
+      const userRecord = userRecords[0];
+      const tierMin = userRecord?.tier_ranges?.[inv.tier]?.min;
+      if (tierMin && inv.amount < tierMin) {
+        // Inversión parcial: no acreditar dividendos hasta completar el mínimo
+        return;
+      }
+
       if (hoursElapsed >= 24) {
         const cycles = Math.floor(hoursElapsed / 24);
         const dividend = parseFloat((inv.amount * dailyRate * cycles).toFixed(4));
