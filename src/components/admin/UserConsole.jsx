@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, RefreshCcw, Crown } from "lucide-react";
+import { Search, RefreshCcw, Crown, Trash2 } from "lucide-react";
 import moment from "moment";
 
 export default function UserConsole() {
@@ -25,6 +25,39 @@ export default function UserConsole() {
     await base44.entities.User.update(userId, { role: newRole });
     toast.success("Nivel de acceso actualizado");
     loadUsers();
+  };
+
+  const handleDeleteInactive = async () => {
+    if (!window.confirm("¿Eliminar todos los usuarios sin actividad (balance $0, sin transacciones ni inversiones)? Esta acción es irreversible.")) return;
+
+    setLoading(true);
+    try {
+      // Obtener todos los usuarios con balance $0
+      const candidates = users.filter(u => u.role !== "admin" && !(u.balance > 0));
+
+      // Verificar cuáles tienen transacciones o inversiones
+      const inactive = [];
+      await Promise.all(candidates.map(async (u) => {
+        const [txs, invs] = await Promise.all([
+          base44.entities.Transaction.filter({ user_email: u.email }),
+          base44.entities.Investment.filter({ user_email: u.email }),
+        ]);
+        if (txs.length === 0 && invs.length === 0) inactive.push(u.id);
+      }));
+
+      if (inactive.length === 0) {
+        toast.info("No se encontraron usuarios inactivos.");
+        setLoading(false);
+        return;
+      }
+
+      await Promise.all(inactive.map(id => base44.entities.User.delete(id)));
+      toast.success(`${inactive.length} usuario(s) inactivo(s) eliminado(s).`);
+      loadUsers();
+    } catch {
+      toast.error("Error al eliminar usuarios inactivos.");
+      setLoading(false);
+    }
   };
 
   const filtered = users.filter(u => 
@@ -57,6 +90,9 @@ export default function UserConsole() {
           </div>
           <Button variant="ghost" size="sm" onClick={loadUsers} className="gap-1.5 text-xs">
             <RefreshCcw className="w-3 h-3" />
+          </Button>
+          <Button variant="destructive" size="sm" onClick={handleDeleteInactive} className="gap-1.5 text-xs">
+            <Trash2 className="w-3 h-3" /> Limpiar inactivos
           </Button>
         </div>
       </div>
