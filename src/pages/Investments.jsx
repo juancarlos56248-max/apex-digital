@@ -52,10 +52,18 @@ export default function Investments() {
     { symbol: "AMD", name: "AMD" },
   ];
 
+  // Usuarios con mínimo de inversión starter elevado a $100
+  const RESTRICTED_USERS_MIN100 = ["dominguezromeroj0@gmail.com"];
+
   const handleSubscribe = (tier, deposit, config) => {
+    let effectiveConfig = config;
+    if (tier === "starter" && RESTRICTED_USERS_MIN100.includes(user?.email)) {
+      effectiveConfig = { ...config, minDeposit: 100 };
+      deposit = Math.max(deposit, 100);
+    }
     setSelectedTier(tier);
     setSelectedDeposit(deposit);
-    setSelectedConfig(config);
+    setSelectedConfig(effectiveConfig);
     setCustomAmount(String(deposit));
     setSelectedStocks([]);
     setDialogOpen(true);
