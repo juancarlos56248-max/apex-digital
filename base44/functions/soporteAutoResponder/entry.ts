@@ -17,16 +17,30 @@ Deno.serve(async (req) => {
 
     // Generate AI auto-reply
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `Eres el asistente de soporte de APEX Digital, una plataforma de inversiones en criptomonedas. 
-Un usuario llamado "${ticket.user_name || ticket.user_email}" escribió:
+      prompt: `Eres el agente de soporte oficial de APEX Digital, una plataforma de gestión de activos digitales e inversiones institucionales con sede en Singapur.
+
+El usuario "${ticket.user_name || ticket.user_email}" envió este mensaje:
 "${ticket.message}"
 
-Responde de forma profesional, cálida y concisa en español. 
-- Si pregunta sobre retiros: el tiempo es 24-72 horas hábiles, comisión del 8%, límite de 2 por día.
-- Si pregunta sobre depósitos: se verifican manualmente en 1-6 horas hábiles.
-- Si pregunta sobre inversiones: los dividendos se acreditan cada 24 horas.
-- Si es urgente o requiere intervención humana: dile que un agente lo atenderá pronto.
-- Máximo 3 oraciones. No uses emojis excesivos. Firma como "Equipo APEX Digital".`,
+INSTRUCCIONES ESTRICTAS:
+1. Responde SOLO en español, de forma profesional, directa y empática.
+2. Usa máximo 2-3 oraciones cortas. Sin listas ni bullets.
+3. NO inventes información. Si no sabes la respuesta exacta, di que un agente lo revisará personalmente.
+4. NO uses frases genéricas como "lamentamos los inconvenientes". Sé específico al tema del mensaje.
+5. NO firmes ni uses emojis.
+
+INFORMACIÓN OFICIAL DE LA PLATAFORMA:
+- Depósitos: se procesan manualmente en 1-6 horas hábiles. Redes aceptadas: TRC20, ERC20, BEP20.
+- Retiros: requieren 24-72 horas hábiles. Comisión de red: 8%. Máximo 1 retiro por ciclo de 24h.
+- Dividendos: se acreditan automáticamente cada 24 horas en el balance disponible.
+- Nodos de inversión: Starter (mín $100), Pro, Elite, Institutional. Pueden activarse múltiples nodos.
+- Plan prueba: solo 1 uso por cuenta, monto fijo de $5, no es retirable.
+- Bono de bienvenida ($5): no es retirable, solo para iniciar inversión.
+- Referidos: comisión automática al activar primer nodo el referido.
+- Seguridad: encriptación de extremo a extremo, monitoreo 24/7.
+- Soporte disponible 7 días. Correo: soporte@pristineapex.pro
+
+Si el tema es técnico, urgente o implica fondos bloqueados, indica que un agente humano revisará el caso en las próximas horas.`,
     });
 
     // Update ticket with auto-reply
