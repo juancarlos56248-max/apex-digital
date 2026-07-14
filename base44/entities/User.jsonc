@@ -35,6 +35,10 @@
     },
     "two_fa_expires": {
       "type": "string"
+    },
+    "tier_ranges": {
+      "type": "object",
+      "description": "Rangos personalizados por plan: { starter: { min, max }, advance: { min, max }, ... }"
     }
   },
   "name": "User"

@@ -121,14 +121,15 @@ const tierConfig = {
   },
 };
 
-export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, activeCount = 0, overrideMinDeposit }) {
+export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, activeCount = 0, overrideMinDeposit, overrideMaxDeposit }) {
   const config = tierConfig[tier];
   if (!config) return null;
 
   const effectiveMin = overrideMinDeposit ?? config.minDeposit;
+  const effectiveMax = overrideMaxDeposit !== undefined ? overrideMaxDeposit : config.maxDeposit;
 
-  const rangeLabel = config.maxDeposit
-    ? `$${effectiveMin.toLocaleString()} – $${config.maxDeposit.toLocaleString()} USDT`
+  const rangeLabel = effectiveMax
+    ? `$${effectiveMin.toLocaleString()} – $${effectiveMax.toLocaleString()} USDT`
     : `Desde $${effectiveMin.toLocaleString()} USDT`;
 
   return (
@@ -227,7 +228,7 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
 
         {/* CTA */}
         <Button
-          onClick={() => onSubscribe(tier, effectiveMin, { ...config, minDeposit: effectiveMin })}
+          onClick={() => onSubscribe(tier, effectiveMin, { ...config, minDeposit: effectiveMin, maxDeposit: effectiveMax })}
           className={`w-full font-semibold h-10 transition-all duration-200 ${
             hasActive
               ? "bg-secondary text-muted-foreground cursor-not-allowed"

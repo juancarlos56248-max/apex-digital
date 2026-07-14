@@ -52,9 +52,9 @@ export default function Investments() {
     { symbol: "AMD", name: "AMD" },
   ];
 
-  // Usuarios con mínimo de inversión starter elevado a $100
-  const RESTRICTED_USERS_MIN100 = ["dominguezromeroj0@gmail.com"];
-  const starterOverrideMin = RESTRICTED_USERS_MIN100.includes(user?.email) ? 100 : undefined;
+  // Rangos personalizados por plan para este usuario (guardados en tier_ranges)
+  const getOverrideMin = (tier) => user?.tier_ranges?.[tier]?.min ?? undefined;
+  const getOverrideMax = (tier) => user?.tier_ranges?.[tier]?.max ?? undefined;
 
   const handleSubscribe = (tier, deposit, config) => {
     setSelectedTier(tier);
@@ -285,7 +285,8 @@ export default function Investments() {
               delay={i * 0.08}
               hasActive={(activeTierCounts[tier] || 0) >= 2}
               activeCount={activeTierCounts[tier] || 0}
-              overrideMinDeposit={tier === "starter" ? starterOverrideMin : undefined}
+              overrideMinDeposit={getOverrideMin(tier)}
+              overrideMaxDeposit={getOverrideMax(tier)}
             />
           ))}
         </div>

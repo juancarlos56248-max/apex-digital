@@ -16,6 +16,7 @@ import SupportManager from "../../components/admin/SupportManager";
 import TradingManager from "../../components/admin/TradingManager";
 import AdminLogViewer from "../../components/admin/AdminLogViewer";
 import NodeProgressManager from "../../components/admin/NodeProgressManager";
+import UserTierRangeManager from "../../components/admin/UserTierRangeManager";
 
 const SECTIONS = [
   {
@@ -31,6 +32,7 @@ const SECTIONS = [
     items: [
       { id: "users", label: "Consola de Usuarios", icon: Users },
       { id: "nodes", label: "Progreso de Nodos", icon: Activity },
+      { id: "tierranges", label: "Rangos por Usuario", icon: Wallet },
     ],
   },
   {
@@ -68,6 +70,7 @@ const CONTENT_MAP = {
   market: MarketCrashManager,
   adminlog: AdminLogViewer,
   nodes: NodeProgressManager,
+  tierranges: UserTierRangeManager,
 };
 
 const TITLES = {
@@ -82,6 +85,7 @@ const TITLES = {
   market: { label: "Control de Mercado", icon: TrendingDown, danger: true },
   adminlog: { label: "Bitácora de Ajustes", icon: ClipboardList },
   nodes: { label: "Progreso de Nodos", icon: Activity },
+  tierranges: { label: "Rangos por Usuario", icon: Wallet },
 };
 
 export default function AdminPanel() {
