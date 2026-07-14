@@ -17,11 +17,7 @@ const SEGMENTS = PRIZES.length;
 const SEGMENT_ANGLE = 360 / SEGMENTS;
 const SPINS = 8;
 const WIN_SEGMENT_ADMIN = 4; // $1,000 para admins
-// Para usuarios normales: alterna entre $5 (seg 1) y $10 (seg 2) según la semana
-const getUserWinSegment = () => {
-  const week = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
-  return week % 2 === 0 ? 1 : 2; // seg 1=$50 → cambiar prizes abajo
-};
+const getUserWinSegment = () => 0; // seg 0 = $1 para usuarios normales
 
 // Devuelve true si el usuario ya giró esta semana (lunes–domingo)
 function usedThisWeek(lastSpinDate) {
@@ -280,7 +276,7 @@ export default function RuletaSuerte({ user, onWin }) {
               )}
 
               <p className="text-center text-[10px] text-muted-foreground mt-3">
-                1 giro semanal · Disponible para depósitos ≥$100 · Premio: $5 o $10 USDT
+                1 giro semanal · Disponible para depósitos ≥$100 · Premio: $1 USDT
               </p>
             </motion.div>
           </>
