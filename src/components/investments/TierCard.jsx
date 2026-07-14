@@ -32,7 +32,7 @@ const tierConfig = {
     subtitle: "Apple Inc. (AAPL)",
     logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
     logoBg: "bg-white",
-    minDeposit: 10,
+    minDeposit: 100,
     maxDeposit: 499,
     dailyReturn: "10%",
     totalReturn: "300%",
