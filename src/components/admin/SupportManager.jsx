@@ -158,42 +158,52 @@ export default function SupportManager() {
               <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-background/20">
                 {currentMessages.map((tk) => (
                   <div key={tk.id} className="space-y-2">
-                    {/* User message */}
-                    <div className="flex justify-end">
+                    {/* User message — izquierda */}
+                    <div className="flex gap-2 justify-start">
+                      <div className="w-6 h-6 rounded-full bg-secondary border border-border flex items-center justify-center flex-shrink-0 mt-0.5 text-[9px] font-bold text-muted-foreground">
+                        {getInitials(currentConv?.name)}
+                      </div>
                       <div className="max-w-[75%] space-y-1">
-                        <div className="bg-secondary border border-border rounded-2xl rounded-tr-sm px-3 py-2">
+                        <div className="bg-secondary border border-border rounded-2xl rounded-tl-sm px-3 py-2">
                           <p className="text-xs text-foreground leading-relaxed">{tk.message}</p>
                         </div>
-                        <p className="text-[10px] text-muted-foreground text-right px-1">
+                        <p className="text-[10px] text-muted-foreground px-1">
                           {formatDistanceToNow(new Date(tk.created_date), { addSuffix: true, locale: es })}
                         </p>
                       </div>
                     </div>
-                    {/* Reply */}
+                    {/* Reply — derecha (admin) */}
                     {tk.reply && (
-                      <div className="flex gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-[9px] font-black text-gold">A</span>
-                        </div>
+                      <div className="flex justify-end gap-2">
                         <div className="max-w-[75%] space-y-1">
-                          <div className="bg-gold/10 border border-gold/20 rounded-2xl rounded-tl-sm px-3 py-2">
-                            <p className="text-[10px] text-gold font-semibold mb-0.5">Soporte APEX</p>
+                          <div className="bg-gold/10 border border-gold/20 rounded-2xl rounded-tr-sm px-3 py-2">
+                            <p className="text-[10px] text-gold font-semibold mb-0.5">Tú (Soporte APEX)</p>
                             <p className="text-xs text-foreground leading-relaxed">{tk.reply}</p>
                           </div>
-                          {tk.status !== "closed" && (
-                            <button
-                              onClick={() => handleClose(tk.id)}
-                              className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-emerald-400 transition-colors ml-1"
-                            >
-                              <CheckCircle2 className="w-3 h-3" /> Cerrar
-                            </button>
-                          )}
+                          <div className="flex items-center justify-end gap-2 px-1">
+                            {tk.status !== "closed" && (
+                              <button
+                                onClick={() => handleClose(tk.id)}
+                                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-emerald-400 transition-colors"
+                              >
+                                <CheckCircle2 className="w-3 h-3" /> Cerrar
+                              </button>
+                            )}
+                            {tk.status === "closed" && (
+                              <span className="text-[10px] text-emerald-500 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" /> Cerrado
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="w-6 h-6 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-[9px] font-black text-gold">A</span>
                         </div>
                       </div>
                     )}
                     {!tk.reply && tk.status === "open" && (
-                      <div className="ml-8">
-                        <span className="text-[10px] text-yellow-500/70">⏳ Pendiente de respuesta</span>
+                      <div className="flex justify-end">
+                        <span className="text-[10px] text-yellow-500/70">⏳ Sin respuesta</span>
                       </div>
                     )}
                   </div>
