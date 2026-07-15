@@ -1,17 +1,27 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { User, CreditCard, Phone } from "lucide-react";
+import { User, CreditCard, Phone, Camera, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ProfileGate({ user, onComplete }) {
   const [fullName, setFullName] = useState(user?.full_name || "");
   const [dni, setDni] = useState(user?.dni || "");
   const [phone, setPhone] = useState(user?.phone || "");
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +30,12 @@ export default function ProfileGate({ user, onComplete }) {
       return;
     }
     setSaving(true);
-    await base44.auth.updateMe({ full_name: fullName.trim(), dni: dni.trim(), phone: phone.trim() });
+    let photo_url = undefined;
+    if (photoFile) {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: photoFile });
+      photo_url = file_url;
+    }
+    await base44.auth.updateMe({ full_name: fullName.trim(), dni: dni.trim(), phone: phone.trim(), ...(photo_url && { photo_url }) });
     toast.success("Perfil completado. ¡Bienvenido a Apex Digital!");
     onComplete();
   };
@@ -87,6 +102,35 @@ export default function ProfileGate({ user, onComplete }) {
                 className="bg-secondary border-border font-mono"
                 type="tel"
               />
+            </div>
+
+            {/* Foto de identificación */}
+            <div>
+              <Label className="text-xs text-muted-foreground flex items-center gap-1.5 mb-1.5">
+                <Camera className="w-3 h-3" /> Foto de Identificación <span className="text-muted-foreground/50">(opcional)</span>
+              </Label>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+              {photoPreview ? (
+                <div className="relative w-full h-36 rounded-lg overflow-hidden border border-border">
+                  <img src={photoPreview} alt="ID preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => { setPhotoPreview(null); setPhotoFile(null); }}
+                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80"
+                  >
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-24 rounded-lg border border-dashed border-border bg-secondary/40 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-gold/40 hover:text-gold transition-colors"
+                >
+                  <Camera className="w-5 h-5" />
+                  <span className="text-xs">Subir foto de DNI o pasaporte</span>
+                </button>
+              )}
             </div>
 
             <Button
