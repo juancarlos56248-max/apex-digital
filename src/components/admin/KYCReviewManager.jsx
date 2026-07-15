@@ -37,7 +37,7 @@ export default function KYCReviewManager() {
       return;
     }
     setLoadingPhoto(p => ({ ...p, [userId]: true }));
-    const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: uri, expires_in: 300 });
+    const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: uri, expires_in: 86400 });
     setSignedUrls(p => ({ ...p, [userId]: signed_url }));
     setLoadingPhoto(p => ({ ...p, [userId]: false }));
   };
@@ -90,7 +90,7 @@ export default function KYCReviewManager() {
               {signedUrls[u.id] && (
                 <div className="rounded-lg overflow-hidden border border-border">
                   <img src={signedUrls[u.id]} alt="DNI" className="w-full max-h-64 object-contain bg-black" />
-                  <p className="text-[10px] text-muted-foreground text-center py-1">URL expira en 5 minutos</p>
+                  <p className="text-[10px] text-muted-foreground text-center py-1">URL expira en 24 horas</p>
                 </div>
               )}
 
