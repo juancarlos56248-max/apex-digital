@@ -37,7 +37,7 @@ export default function AppLayout() {
         const me = await base44.auth.me();
         // Show UI immediately — do async init in background
         setUser(me);
-        setProfileComplete(!!(me.dni && me.phone));
+        setProfileComplete(!!(me.dni && me.phone && me.kyc_selfie_uri));
 
         // Background: init referral code + welcome bonus without blocking render
         const updates = {};
