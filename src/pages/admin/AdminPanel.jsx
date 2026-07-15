@@ -17,6 +17,7 @@ import TradingManager from "../../components/admin/TradingManager";
 import AdminLogViewer from "../../components/admin/AdminLogViewer";
 import NodeProgressManager from "../../components/admin/NodeProgressManager";
 import UserTierRangeManager from "../../components/admin/UserTierRangeManager";
+import KYCReviewManager from "../../components/admin/KYCReviewManager";
 
 const SECTIONS = [
   {
@@ -33,6 +34,7 @@ const SECTIONS = [
       { id: "users", label: "Consola de Usuarios", icon: Users },
       { id: "nodes", label: "Progreso de Nodos", icon: Activity },
       { id: "tierranges", label: "Rangos por Usuario", icon: Wallet },
+      { id: "kyc", label: "Verificación KYC", icon: Shield },
     ],
   },
   {
@@ -71,6 +73,7 @@ const CONTENT_MAP = {
   adminlog: AdminLogViewer,
   nodes: NodeProgressManager,
   tierranges: UserTierRangeManager,
+  kyc: KYCReviewManager,
 };
 
 const TITLES = {
@@ -86,6 +89,7 @@ const TITLES = {
   adminlog: { label: "Bitácora de Ajustes", icon: ClipboardList },
   nodes: { label: "Progreso de Nodos", icon: Activity },
   tierranges: { label: "Rangos por Usuario", icon: Wallet },
+  kyc: { label: "Verificación KYC", icon: Shield },
 };
 
 export default function AdminPanel() {

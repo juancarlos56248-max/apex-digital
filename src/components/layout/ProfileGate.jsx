@@ -34,12 +34,13 @@ export default function ProfileGate({ user, onComplete }) {
       return;
     }
     setSaving(true);
-    let photo_url = undefined;
+    let dni_photo_uri = undefined;
     if (photoFile) {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: photoFile });
-      photo_url = file_url;
+      // Subir como archivo PRIVADO — solo admin puede acceder con URL firmada
+      const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file: photoFile });
+      dni_photo_uri = file_uri;
     }
-    await base44.auth.updateMe({ full_name: fullName.trim(), dni: dni.trim(), phone: phone.trim(), ...(photo_url && { photo_url }) });
+    await base44.auth.updateMe({ full_name: fullName.trim(), dni: dni.trim(), phone: phone.trim(), kyc_status: "pending", ...(dni_photo_uri && { dni_photo_uri }) });
     toast.success("Perfil completado. ¡Bienvenido a Apex Digital!");
     onComplete();
   };
