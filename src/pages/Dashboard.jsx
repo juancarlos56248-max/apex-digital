@@ -9,6 +9,7 @@ import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActiveInvestments from "../components/dashboard/ActiveInvestments";
 import MarketAlerts from "../components/dashboard/MarketAlerts";
 import SorteoBanner from "../components/dashboard/SorteoBanner";
+import BonoDepositoBanner from "@/components/promo/BonoDepositoBanner";
 
 import { motion } from "framer-motion";
 
@@ -97,6 +98,9 @@ export default function Dashboard() {
           </Link>
         </motion.div>
       )}
+
+      {/* Banner promo bono depósito */}
+      <BonoDepositoBanner />
 
       {/* Banner sorteo Fiestas Patrias */}
       <SorteoBanner />

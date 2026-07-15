@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Shield, AlertTriangle, RefreshCw } from "lucide-react";
+import BonoDepositoBanner from "@/components/promo/BonoDepositoBanner";
 
 const WALLET_ADDRESSES = {
   BEP20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
@@ -69,6 +70,7 @@ export default function Deposit() {
 
   return (
     <div className="space-y-6 max-w-2xl">
+      <BonoDepositoBanner />
       {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
 
       {user?.role === "admin" && (
