@@ -15,6 +15,12 @@ Deno.serve(async (req) => {
       return Response.json({ ok: true, skipped: "already replied or not open" });
     }
 
+    // Usuarios excluidos del bot — atención manual únicamente
+    const botExcluded = ["dominguezromeroj0@gmail.com"];
+    if (botExcluded.includes(ticket.user_email)) {
+      return Response.json({ ok: true, skipped: "user excluded from bot" });
+    }
+
     // Generate AI auto-reply
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `Eres el agente de soporte oficial de APEX Digital, una plataforma de gestión de activos digitales e inversiones institucionales con sede en Singapur.
