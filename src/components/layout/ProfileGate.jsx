@@ -29,6 +29,10 @@ export default function ProfileGate({ user, onComplete }) {
       toast.error("Todos los campos son obligatorios.");
       return;
     }
+    if (!photoFile) {
+      toast.error("Debes subir una foto de tu DNI o pasaporte para verificar tu identidad.");
+      return;
+    }
     setSaving(true);
     let photo_url = undefined;
     if (photoFile) {
@@ -107,7 +111,7 @@ export default function ProfileGate({ user, onComplete }) {
             {/* Foto de identificación */}
             <div>
               <Label className="text-xs text-muted-foreground flex items-center gap-1.5 mb-1.5">
-                <Camera className="w-3 h-3" /> Foto de Identificación <span className="text-muted-foreground/50">(opcional)</span>
+                <Camera className="w-3 h-3" /> Foto de Identificación <span className="text-red-400 text-[10px]">* obligatorio</span>
               </Label>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
               {photoPreview ? (
