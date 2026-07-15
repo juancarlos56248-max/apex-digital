@@ -89,17 +89,19 @@ export default function InlineSupportChat() {
 
         {tickets.map(tk => (
           <div key={tk.id} className="space-y-2">
-            {/* User message */}
-            <div className="flex justify-end">
-              <div className="max-w-[80%] space-y-1">
-                <div className="bg-gold/20 border border-gold/25 rounded-2xl rounded-tr-sm px-3 py-2.5">
-                  <p className="text-xs leading-relaxed">{tk.message}</p>
+            {/* User message — ocultar si es respuesta proactiva del admin */}
+            {tk.message !== "—" && (
+              <div className="flex justify-end">
+                <div className="max-w-[80%] space-y-1">
+                  <div className="bg-gold/20 border border-gold/25 rounded-2xl rounded-tr-sm px-3 py-2.5">
+                    <p className="text-xs leading-relaxed">{tk.message}</p>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground text-right px-1">
+                    {formatDistanceToNow(new Date(tk.created_date), { addSuffix: true, locale: es })}
+                  </p>
                 </div>
-                <p className="text-[10px] text-muted-foreground text-right px-1">
-                  {formatDistanceToNow(new Date(tk.created_date), { addSuffix: true, locale: es })}
-                </p>
               </div>
-            </div>
+            )}
 
             {/* Reply */}
             {tk.reply ? (

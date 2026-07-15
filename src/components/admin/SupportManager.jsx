@@ -53,16 +53,19 @@ export default function SupportManager() {
   const handleReply = async () => {
     if (!replyText.trim() || !selectedUser || sending) return;
     setSending(true);
-    // Reply to the last open unanswered ticket, or create a new one
-    const openTicket = currentMessages.slice().reverse().find(t => t.status === "open" && !t.reply);
+    // Buscar el ticket más reciente sin respuesta
+    const openTicket = currentMessages.slice().reverse().find(t => !t.reply);
     if (openTicket) {
       await base44.entities.SupportTicket.update(openTicket.id, { reply: replyText.trim(), status: "replied" });
     } else {
-      // No open ticket, reply to last one anyway
-      const lastTicket = currentMessages[currentMessages.length - 1];
-      if (lastTicket) {
-        await base44.entities.SupportTicket.update(lastTicket.id, { reply: replyText.trim(), status: "replied" });
-      }
+      // Todos los tickets tienen respuesta: crear uno nuevo para esta respuesta admin
+      await base44.entities.SupportTicket.create({
+        user_email: selectedUser,
+        user_name: currentConv?.name || selectedUser,
+        message: "—",
+        reply: replyText.trim(),
+        status: "replied",
+      });
     }
     toast.success("Respuesta enviada");
     setReplyText("");
