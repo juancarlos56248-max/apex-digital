@@ -53,20 +53,14 @@ export default function SupportManager() {
   const handleReply = async () => {
     if (!replyText.trim() || !selectedUser || sending) return;
     setSending(true);
-    // Buscar el ticket más reciente sin respuesta
-    const openTicket = currentMessages.slice().reverse().find(t => !t.reply);
-    if (openTicket) {
-      await base44.entities.SupportTicket.update(openTicket.id, { reply: replyText.trim(), status: "replied" });
-    } else {
-      // Todos los tickets tienen respuesta: crear uno nuevo para esta respuesta admin
-      await base44.entities.SupportTicket.create({
-        user_email: selectedUser,
-        user_name: currentConv?.name || selectedUser,
-        message: "—",
-        reply: replyText.trim(),
-        status: "replied",
-      });
-    }
+    // Siempre crear un ticket nuevo para que aparezca al final de la conversación
+    await base44.entities.SupportTicket.create({
+      user_email: selectedUser,
+      user_name: currentConv?.name || selectedUser,
+      message: "—",
+      reply: replyText.trim(),
+      status: "replied",
+    });
     toast.success("Respuesta enviada");
     setReplyText("");
     setSending(false);
