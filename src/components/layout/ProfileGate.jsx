@@ -66,7 +66,7 @@ export default function ProfileGate({ user, onComplete }) {
           <div className="mb-5">
             <h2 className="text-base font-semibold">Completa tu perfil</h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Para cumplir con los protocolos KYC/AML de nuestra división de Singapur, necesitamos verificar tu identidad antes de operar.
+              Para cumplir con los protocolos KYC/AML de nuestra división de Singapur, necesitamos verificar tu identidad antes de operar. La revisión toma hasta <strong>24 horas hábiles</strong>.
             </p>
           </div>
 
