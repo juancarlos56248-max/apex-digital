@@ -33,7 +33,7 @@ INFORMACIÓN OFICIAL DE LA PLATAFORMA:
 - Depósitos: se procesan manualmente en 1-6 horas hábiles. Redes aceptadas: TRC20, ERC20, BEP20.
 - Retiros: requieren 24-72 horas hábiles. Comisión de red: 8%. Máximo 1 retiro por ciclo de 24h.
 - Dividendos: se acreditan automáticamente cada 24 horas en el balance disponible.
-- Nodos de inversión: Starter (mín $100), Pro, Elite, Institutional. Pueden activarse múltiples nodos.
+- Nodos de inversión: Starter (mín $10), Pro, Elite, Institutional. Pueden activarse múltiples nodos.
 - Plan prueba: solo 1 uso por cuenta, monto fijo de $5, no es retirable.
 - Bono de bienvenida ($5): no es retirable, solo para iniciar inversión.
 - Referidos: comisión automática al activar primer nodo el referido.
