@@ -46,11 +46,16 @@ export default function KYCReviewManager() {
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    (async () => {
-      const all = await base44.entities.User.list();
-      setUsers(all.filter(u => u.dni_photo_uri || u.kyc_selfie_uri));
-      setLoading(false);
-    })();
+    base44.entities.User.list()
+      .then(all => {
+        // Mostrar todos los que subieron algo O tienen kyc_status
+        setUsers(all.filter(u => u.dni_photo_uri || u.kyc_selfie_uri || u.kyc_status));
+      })
+      .catch(err => {
+        console.error("KYC load error:", err);
+        toast.error("Error al cargar usuarios: " + err.message);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const updateKYC = async (userId, status) => {
