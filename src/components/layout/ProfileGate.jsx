@@ -60,7 +60,9 @@ export default function ProfileGate({ user, onComplete }) {
 
   // If user already completed the original profile (has dni+phone) but is missing the selfie,
   // skip the name/dni/phone fields and only ask for the selfie.
-  const onlyNeedsSelfie = !!(user?.dni && user?.phone && !user?.kyc_selfie_uri);
+  // Solo saltarse los campos de DNI/phone si ya tienen datos reales (no placeholder 00000000)
+  const hasRealDni = !!(user?.dni && user?.dni !== "00000000" && user?.phone);
+  const onlyNeedsSelfie = hasRealDni && !user?.kyc_selfie_uri;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

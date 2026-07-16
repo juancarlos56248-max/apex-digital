@@ -151,7 +151,16 @@ export default function AppLayout() {
   }
 
   if (!profileComplete && user) {
-    return <ProfileGate user={user} onComplete={() => setProfileComplete(true)} />;
+    return (
+      <ProfileGate
+        user={user}
+        onComplete={async () => {
+          const me = await base44.auth.me();
+          setUser(me);
+          setProfileComplete(!!(me.dni && me.phone && me.kyc_selfie_uri));
+        }}
+      />
+    );
   }
 
   return (
