@@ -47,15 +47,14 @@ export default function KYCReviewManager() {
 
   useEffect(() => {
     (async () => {
-      const all = await base44.asServiceRole.entities.User.list();
-      // Mostrar usuarios que tienen al menos el DNI o la selfie
+      const all = await base44.entities.User.list();
       setUsers(all.filter(u => u.dni_photo_uri || u.kyc_selfie_uri));
       setLoading(false);
     })();
   }, []);
 
   const updateKYC = async (userId, status) => {
-    await base44.asServiceRole.entities.User.update(userId, { kyc_status: status });
+    await base44.entities.User.update(userId, { kyc_status: status });
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, kyc_status: status } : u));
     toast.success(`KYC ${status === "approved" ? "aprobado ✅" : "rechazado ❌"}`);
   };
