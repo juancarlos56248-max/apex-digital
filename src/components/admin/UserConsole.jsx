@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, RefreshCcw, Crown, Trash2 } from "lucide-react";
+import { Search, RefreshCcw, Crown, Trash2, CreditCard, Phone } from "lucide-react";
 import moment from "moment";
 
 export default function UserConsole() {
@@ -14,8 +14,13 @@ export default function UserConsole() {
 
   const loadUsers = async () => {
     setLoading(true);
-    const all = await base44.entities.User.list("-created_date", 100);
-    setUsers(all);
+    try {
+      const res = await base44.functions.invoke('adminListarUsuarios', {});
+      const all = (res.data?.users || []).sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      setUsers(all);
+    } catch {
+      toast.error("Error al cargar usuarios");
+    }
     setLoading(false);
   };
 
@@ -102,6 +107,7 @@ export default function UserConsole() {
           <thead>
             <tr className="border-b border-border text-[11px] text-muted-foreground uppercase tracking-wider">
               <th className="px-4 py-3 text-left">Usuario</th>
+              <th className="px-4 py-3 text-left">DNI / Teléfono</th>
               <th className="px-4 py-3 text-left">Balance</th>
               <th className="px-4 py-3 text-left">Invertido</th>
               <th className="px-4 py-3 text-left">Ganado</th>
@@ -120,6 +126,16 @@ export default function UserConsole() {
                     </p>
                     <p className="text-[11px] text-muted-foreground">{u.email}</p>
                   </div>
+                </td>
+                <td className="px-4 py-3">
+                  {u.dni ? (
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-mono flex items-center gap-1"><CreditCard className="w-3 h-3 text-muted-foreground" />{u.dni}</p>
+                      {u.phone && <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{u.phone}</p>}
+                    </div>
+                  ) : (
+                    <span className="text-[11px] text-muted-foreground/50">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 font-mono text-sm">${(u.balance || 0).toLocaleString()}</td>
                 <td className="px-4 py-3 font-mono text-sm">${(u.total_invested || 0).toLocaleString()}</td>
@@ -141,7 +157,7 @@ export default function UserConsole() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-sm">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground text-sm">
                   No se encontraron usuarios
                 </td>
               </tr>
