@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import PullToRefresh from "../components/layout/PullToRefresh";
-import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, ArrowDownToLine, ArrowUpFromLine, Users, Zap } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, ArrowDownToLine, ArrowUpFromLine, Users, Zap, ShieldCheck, ShieldX, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import StatsCard from "../components/dashboard/StatsCard";
@@ -98,6 +98,42 @@ export default function Dashboard() {
           </Link>
         </motion.div>
       )}
+
+      {/* KYC Status Banner */}
+      {user && (() => {
+        const status = user.kyc_status;
+        if (status === "approved") return (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3">
+            <ShieldCheck className="w-5 h-5 text-green-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-green-400">Identidad Verificada ✅</p>
+              <p className="text-xs text-muted-foreground">Tu cuenta está verificada y tiene acceso completo a la plataforma.</p>
+            </div>
+          </motion.div>
+        );
+        if (status === "rejected") return (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
+            <ShieldX className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-red-400">Verificación Rechazada ❌</p>
+              <p className="text-xs text-muted-foreground">Tus documentos no pudieron ser validados. Contáctate con soporte para reenviarlos.</p>
+            </div>
+          </motion.div>
+        );
+        if (status === "pending") return (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3">
+            <Clock className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-yellow-400">Verificación en Revisión ⏳</p>
+              <p className="text-xs text-muted-foreground">Tus documentos están siendo revisados. Tienes respuesta en hasta 24 horas hábiles.</p>
+            </div>
+          </motion.div>
+        );
+        return null;
+      })()}
 
       {/* Banner promo bono depósito */}
       <BonoDepositoBanner />
