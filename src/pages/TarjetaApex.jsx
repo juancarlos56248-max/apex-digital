@@ -136,7 +136,7 @@ export default function TarjetaApex() {
 
       {/* Card visual */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
-        <ApexCard user={user} cardNumber={hasAccess ? cardNumber : null} />
+        <ApexCard user={user} cardNumber={hasAccess && requested ? cardNumber : null} />
       </motion.div>
 
       {!hasAccess ? (
