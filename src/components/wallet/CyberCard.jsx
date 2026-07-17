@@ -1,6 +1,6 @@
 import { Eye, EyeOff, Wifi } from "lucide-react";
 
-export default function CyberCard({ user, cardNumber, balance, hideBalance, onToggleBalance }) {
+export default function CyberCard({ user, countryCode, cardNumber, balance, hideBalance, onToggleBalance }) {
   return (
     <div className="relative mx-auto aspect-[1.586] w-full max-w-md select-none">
       <div className="absolute -inset-1 rounded-[1.8rem] bg-gradient-to-r from-gold/40 via-gold-dark/30 to-gold/40 blur-lg" />
@@ -14,7 +14,7 @@ export default function CyberCard({ user, cardNumber, balance, hideBalance, onTo
               <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-gold/40 bg-gold/15 text-sm font-black text-gold">A</div>
               <div><p className="text-sm font-black tracking-[0.24em]">APEX</p><p className="text-[8px] uppercase tracking-[0.3em] text-muted-foreground">Quantum wallet</p></div>
             </div>
-            <div className="flex items-center gap-2 text-gold"><Wifi className="h-4 w-4 rotate-90" /><span className="text-[9px] tracking-[0.2em]">DIGITAL</span></div>
+            <div className="flex items-center gap-2 text-gold"><Wifi className="h-4 w-4 rotate-90" /><span className="text-[9px] tracking-[0.2em]">DIGITAL // {countryCode}</span></div>
           </div>
           <div>
             <p className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground">Saldo disponible</p>

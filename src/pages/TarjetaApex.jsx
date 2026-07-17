@@ -11,6 +11,20 @@ import WalletRequest from "@/components/wallet/WalletRequest";
 
 const MIN_INVESTMENT = 1000;
 
+const COUNTRY_BY_PHONE_PREFIX = {
+  "51": "PE", "57": "CO", "52": "MX", "56": "CL", "593": "EC",
+  "54": "AR", "591": "BO", "55": "BR", "58": "VE", "595": "PY",
+  "598": "UY", "34": "ES", "1": "US",
+};
+
+function getCountryCode(phone = "") {
+  const digits = phone.replace(/\D/g, "");
+  const prefix = Object.keys(COUNTRY_BY_PHONE_PREFIX)
+    .sort((a, b) => b.length - a.length)
+    .find(value => digits.startsWith(value));
+  return COUNTRY_BY_PHONE_PREFIX[prefix] || "PE";
+}
+
 export default function TarjetaApex() {
   const { user } = useOutletContext();
   const [totalInvested, setTotalInvested] = useState(0);
@@ -72,7 +86,7 @@ export default function TarjetaApex() {
         <div className="grid items-start gap-6 lg:grid-cols-[1.15fr_.85fr]">
           <div className="space-y-5">
             <motion.div initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }}>
-              <CyberCard user={user} cardNumber={requested ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
+              <CyberCard user={user} countryCode={getCountryCode(user?.phone)} cardNumber={requested ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
             </motion.div>
             <div className="flex items-center justify-between rounded-2xl border border-gold-dark/25 bg-gradient-to-r from-gold-dark/10 to-gold/5 p-4">
               <div><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Cashback acumulado</p><p className="mt-1 font-mono text-2xl font-black text-gold">$0.00</p><p className="text-[9px] text-muted-foreground">USDT · 5% en cada compra</p></div>
