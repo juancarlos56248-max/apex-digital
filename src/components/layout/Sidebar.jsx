@@ -12,7 +12,7 @@ const navItems = [
   { path: "/investments", label: "Inversiones", icon: TrendingUp },
   { path: "/sesion-especial", label: "🚨 Sesión Especial", icon: Zap, highlight: true },
   { path: "/trading", label: "Trading", icon: BarChart2 },
-  { path: "/tarjeta", label: "💳 Tarjeta APEX", icon: CreditCard },
+  { path: "/tarjeta", label: "💳 Billetera Digital", icon: CreditCard },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
   { path: "/referrals", label: "Referidos", icon: Users },
