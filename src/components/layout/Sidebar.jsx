@@ -55,7 +55,7 @@ export default function Sidebar({ open, onClose, user }) {
           {/* Logo */}
           <div className="p-6 flex items-center justify-between">
             <Link to="/dashboard" className="flex items-center gap-3" onClick={onClose}>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl border border-gold-light/30 bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center shadow-lg shadow-gold/15">
                 <span className="text-black font-bold text-lg">A</span>
               </div>
               <div>

@@ -22,7 +22,7 @@ export default function BottomNav() {
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all ${
-                active ? "text-gold" : item.highlight ? "text-amber-400" : "text-muted-foreground"
+                active ? "border border-gold/20 bg-gold/10 text-gold shadow-[0_0_18px_hsl(var(--gold)/0.08)]" : item.highlight ? "text-amber-400" : "border border-transparent text-muted-foreground"
               }`}
             >
               <item.icon className={`w-5 h-5 ${active ? "text-gold" : ""}`} />

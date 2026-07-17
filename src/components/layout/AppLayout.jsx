@@ -190,7 +190,7 @@ export default function AppLayout() {
             </button>
           )}
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg border border-gold-light/30 bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center shadow-md shadow-gold/15">
               <span className="text-black font-bold text-xs">A</span>
             </div>
             <span className="text-gold font-bold text-sm tracking-tight">APEX</span>

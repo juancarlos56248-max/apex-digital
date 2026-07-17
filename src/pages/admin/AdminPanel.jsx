@@ -104,7 +104,7 @@ export default function AdminPanel() {
   const CurrentIcon = current?.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-3xl border border-gold/10 bg-background/40 p-1 md:p-3">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-3">
