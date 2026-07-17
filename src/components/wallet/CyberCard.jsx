@@ -1,6 +1,6 @@
 import { Eye, EyeOff, Wifi } from "lucide-react";
 
-export default function CyberCard({ user, countryCode, cardNumber, balance, hideBalance, onToggleBalance }) {
+export default function CyberCard({ user, countryCode = "PE", cardNumber, balance, hideBalance, onToggleBalance }) {
   return (
     <div className="relative mx-auto aspect-[1.586] w-full max-w-md select-none">
       <div className="absolute -inset-1 rounded-[1.8rem] bg-gradient-to-r from-gold/40 via-gold-dark/30 to-gold/40 blur-lg" />
