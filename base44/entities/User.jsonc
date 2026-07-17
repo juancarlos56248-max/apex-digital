@@ -21,6 +21,10 @@
       "type": "number",
       "default": 0
     },
+    "welcome_bonus_claimed": {
+      "type": "boolean",
+      "default": false
+    },
     "referral_code": {
       "type": "string"
     },

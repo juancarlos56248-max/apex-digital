@@ -44,17 +44,17 @@ export default function AppLayout() {
         if (!me.referral_code) {
           updates.referral_code = "APEX" + Math.random().toString(36).substring(2, 8).toUpperCase();
         }
-        const isNewUser = me.balance === undefined || me.balance === null;
-        if (isNewUser) {
-          updates.balance = 5; // bono de bienvenida $5 USDT
-          updates.total_invested = 0;
-          updates.total_earned = 0;
+        const shouldClaimWelcomeBonus = me.welcome_bonus_claimed !== true;
+        if (shouldClaimWelcomeBonus) {
+          updates.balance = Number(me.balance || 0) + 5;
+          if (me.total_invested === undefined || me.total_invested === null) updates.total_invested = 0;
+          if (me.total_earned === undefined || me.total_earned === null) updates.total_earned = 0;
           updates.welcome_bonus_claimed = true;
         }
         if (Object.keys(updates).length > 0) {
           await base44.auth.updateMe(updates);
           setUser(prev => ({ ...prev, ...updates }));
-          if (isNewUser) {
+          if (shouldClaimWelcomeBonus) {
             // Email de bienvenida (fire-and-forget)
             base44.functions.invoke('emailBienvenida', { data: { email: me.email, full_name: me.full_name } });
             // Registrar el bono como transacción
