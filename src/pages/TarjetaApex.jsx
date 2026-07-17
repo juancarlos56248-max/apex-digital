@@ -130,7 +130,7 @@ export default function TarjetaApex() {
           <h1 className="text-2xl font-bold">Tarjeta APEX</h1>
           <span className="text-[10px] bg-gold/20 text-gold border border-gold/30 rounded-full px-2 py-0.5 font-bold uppercase tracking-wider">Exclusiva</span>
         </div>
-        <p className="text-sm text-muted-foreground">Tu tarjeta de compra respaldada por tus inversiones</p>
+        <p className="text-sm text-muted-foreground">Solicita tu tarjeta y úsala en miles de comercios</p>
       </motion.div>
 
       {/* Card visual */}
