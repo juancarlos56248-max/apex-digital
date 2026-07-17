@@ -78,7 +78,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-background font-inter overflow-x-hidden">
+    <div className="min-h-screen bg-background/80 font-inter overflow-x-hidden">
       {/* Maintenance Banner */}
       <div className="w-full bg-yellow-500/10 border-b border-yellow-500/30 px-4 py-2.5 flex items-center justify-center gap-2.5 text-center">
         <Wrench className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0 animate-pulse" />
@@ -88,7 +88,7 @@ export default function Landing() {
       </div>
 
       {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <nav className="fixed top-0 inset-x-0 z-50 bg-background/75 backdrop-blur-xl border-b border-gold/20">
         <div className="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20">
@@ -96,7 +96,7 @@ export default function Landing() {
             </div>
             <div>
               <span className="text-gold font-black tracking-wider text-base">APEX</span>
-              <span className="text-[10px] text-muted-foreground ml-1.5 tracking-[0.2em] uppercase font-medium">Digital</span>
+              <span className="text-[10px] text-muted-foreground ml-1.5 tracking-[0.2em] uppercase font-medium">Cyber Finance</span>
             </div>
           </div>
           <Button size="sm" onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-black font-bold text-xs px-5 shadow-lg shadow-gold/20">
@@ -206,15 +206,15 @@ export default function Landing() {
                   <AreaChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="heroGold" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(40,52%,56%)" stopOpacity={0.4} />
-                        <stop offset="100%" stopColor="hsl(40,52%,56%)" stopOpacity={0} />
+                        <stop offset="0%" stopColor="hsl(189,94%,52%)" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="hsl(189,94%,52%)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <Tooltip
                       contentStyle={{ background: "hsl(0,0%,6%)", border: "1px solid hsl(0,0%,15%)", borderRadius: "8px", fontSize: "11px" }}
                       formatter={(v) => [`$${v.toLocaleString()}`, "Valor"]}
                     />
-                    <Area type="monotone" dataKey="v" stroke="hsl(40,52%,56%)" strokeWidth={2.5} fill="url(#heroGold)" dot={false} />
+                    <Area type="monotone" dataKey="v" stroke="hsl(189,94%,52%)" strokeWidth={2.5} fill="url(#heroGold)" dot={false} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>

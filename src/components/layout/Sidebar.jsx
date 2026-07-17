@@ -46,7 +46,7 @@ export default function Sidebar({ open, onClose, user }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full z-50 w-72 bg-sidebar border-r border-sidebar-border
+        fixed top-0 left-0 h-full z-50 w-72 bg-sidebar/90 backdrop-blur-xl border-r border-gold/15
         transition-transform duration-300 ease-out
         lg:translate-x-0 lg:static lg:z-auto
         ${open ? "translate-x-0" : "-translate-x-full"}
@@ -60,7 +60,7 @@ export default function Sidebar({ open, onClose, user }) {
               </div>
               <div>
                 <h1 className="text-gold font-bold text-lg tracking-tight">APEX</h1>
-                <p className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Digital Assets</p>
+                <p className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Cyber Finance</p>
               </div>
             </Link>
             <button onClick={onClose} className="lg:hidden text-muted-foreground hover:text-foreground">
@@ -81,7 +81,7 @@ export default function Sidebar({ open, onClose, user }) {
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                     ${active 
-                      ? "bg-gold/10 text-gold border border-gold/20" 
+                      ? "bg-gradient-to-r from-gold/15 to-gold-dark/10 text-gold border border-gold/30 shadow-[inset_3px_0_0_hsl(var(--gold))]" 
                       : item.highlight ? "text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 bg-amber-500/5 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }
                   `}
@@ -108,7 +108,7 @@ export default function Sidebar({ open, onClose, user }) {
                       className={`
                         flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                         ${active 
-                          ? "bg-gold/10 text-gold border border-gold/20" 
+                          ? "bg-gradient-to-r from-gold/15 to-gold-dark/10 text-gold border border-gold/30 shadow-[inset_3px_0_0_hsl(var(--gold))]" 
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                         }
                       `}

@@ -164,13 +164,14 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="relative flex h-screen overflow-hidden bg-background/90">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-gold-dark/5" />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
       
       <main className="flex-1 overflow-y-auto">
         {/* Mobile top bar */}
         <div
-          className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border px-4 flex items-center justify-between"
+          className="lg:hidden sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-gold/20 px-4 flex items-center justify-between"
           style={{ paddingTop: `calc(env(safe-area-inset-top) + 12px)`, paddingBottom: "12px" }}
         >
           {isRootTab ? (

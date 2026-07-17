@@ -113,7 +113,7 @@ export default function AdminPanel() {
           </div>
           <div>
             <h1 className="text-2xl font-bold">Panel de Administración</h1>
-            <p className="text-sm text-muted-foreground">Back-Office de control operativo</p>
+            <p className="text-sm text-muted-foreground">Cyber Command · Control operativo</p>
           </div>
         </div>
       </motion.div>
@@ -137,7 +137,7 @@ export default function AdminPanel() {
                   <button
                     key={item.id}
                     onClick={() => setActive(item.id)}
-                    className={`flex items-center justify-between px-4 py-4 rounded-xl border bg-card transition-all text-left group
+                    className={`flex items-center justify-between px-4 py-4 rounded-xl border bg-card/80 backdrop-blur-sm transition-all text-left group
                       ${item.danger
                         ? "border-destructive/20 hover:bg-destructive/10 hover:border-destructive/40"
                         : "border-border hover:bg-secondary/60 hover:border-gold/30"
