@@ -36,9 +36,18 @@ export default function TarjetaApex() {
 
   useEffect(() => {
     if (!user?.email) return;
-    base44.entities.Investment.filter({ user_email: user.email, status: "active" })
-      .then(investments => setTotalInvested(investments.reduce((sum, item) => sum + (item.amount || 0), 0)))
-      .finally(() => setLoading(false));
+    Promise.all([
+      base44.entities.Investment.filter({ user_email: user.email, status: "active" }),
+      base44.entities.Transaction.filter({
+        user_email: user.email,
+        type: "deposit",
+        status: "completed",
+        notes: "ACTIVACIÓN TARJETA VIRTUAL APEX",
+      }),
+    ]).then(([investments, cardActivations]) => {
+      setTotalInvested(investments.reduce((sum, item) => sum + (item.amount || 0), 0));
+      setRequested(cardActivations.length > 0);
+    }).finally(() => setLoading(false));
   }, [user?.email]);
 
   const handleRequest = async () => {
