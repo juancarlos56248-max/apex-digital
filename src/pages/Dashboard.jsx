@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import PullToRefresh from "../components/layout/PullToRefresh";
-import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, ArrowDownToLine, ArrowUpFromLine, Users, Zap, ShieldCheck, ShieldX, Clock } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, Users, Zap, ShieldCheck, ShieldX, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import StatsCard from "../components/dashboard/StatsCard";
@@ -15,13 +15,6 @@ import { motion } from "framer-motion";
 
 const PerformanceChart = lazy(() => import("../components/dashboard/PerformanceChart"));
 import EarningsChart from "../components/dashboard/EarningsChart";
-
-const quickActions = [
-  { label: "Depositar", desc: "Añade fondos ahora", icon: ArrowDownToLine, to: "/deposit", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
-  { label: "Invertir", desc: "Activa un nodo", icon: TrendingUp, to: "/investments", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
-  { label: "Retirar", desc: "Liquidar ganancias", icon: ArrowUpFromLine, to: "/withdraw", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
-  { label: "Referidos", desc: "Gana comisiones", icon: Users, to: "/referrals", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
-];
 
 export default function Dashboard() {
   const { user, setUser } = useOutletContext();
@@ -142,30 +135,6 @@ export default function Dashboard() {
         <StatsCard icon={DollarSign} label="Rendimiento Activo" value={`$${totalDividends.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} trend={hasInvestments ? 5.1 : null} delay={0.2} loading={loadingData} />
         <StatsCard icon={Users} label="Total ganado" value={`$${(user?.total_earned || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} delay={0.3} loading={!user} />
       </div>
-
-      {/* Quick Actions */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Acciones rápidas</p>
-        {/* Mobile: fila scroll horizontal · Desktop: grid */}
-        <div className="flex gap-2.5 overflow-x-auto pb-1 sm:pb-0 sm:grid sm:grid-cols-4 scrollbar-none" style={{ scrollSnapType: "x mandatory" }}>
-          {quickActions.map((a, i) => (
-            <Link key={a.to} to={a.to} className="flex-shrink-0 w-[calc(50%-5px)] sm:w-auto" style={{ scrollSnapAlign: "start" }}>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                className={`rounded-xl border ${a.border} bg-card p-3 sm:p-4 flex flex-row sm:flex-col items-center sm:items-start gap-3 sm:gap-2 cursor-pointer transition-all hover:bg-secondary/40 active:scale-95 group h-full`}
-              >
-                <div className={`w-10 h-10 rounded-xl ${a.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                  <a.icon className={`w-5 h-5 ${a.color}`} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold">{a.label}</p>
-                  <p className="text-[10px] text-muted-foreground">{a.desc}</p>
-                </div>
-              </motion.div>
-            </Link>
-          ))}
-        </div>
-      </motion.div>
 
       <section className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Novedades</p>
