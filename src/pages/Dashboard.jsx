@@ -59,20 +59,20 @@ export default function Dashboard() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="space-y-6">
       <MarketAlerts />
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-end justify-between gap-4">
+        className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="text-xl sm:text-2xl font-bold">
             Hola, <span className="text-primary">{user?.full_name?.split(" ")[0] || "Inversor"}</span>
           </h1>
-          <p className="mt-2 text-base text-muted-foreground">Panel de activos digitales</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Panel de activos digitales</p>
         </div>
         <Link to="/investments" className="flex-shrink-0">
-          <Button className="h-11 rounded-xl bg-gold px-5 font-bold text-background shadow-xl shadow-gold/20 hover:bg-gold-light">
+          <Button size="sm" className="bg-gold hover:bg-gold-dark text-white font-semibold gap-1.5 shadow-lg shadow-gold/20">
             <Zap className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Activar Nodo</span>
             <span className="sm:hidden">Invertir</span>
@@ -104,10 +104,10 @@ export default function Dashboard() {
         const status = user.kyc_status;
         if (status === "approved") return (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 rounded-2xl border border-gold bg-gold/20 px-6 py-5 shadow-lg shadow-gold/5">
-            <ShieldCheck className="h-6 w-6 flex-shrink-0 text-gold" />
+            className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3">
+            <ShieldCheck className="w-5 h-5 text-green-400 flex-shrink-0" />
             <div>
-              <p className="text-base font-bold text-gold">Identidad Verificada ✅</p>
+              <p className="text-sm font-semibold text-green-400">Identidad Verificada ✅</p>
               <p className="text-xs text-muted-foreground">Tu cuenta está verificada y tiene acceso completo a la plataforma.</p>
             </div>
           </motion.div>
@@ -136,7 +136,7 @@ export default function Dashboard() {
       })()}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatsCard icon={Wallet} label="Balance disponible" value={`$${(user?.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} delay={0} loading={!user} />
         <StatsCard icon={TrendingUp} label="Activos invertidos" value={`$${totalActive.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} trend={hasInvestments ? 2.4 : null} delay={0.1} loading={loadingData} />
         <StatsCard icon={DollarSign} label="Rendimiento Activo" value={`$${totalDividends.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} trend={hasInvestments ? 5.1 : null} delay={0.2} loading={loadingData} />
@@ -147,12 +147,12 @@ export default function Dashboard() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Acciones rápidas</p>
         {/* Mobile: fila scroll horizontal · Desktop: grid */}
-        <div className="grid grid-cols-2 gap-5">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 sm:pb-0 sm:grid sm:grid-cols-4 scrollbar-none" style={{ scrollSnapType: "x mandatory" }}>
           {quickActions.map((a, i) => (
-            <Link key={a.to} to={a.to} className="min-w-0">
+            <Link key={a.to} to={a.to} className="flex-shrink-0 w-[calc(50%-5px)] sm:w-auto" style={{ scrollSnapAlign: "start" }}>
               <motion.div
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                className={`group flex min-h-36 cursor-pointer flex-col items-start justify-center gap-3 rounded-2xl border border-gold/70 bg-card p-6 shadow-xl shadow-black/20 transition-all hover:bg-secondary active:scale-[0.98]`}
+                className={`rounded-xl border ${a.border} bg-card p-3 sm:p-4 flex flex-row sm:flex-col items-center sm:items-start gap-3 sm:gap-2 cursor-pointer transition-all hover:bg-secondary/40 active:scale-95 group h-full`}
               >
                 <div className={`w-10 h-10 rounded-xl ${a.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
                   <a.icon className={`w-5 h-5 ${a.color}`} />
@@ -168,9 +168,24 @@ export default function Dashboard() {
       </motion.div>
 
       <section className="space-y-4">
-        <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Novedades</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Novedades</p>
+        <BonoDepositoBanner />
         <SorteoBanner />
       </section>
+
+      {/* Earnings history chart — real user data */}
+      {user?.email && <EarningsChart userEmail={user.email} />}
+
+      {/* Chart — lazy loaded so it never blocks navigation */}
+      <Suspense fallback={<div className="h-80 rounded-2xl border border-border bg-card animate-pulse" />}>
+        <PerformanceChart />
+      </Suspense>
+
+      {/* Active Investments & Recent Transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ActiveInvestments investments={investments} loading={loadingData} />
+        <RecentTransactions transactions={transactions} loading={loadingData} />
+      </div>
     </div>
     </PullToRefresh>
   );

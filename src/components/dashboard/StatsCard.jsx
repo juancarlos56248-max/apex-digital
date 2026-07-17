@@ -6,13 +6,11 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", trend
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay }}
-      className="relative min-h-48 overflow-visible rounded-2xl border border-gold/80 bg-card p-7 shadow-2xl shadow-black/30 transition-colors duration-200 hover:border-gold"
+      className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5 hover:border-primary/25 transition-colors duration-200"
     >
-      <div className="absolute inset-x-4 -bottom-3 -z-10 h-full rounded-2xl border border-gold/20 bg-gold/5" />
-      <div className="absolute inset-x-8 -bottom-5 -z-20 h-full rounded-2xl border border-gold/10 bg-gold/5" />
-      <div className="relative flex h-full flex-col justify-between">
-        <div className="mb-5 flex items-center justify-between">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/15">
+      <div className="relative">
+        <div className="flex items-center justify-between mb-3">
+          <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
             <Icon className="w-4 h-4 text-gold" />
           </div>
           {trend && !loading && (
@@ -25,7 +23,7 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", trend
         {loading ? (
           <div className="h-7 w-24 rounded-md bg-secondary/60 animate-pulse mt-1" />
         ) : (
-          <p className="font-mono text-2xl font-bold tracking-tight sm:text-4xl">
+          <p className="font-mono text-lg sm:text-2xl font-bold tracking-tight">
             {value}
             {suffix && <span className="text-sm text-muted-foreground ml-1">{suffix}</span>}
           </p>
