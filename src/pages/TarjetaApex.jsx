@@ -300,25 +300,11 @@ export default function TarjetaApex() {
           <motion.div key="inicio" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="space-y-3">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Últimos movimientos</p>
-            {MOCK_MOVEMENTS.map((m, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3.5">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  m.type === "cashback" ? "bg-gold/10 border border-gold/20" : "bg-secondary border border-border"
-                }`}>
-                  <m.icon className={`w-4 h-4 ${m.type === "cashback" ? "text-gold" : "text-muted-foreground"}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{m.desc}</p>
-                  <p className="text-[11px] text-muted-foreground">{m.date}
-                    {m.cashback && <span className="text-gold ml-1.5">+${m.cashback.toFixed(2)} cashback</span>}
-                  </p>
-                </div>
-                <p className={`text-sm font-bold font-mono flex-shrink-0 ${m.amount > 0 ? "text-emerald-400" : "text-foreground"}`}>
-                  {m.amount > 0 ? "+" : ""}{m.amount.toFixed(2)}
-                </p>
-              </div>
-            ))}
-            <p className="text-center text-[11px] text-muted-foreground pt-1">Movimientos demo · Los reales aparecerán aquí</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-2">
+              <ShoppingBag className="w-10 h-10 text-muted-foreground/20" />
+              <p className="text-sm font-medium text-muted-foreground">Sin movimientos aún</p>
+              <p className="text-xs text-muted-foreground/60">Tus transacciones aparecerán aquí</p>
+            </div>
           </motion.div>
         )}
 
