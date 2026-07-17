@@ -30,7 +30,6 @@ export default function TarjetaApex() {
   const [totalInvested, setTotalInvested] = useState(0);
   const [loading, setLoading] = useState(true);
   const [requested, setRequested] = useState(false);
-  const [form, setForm] = useState({ address: "", city: "", phone: user?.phone || "" });
   const [submitting, setSubmitting] = useState(false);
   const [hideBalance, setHideBalance] = useState(false);
   const [activeTab, setActiveTab] = useState("inicio");
@@ -43,16 +42,15 @@ export default function TarjetaApex() {
   }, [user?.email]);
 
   const handleRequest = async () => {
-    if (!form.address || !form.city || !form.phone) return toast.error("Completa todos los campos");
     setSubmitting(true);
     await base44.entities.Transaction.create({
       user_email: user.email,
       type: "deposit",
       amount: 0,
-      status: "pending",
-      notes: `SOLICITUD TARJETA APEX — Dirección: ${form.address}, ${form.city} — Tel: ${form.phone}`,
+      status: "completed",
+      notes: "ACTIVACIÓN TARJETA VIRTUAL APEX",
     });
-    toast.success("Solicitud enviada. Recibirás tu tarjeta en 5–10 días hábiles.");
+    toast.success("Tu Tarjeta Virtual APEX está activa.");
     setRequested(true);
     setSubmitting(false);
   };
@@ -94,7 +92,7 @@ export default function TarjetaApex() {
             </div>
             <WalletActivity activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
-          <WalletRequest requested={requested} form={form} setForm={setForm} submitting={submitting} onSubmit={handleRequest} />
+          <WalletRequest requested={requested} submitting={submitting} onSubmit={handleRequest} />
         </div>
       </div>
     </div>
