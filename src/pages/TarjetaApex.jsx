@@ -43,7 +43,7 @@ export default function TarjetaApex() {
     setSubmitting(false);
   };
 
-  if (loading) return <div className="flex h-40 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-chart-3/20 border-t-chart-3" /></div>;
+  if (loading) return <div className="flex h-40 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gold/20 border-t-gold" /></div>;
 
   const hasAccess = totalInvested >= MIN_INVESTMENT || user?.role === "admin";
   if (!hasAccess) return <LockedWallet user={user} totalInvested={totalInvested} minimum={MIN_INVESTMENT} />;
@@ -53,13 +53,13 @@ export default function TarjetaApex() {
   const cardNumber = `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8, 12)} ${digits.slice(12)}`;
 
   return (
-    <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-chart-3/10 bg-background p-4 md:p-8">
-      <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-chart-3/5 blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 top-60 h-72 w-72 rounded-full bg-chart-4/5 blur-3xl" />
+    <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-gold/10 bg-background p-4 md:p-8">
+      <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-gold/5 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 top-60 h-72 w-72 rounded-full bg-gold-dark/5 blur-3xl" />
       <div className="relative">
         <motion.header initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-7 flex items-start justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-chart-3">APEX // DIGITAL VAULT</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-gold">APEX // DIGITAL VAULT</p>
             <h1 className="mt-2 text-2xl font-black md:text-3xl">Billetera Digital</h1>
             <p className="mt-1 text-xs text-muted-foreground">Infraestructura financiera con cashback del 5%</p>
           </div>
@@ -74,9 +74,9 @@ export default function TarjetaApex() {
             <motion.div initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }}>
               <CyberCard user={user} cardNumber={requested ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
             </motion.div>
-            <div className="flex items-center justify-between rounded-2xl border border-chart-4/25 bg-gradient-to-r from-chart-4/10 to-chart-3/5 p-4">
-              <div><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Cashback acumulado</p><p className="mt-1 font-mono text-2xl font-black text-chart-3">$0.00</p><p className="text-[9px] text-muted-foreground">USDT · 5% en cada compra</p></div>
-              <div className="rounded-2xl border border-chart-3/20 bg-chart-3/10 p-4"><Star className="h-6 w-6 fill-chart-3/20 text-chart-3" /></div>
+            <div className="flex items-center justify-between rounded-2xl border border-gold-dark/25 bg-gradient-to-r from-gold-dark/10 to-gold/5 p-4">
+              <div><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Cashback acumulado</p><p className="mt-1 font-mono text-2xl font-black text-gold">$0.00</p><p className="text-[9px] text-muted-foreground">USDT · 5% en cada compra</p></div>
+              <div className="rounded-2xl border border-gold/20 bg-gold/10 p-4"><Star className="h-6 w-6 fill-gold/20 text-gold" /></div>
             </div>
             <WalletActivity activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>

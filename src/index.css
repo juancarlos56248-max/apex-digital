@@ -9,25 +9,25 @@
     --font-inter: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
-    --background: 224 40% 4%;
-    --foreground: 210 40% 96%;
-    --card: 222 35% 7%;
-    --card-foreground: 210 40% 96%;
+    --background: 0 0% 2%;
+    --foreground: 40 20% 95%;
+    --card: 0 0% 4%;
+    --card-foreground: 40 20% 95%;
     --popover: 0 0% 5%;
     --popover-foreground: 40 20% 95%;
-    --primary: 189 94% 52%;
+    --primary: 40 52% 56%;
     --primary-foreground: 0 0% 2%;
     --secondary: 0 0% 8%;
     --secondary-foreground: 40 20% 90%;
     --muted: 0 0% 10%;
     --muted-foreground: 0 0% 55%;
-    --accent: 264 83% 65%;
+    --accent: 40 52% 56%;
     --accent-foreground: 0 0% 2%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 12%;
     --input: 0 0% 12%;
-    --ring: 189 94% 52%;
+    --ring: 40 52% 56%;
     --chart-1: 40 52% 56%;
     --chart-2: 142 71% 45%;
     --chart-3: 199 89% 48%;
@@ -43,33 +43,33 @@
     --sidebar-border: 0 0% 10%;
     --sidebar-ring: 40 52% 56%;
 
-    --gold: 189 94% 52%;
-    --gold-light: 199 95% 62%;
-    --gold-dark: 264 83% 65%;
+    --gold: 40 52% 56%;
+    --gold-light: 40 60% 70%;
+    --gold-dark: 40 45% 40%;
     --success: 142 71% 45%;
     --warning: 38 92% 50%;
   }
 
   .dark {
-    --background: 224 40% 4%;
-    --foreground: 210 40% 96%;
-    --card: 222 35% 7%;
-    --card-foreground: 210 40% 96%;
+    --background: 0 0% 2%;
+    --foreground: 40 20% 95%;
+    --card: 0 0% 4%;
+    --card-foreground: 40 20% 95%;
     --popover: 0 0% 5%;
     --popover-foreground: 40 20% 95%;
-    --primary: 189 94% 52%;
+    --primary: 40 52% 56%;
     --primary-foreground: 0 0% 2%;
     --secondary: 0 0% 8%;
     --secondary-foreground: 40 20% 90%;
     --muted: 0 0% 10%;
     --muted-foreground: 0 0% 55%;
-    --accent: 264 83% 65%;
+    --accent: 40 52% 56%;
     --accent-foreground: 0 0% 2%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 12%;
     --input: 0 0% 12%;
-    --ring: 189 94% 52%;
+    --ring: 40 52% 56%;
     --chart-1: 40 52% 56%;
     --chart-2: 142 71% 45%;
     --chart-3: 199 89% 48%;
@@ -93,7 +93,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-inter);
-    background-image: radial-gradient(circle at 20% 0%, hsl(var(--chart-3) / 0.08), transparent 30%), radial-gradient(circle at 85% 20%, hsl(var(--chart-4) / 0.07), transparent 28%), linear-gradient(hsl(var(--border) / 0.18) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / 0.18) 1px, transparent 1px);
+    background-image: radial-gradient(circle at 20% 0%, hsl(var(--gold) / 0.08), transparent 30%), radial-gradient(circle at 85% 20%, hsl(var(--gold-dark) / 0.06), transparent 28%), linear-gradient(hsl(var(--gold) / 0.025) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--gold) / 0.025) 1px, transparent 1px);
     background-size: auto, auto, 42px 42px, 42px 42px;
     overscroll-behavior-y: contain;
   }

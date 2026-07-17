@@ -60,7 +60,7 @@ export default function Sidebar({ open, onClose, user }) {
               </div>
               <div>
                 <h1 className="text-gold font-bold text-lg tracking-tight">APEX</h1>
-                <p className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Cyber Finance</p>
+                <p className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">Digital Assets</p>
               </div>
             </Link>
             <button onClick={onClose} className="lg:hidden text-muted-foreground hover:text-foreground">

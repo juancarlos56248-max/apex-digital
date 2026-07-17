@@ -113,7 +113,7 @@ export default function AdminPanel() {
           </div>
           <div>
             <h1 className="text-2xl font-bold">Panel de Administración</h1>
-            <p className="text-sm text-muted-foreground">Cyber Command · Control operativo</p>
+            <p className="text-sm text-muted-foreground">Back-Office de control operativo</p>
           </div>
         </div>
       </motion.div>
