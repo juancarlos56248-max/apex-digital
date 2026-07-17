@@ -45,7 +45,7 @@ export default function TarjetaApex() {
 
   if (loading) return <div className="flex h-40 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gold/20 border-t-gold" /></div>;
 
-  const hasAccess = totalInvested >= MIN_INVESTMENT || user?.role === "admin";
+  const hasAccess = totalInvested > MIN_INVESTMENT || user?.role === "admin";
   if (!hasAccess) return <LockedWallet user={user} totalInvested={totalInvested} minimum={MIN_INVESTMENT} />;
 
   const code = user?.email || "apexwallet";

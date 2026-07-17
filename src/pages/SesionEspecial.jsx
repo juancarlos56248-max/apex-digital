@@ -72,7 +72,7 @@ export default function SesionEspecial() {
     if (!user?.email) return;
     base44.entities.Transaction.filter({ user_email: user.email, status: "pending" })
       .then(txs => {
-        const sesion = txs.find(t => t.notes?.includes("SESIÓN ESPECIAL"));
+        const sesion = txs.find(t => t.notes?.includes("SESIÓN ESPECIAL") || t.notes?.includes("OPORTUNIDAD ACTIVA"));
         if (sesion) setExistingParticipation(sesion);
       })
       .finally(() => setLoadingCheck(false));
@@ -86,7 +86,7 @@ export default function SesionEspecial() {
   const handleSubmit = async () => {
     const amt = Number(amount);
     if (!amount || !txid) { toast.error("Completa todos los campos"); return; }
-    if (amt < 50) { toast.error("Monto mínimo para esta sesión: $50 USDT"); return; }
+    if (amt < 50) { toast.error("Monto mínimo para esta oportunidad: $50 USDT"); return; }
 
     // Verificar TXID duplicado
     const existing = await base44.entities.Transaction.filter({ txid: txid.trim() });
@@ -103,7 +103,7 @@ export default function SesionEspecial() {
       status: "pending",
       txid: txid.trim(),
       network: "BEP20",
-      notes: "SESIÓN ESPECIAL — Compra masiva detectada",
+      notes: "OPORTUNIDAD ACTIVA — Compra masiva detectada",
     });
     toast.success("✅ Participación registrada. Desembolso en 3 días.");
     setExistingParticipation(tx);
@@ -129,13 +129,13 @@ export default function SesionEspecial() {
         <div className="relative z-10 space-y-2">
           <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-3 py-1 mb-1">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Sesión Activa — Cupos limitados</span>
+            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Oportunidad Activa — Cupos limitados</span>
           </div>
           <h1 className="text-2xl font-black text-gold-light leading-tight">
             🚨 Compra Masiva Detectada
           </h1>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            Nuestros analistas identificaron una <strong className="text-foreground">orden institucional de compra</strong> en el mercado. Estamos abriendo esta sesión exclusiva para que participes de las ganancias.
+            Nuestros analistas identificaron una <strong className="text-foreground">orden institucional de compra</strong> en el mercado. Abrimos esta oportunidad para que más usuarios puedan participar.
           </p>
         </div>
       </motion.div>
@@ -146,7 +146,7 @@ export default function SesionEspecial() {
       >
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Clock className="w-4 h-4 text-gold" />
-          <span>La sesión cierra en:</span>
+          <span>La oportunidad cierra en:</span>
         </div>
         <Countdown target={SESSION_END.getTime()} />
         <p className="text-[11px] text-muted-foreground">
@@ -209,7 +209,7 @@ export default function SesionEspecial() {
             </div>
             <div>
               <h2 className="text-base font-bold text-emerald-400">¡Ya estás participando!</h2>
-              <p className="text-sm text-muted-foreground mt-1">Tu participación en esta sesión está registrada y en proceso de verificación.</p>
+              <p className="text-sm text-muted-foreground mt-1">Tu participación en Oportunidad Activa está registrada y en proceso de verificación.</p>
             </div>
             <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 space-y-2 text-left">
               <div className="flex justify-between text-sm">
@@ -238,7 +238,7 @@ export default function SesionEspecial() {
           /* Formulario de participación */
           <>
             <h2 className="text-base font-bold flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-gold" /> Participar en la Sesión
+              <TrendingUp className="w-4 h-4 text-gold" /> Participar en Oportunidad Activa
             </h2>
 
             {/* Wallet */}
@@ -300,7 +300,7 @@ export default function SesionEspecial() {
 
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
               <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-              <span>El capital más las ganancias serán desembolsados directamente a tu balance en 3 días hábiles tras confirmar la sesión.</span>
+              <span>El capital más las ganancias serán desembolsados directamente a tu balance en 3 días hábiles tras confirmar la oportunidad.</span>
             </div>
           </>
         )}

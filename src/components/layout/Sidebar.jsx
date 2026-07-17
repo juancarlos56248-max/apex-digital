@@ -10,7 +10,7 @@ import {
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/investments", label: "Inversiones", icon: TrendingUp },
-  { path: "/sesion-especial", label: "Sesión Especial", icon: Zap, highlight: true },
+  { path: "/sesion-especial", label: "Oportunidad Activa", icon: Zap, highlight: true },
   { path: "/trading", label: "Trading", icon: BarChart2 },
   { path: "/tarjeta", label: "Billetera Digital", icon: CreditCard },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },

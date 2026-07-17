@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import NotificationMenu from "@/components/layout/NotificationMenu";
 import UserMenu from "@/components/layout/UserMenu";
 
-const pages = { "/dashboard": ["Dashboard", "Resumen financiero"], "/investments": ["Inversiones", "Gestión de capital"], "/trading": ["Trading", "Terminal financiera"], "/deposit": ["Depósitos", "Añadir fondos"], "/withdraw": ["Retiros", "Retirar fondos"], "/referrals": ["Referidos", "Comisiones y actividad"], "/comunidad": ["Comunidad", "Actividad de inversores"], "/soporte": ["Soporte", "Centro de ayuda"], "/tarjeta": ["Billetera Digital", "Cuenta y tarjeta"], "/admin": ["Administración", "Control operativo"] };
+const pages = { "/dashboard": ["Dashboard", "Resumen financiero"], "/investments": ["Inversiones", "Gestión de capital"], "/trading": ["Trading", "Terminal financiera"], "/deposit": ["Depósitos", "Añadir fondos"], "/withdraw": ["Retiros", "Retirar fondos"], "/referrals": ["Referidos", "Comisiones y actividad"], "/comunidad": ["Comunidad", "Actividad de inversores"], "/soporte": ["Soporte", "Centro de ayuda"], "/sesion-especial": ["Oportunidad Activa", "Participación temporal"], "/tarjeta": ["Billetera Digital", "Cuenta y tarjeta"], "/admin": ["Administración", "Control operativo"] };
 
 export default function AppHeader({ user, onMenu, isRootTab }) {
   const location = useLocation();

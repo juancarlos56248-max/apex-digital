@@ -4,7 +4,7 @@ import { LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, Zap, Cre
 const navItems = [
   { path: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { path: "/investments", label: "Nodos", icon: TrendingUp },
-  { path: "/sesion-especial", label: "Sesión", icon: Zap, highlight: true },
+  { path: "/sesion-especial", label: "Oportunidad", icon: Zap, highlight: true },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/tarjeta", label: "Billetera", icon: CreditCard },
 ];
