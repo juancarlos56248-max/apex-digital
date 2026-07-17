@@ -3,16 +3,16 @@ import { Eye, EyeOff, Wifi } from "lucide-react";
 export default function CyberCard({ user, cardNumber, balance, hideBalance, onToggleBalance }) {
   return (
     <div className="relative mx-auto aspect-[1.586] w-full max-w-md select-none">
-      <div className="absolute -inset-2 rounded-xl bg-gradient-to-br from-chart-4/30 via-transparent to-chart-3/20 blur-xl" />
-      <div className="absolute inset-0 overflow-hidden rounded-xl border border-chart-4/40 bg-card shadow-2xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-chart-4/25 via-background to-chart-3/10" />
-        <div className="absolute -right-20 -top-24 h-64 w-64 rotate-45 border border-chart-4/20" />
-        <div className="absolute -right-4 top-8 h-32 w-32 rotate-45 border border-chart-3/15" />
+      <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-chart-3/40 via-success/30 to-chart-3/40 blur-md" />
+      <div className="absolute inset-0 overflow-hidden rounded-lg border border-chart-3/50 bg-card shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-chart-3/15 via-background to-success/10" />
+        <div className="absolute right-0 top-0 h-full w-px bg-success/60" />
+        <div className="absolute bottom-0 left-0 h-px w-2/3 bg-chart-3/60" />
         <div className="relative flex h-full flex-col justify-between p-5 md:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-chart-3/40 bg-chart-3/15 text-sm font-black text-chart-3">A</div>
-              <div><p className="text-sm font-black tracking-[0.24em]">APEX</p><p className="text-[8px] uppercase tracking-[0.3em] text-chart-4">Quantum vault</p></div>
+              <div><p className="text-sm font-black tracking-[0.24em]">APEX</p><p className="text-[8px] uppercase tracking-[0.3em] text-success">Neon ledger</p></div>
             </div>
             <div className="flex items-center gap-2 text-chart-3"><Wifi className="h-4 w-4 rotate-90" /><span className="text-[9px] tracking-[0.2em]">DIGITAL</span></div>
           </div>
