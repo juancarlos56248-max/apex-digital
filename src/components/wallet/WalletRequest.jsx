@@ -20,7 +20,7 @@ export default function WalletRequest({ requested, form, setForm, submitting, on
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-chart-3/25 bg-card p-5 md:p-6">
-      <div className="absolute right-0 top-0 h-24 w-24 bg-chart-4/10 blur-3xl" />
+      <div className="absolute right-0 top-0 h-24 w-24 bg-chart-3/10 blur-3xl" />
       <div className="relative">
         <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-chart-3">Physical access</p>
         <h2 className="mt-2 flex items-center gap-2 font-bold"><Crown className="h-4 w-4 text-chart-3" /> Solicitar Tarjeta Física</h2>

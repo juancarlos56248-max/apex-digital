@@ -54,12 +54,12 @@ export default function TarjetaApex() {
 
   return (
     <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-chart-3/10 bg-background p-4 md:p-8">
-      <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-chart-3/5 blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 top-60 h-72 w-72 rounded-full bg-chart-4/5 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-20 h-96 w-96 -translate-x-1/2 rounded-full border border-chart-3/10 bg-chart-3/5 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-36 h-72 w-72 -translate-x-1/2 rounded-full border border-foreground/5" />
       <div className="relative">
         <motion.header initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-7 flex items-start justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-chart-3">APEX // DIGITAL VAULT</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-chart-3">APEX // ORBITAL BANKING</p>
             <h1 className="mt-2 text-2xl font-black md:text-3xl">Billetera Digital</h1>
             <p className="mt-1 text-xs text-muted-foreground">Infraestructura financiera con cashback del 5%</p>
           </div>
@@ -69,12 +69,12 @@ export default function TarjetaApex() {
           </div>
         </motion.header>
 
-        <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_.95fr]">
+        <div className="mx-auto grid max-w-2xl items-start gap-6">
           <div className="space-y-5">
             <motion.div initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }}>
               <CyberCard user={user} cardNumber={requested ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
             </motion.div>
-            <div className="flex items-center justify-between rounded-2xl border border-chart-4/25 bg-gradient-to-r from-chart-4/10 to-chart-3/5 p-4">
+            <div className="flex items-center justify-between rounded-2xl border border-chart-3/20 bg-gradient-to-r from-chart-3/10 via-secondary/30 to-transparent p-4">
               <div><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Cashback acumulado</p><p className="mt-1 font-mono text-2xl font-black text-chart-3">$0.00</p><p className="text-[9px] text-muted-foreground">USDT · 5% en cada compra</p></div>
               <div className="rounded-2xl border border-chart-3/20 bg-chart-3/10 p-4"><Star className="h-6 w-6 fill-chart-3/20 text-chart-3" /></div>
             </div>
