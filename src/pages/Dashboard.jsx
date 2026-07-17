@@ -17,10 +17,10 @@ const PerformanceChart = lazy(() => import("../components/dashboard/PerformanceC
 import EarningsChart from "../components/dashboard/EarningsChart";
 
 const quickActions = [
-  { label: "Depositar", desc: "Añade fondos ahora", icon: ArrowDownToLine, to: "/deposit", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20 hover:border-emerald-500/40" },
-  { label: "Invertir", desc: "Activa un nodo", icon: TrendingUp, to: "/investments", color: "text-gold", bg: "bg-gold/10", border: "border-gold/20 hover:border-gold/40" },
-  { label: "Retirar", desc: "Liquidar ganancias", icon: ArrowUpFromLine, to: "/withdraw", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20 hover:border-blue-500/40" },
-  { label: "Referidos", desc: "Gana comisiones", icon: Users, to: "/referrals", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20 hover:border-purple-500/40" },
+  { label: "Depositar", desc: "Añade fondos ahora", icon: ArrowDownToLine, to: "/deposit", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
+  { label: "Invertir", desc: "Activa un nodo", icon: TrendingUp, to: "/investments", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
+  { label: "Retirar", desc: "Liquidar ganancias", icon: ArrowUpFromLine, to: "/withdraw", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
+  { label: "Referidos", desc: "Gana comisiones", icon: Users, to: "/referrals", color: "text-primary", bg: "bg-primary/10", border: "border-border hover:border-primary/30" },
 ];
 
 export default function Dashboard() {
@@ -67,12 +67,12 @@ export default function Dashboard() {
         className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">
-            Hola, <span className="text-gold-gradient">{user?.full_name?.split(" ")[0] || "Inversor"}</span> 👋
+            Hola, <span className="text-primary">{user?.full_name?.split(" ")[0] || "Inversor"}</span>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Panel de activos digitales</p>
         </div>
         <Link to="/investments" className="flex-shrink-0">
-          <Button size="sm" className="bg-gold hover:bg-gold-dark text-black font-semibold gap-1.5 shadow-lg shadow-gold/20">
+          <Button size="sm" className="bg-gold hover:bg-gold-dark text-white font-semibold gap-1.5 shadow-lg shadow-gold/20">
             <Zap className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Activar Nodo</span>
             <span className="sm:hidden">Invertir</span>
@@ -92,7 +92,7 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground mt-0.5">Activa tu primer nodo de inversión y empieza a generar rendimientos del 10% diario automáticamente.</p>
           </div>
           <Link to="/investments" className="flex-shrink-0">
-            <Button size="sm" className="bg-gold hover:bg-gold-dark text-black font-bold gap-1.5 shadow-md shadow-gold/20">
+            <Button size="sm" className="bg-gold hover:bg-gold-dark text-white font-bold gap-1.5 shadow-md shadow-gold/20">
               Comenzar <ArrowRight className="w-3 h-3" />
             </Button>
           </Link>

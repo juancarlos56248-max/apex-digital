@@ -9,24 +9,24 @@ import { base44 } from "@/api/base44Client";
 const WithdrawalTicker = lazy(() => import("../components/landing/WithdrawalTicker"));
 
 const features = [
-  { icon: Shield, title: "Seguridad Bancaria", desc: "Protocolos de cumplimiento institucional con auditoría en tiempo real y cifrado de grado militar.", color: "text-emerald-400", bg: "bg-emerald-500/10" },
-  { icon: TrendingUp, title: "Trading Algorítmico", desc: "Estrategias HFT optimizadas por IA ejecutando miles de operaciones por segundo.", color: "text-blue-400", bg: "bg-blue-500/10" },
-  { icon: Clock, title: "Dividendos 24h", desc: "Acreditación automática de rendimientos cada ciclo de 24 horas sin excepción.", color: "text-gold", bg: "bg-gold/10" },
-  { icon: Globe, title: "Protocolo Singapur", desc: "Marco regulatorio de protección de activos digitales de última generación.", color: "text-purple-400", bg: "bg-purple-500/10" },
+  { icon: Shield, title: "Seguridad Bancaria", desc: "Protocolos de cumplimiento institucional con auditoría en tiempo real y cifrado de grado militar.", color: "text-primary", bg: "bg-primary/10" },
+  { icon: TrendingUp, title: "Trading Algorítmico", desc: "Estrategias HFT optimizadas por IA ejecutando miles de operaciones por segundo.", color: "text-primary", bg: "bg-primary/10" },
+  { icon: Clock, title: "Dividendos 24h", desc: "Acreditación automática de rendimientos cada ciclo de 24 horas sin excepción.", color: "text-primary", bg: "bg-primary/10" },
+  { icon: Globe, title: "Protocolo Singapur", desc: "Marco regulatorio de protección de activos digitales de última generación.", color: "text-primary", bg: "bg-primary/10" },
 ];
 
 const stats = [
-  { icon: Users, value: "12,400+", label: "Inversores activos", color: "text-gold" },
-  { icon: DollarSign, value: "$48M+", label: "Capital gestionado", color: "text-emerald-400" },
-  { icon: BarChart3, value: "10%", label: "Rendimiento diario", color: "text-blue-400" },
-  { icon: CheckCircle, value: "99.97%", label: "Uptime garantizado", color: "text-purple-400" },
+  { icon: Users, value: "12,400+", label: "Inversores activos", color: "text-primary" },
+  { icon: DollarSign, value: "$48M+", label: "Capital gestionado", color: "text-primary" },
+  { icon: BarChart3, value: "10%", label: "Rendimiento diario", color: "text-success" },
+  { icon: CheckCircle, value: "99.97%", label: "Uptime garantizado", color: "text-success" },
 ];
 
 const tiers = [
-  { name: "Starter", range: "$5 – $499", daily: "10%", color: "from-emerald-500/20 to-transparent", border: "border-emerald-500/20", badge: "bg-emerald-500/10 text-emerald-400" },
-  { name: "Advance", range: "$500 – $1,999", daily: "10%", color: "from-blue-500/20 to-transparent", border: "border-blue-500/20", badge: "bg-blue-500/10 text-blue-400", popular: true },
-  { name: "Elite", range: "$2,000 – $9,999", daily: "10%", color: "from-purple-500/20 to-transparent", border: "border-purple-500/20", badge: "bg-purple-500/10 text-purple-400" },
-  { name: "Institutional", range: "$10,000+", daily: "10%", color: "from-gold/20 to-transparent", border: "border-gold/20", badge: "bg-gold/10 text-gold" },
+  { name: "Starter", range: "$5 – $499", daily: "10%", color: "from-primary/10 to-transparent", border: "border-primary/15", badge: "bg-primary/10 text-primary" },
+  { name: "Advance", range: "$500 – $1,999", daily: "10%", color: "from-primary/10 to-transparent", border: "border-primary/25", badge: "bg-primary/10 text-primary", popular: true },
+  { name: "Elite", range: "$2,000 – $9,999", daily: "10%", color: "from-primary/10 to-transparent", border: "border-primary/15", badge: "bg-primary/10 text-primary" },
+  { name: "Institutional", range: "$10,000+", daily: "10%", color: "from-primary/10 to-transparent", border: "border-primary/15", badge: "bg-primary/10 text-primary" },
 ];
 
 function generateChartData() {
@@ -83,7 +83,7 @@ export default function Landing() {
       <div className="w-full bg-yellow-500/10 border-b border-yellow-500/30 px-4 py-2.5 flex items-center justify-center gap-2.5 text-center">
         <Wrench className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0 animate-pulse" />
         <p className="text-xs font-semibold text-yellow-300">
-          🔧 El mantenimiento de seguridad está tomando más tiempo de lo habitual. Solicitamos su comprensión — les informaremos cuando finalice. Gracias por su paciencia.
+          El mantenimiento de seguridad está tomando más tiempo de lo habitual. Solicitamos su comprensión — les informaremos cuando finalice. Gracias por su paciencia.
         </p>
       </div>
 
@@ -91,15 +91,15 @@ export default function Landing() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-background/75 backdrop-blur-xl border-b border-gold/20">
         <div className="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center shadow-lg shadow-gold/20">
-              <span className="text-black font-black text-sm">A</span>
+            <div className="w-9 h-9 rounded-xl border border-primary/30 bg-primary flex items-center justify-center shadow-sm">
+              <span className="text-white font-black text-sm">A</span>
             </div>
             <div>
               <span className="text-gold font-black tracking-wider text-base">APEX</span>
               <span className="text-[10px] text-muted-foreground ml-1.5 tracking-[0.2em] uppercase font-medium">Digital</span>
             </div>
           </div>
-          <Button size="sm" onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-black font-bold text-xs px-5 shadow-lg shadow-gold/20">
+          <Button size="sm" onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-white font-bold text-xs px-5 shadow-lg shadow-gold/20">
             {isAuth ? "Ir al Panel" : "Registrarse"} <ArrowRight className="w-3 h-3 ml-1" />
           </Button>
         </div>
@@ -107,12 +107,7 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="relative pt-20 pb-12 px-5 overflow-hidden">
-        {/* Background glows */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold/6 rounded-full blur-[160px]" />
-          <div className="absolute top-32 right-1/4 w-80 h-80 bg-blue-500/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-        </div>
+        <div className="absolute inset-x-0 bottom-0 h-px bg-border" />
 
         <div className="relative max-w-5xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: "easeOut" }}>
@@ -153,7 +148,7 @@ export default function Landing() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-2 justify-center max-w-sm mx-auto">
-              <Button size="md" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-black font-bold h-10 text-sm shadow-lg shadow-gold/15 rounded-xl">
+              <Button size="md" onClick={handleCTA} className="flex-1 bg-gold hover:bg-gold-dark text-white font-bold h-10 text-sm shadow-lg shadow-gold/15 rounded-xl">
                 {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-3.5 h-3.5" />
               </Button>
               <Link to="/terms" className="flex-1">
@@ -308,7 +303,7 @@ export default function Landing() {
                 className={`relative rounded-2xl border ${t.border} bg-gradient-to-b ${t.color} bg-card p-4 text-center`}
               >
                 {t.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gold text-black text-[10px] font-bold">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gold text-white text-[10px] font-bold">
                     POPULAR
                   </div>
                 )}
@@ -321,7 +316,7 @@ export default function Landing() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <Button onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-black font-bold px-8 shadow-lg shadow-gold/20">
+            <Button onClick={handleCTA} className="bg-gold hover:bg-gold-dark text-white font-bold px-8 shadow-lg shadow-gold/20">
               {isAuth ? "Ir al Panel" : "Comenzar Ahora"} <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
@@ -346,7 +341,7 @@ export default function Landing() {
                 Nuestra restricción de retiro de 24 horas garantiza que los nodos de inversión mantengan su potencia de cálculo, asegurando retornos estables y una gestión de riesgo institucional avalada por el Protocolo de Singapur.
               </p>
             </div>
-            <Button onClick={handleCTA} className="flex-shrink-0 bg-gold hover:bg-gold-dark text-black font-bold whitespace-nowrap shadow-lg shadow-gold/20">
+            <Button onClick={handleCTA} className="flex-shrink-0 bg-gold hover:bg-gold-dark text-white font-bold whitespace-nowrap shadow-lg shadow-gold/20">
               {isAuth ? "Ir al Panel" : "Empezar ahora"}
             </Button>
           </motion.div>
@@ -380,7 +375,7 @@ export default function Landing() {
                 { n: 7, title: "Disponibilidad de fondos", desc: "El usuario puede solicitar retiros según las condiciones establecidas por la plataforma." },
               ].map((item) => (
                 <div key={item.n} className="flex gap-4 p-4 rounded-xl border border-border/50 bg-secondary/30 hover:border-gold/20 transition-colors">
-                  <div className="w-7 h-7 rounded-full bg-gold text-black text-[11px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</div>
+                  <div className="w-7 h-7 rounded-full bg-gold text-white text-[11px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{item.n}</div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">{item.title}</p>
                     <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">{item.desc}</p>
@@ -403,8 +398,8 @@ export default function Landing() {
       <footer className="border-t border-border px-5 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
-              <span className="text-black font-black text-[10px]">A</span>
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-white font-black text-[10px]">A</span>
             </div>
             <span className="text-sm font-bold text-gold">APEX Digital</span>
           </div>

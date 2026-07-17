@@ -1,14 +1,13 @@
 import { motion } from "framer-motion";
 
-export default function StatsCard({ icon: Icon, label, value, suffix = "", trend, delay = 0, loading = false }) {
+export default function StatsCard({ icon: Icon, label, value, suffix = "", trend, delay = 0, loading = false, period = "Actual" }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-      className="relative overflow-hidden rounded-xl border border-border bg-card p-3 sm:p-5 group hover:border-gold/30 transition-all duration-300"
+      transition={{ duration: 0.2, delay }}
+      className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-5 hover:border-primary/25 transition-colors duration-200"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="relative">
         <div className="flex items-center justify-between mb-3">
           <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
@@ -20,11 +19,11 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", trend
             </span>
           )}
         </div>
-        <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground mb-1 leading-tight">{label}</p>
+        <div className="mb-1 flex items-center justify-between gap-2"><p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground leading-tight">{label}</p><span className="text-[10px] text-muted-foreground">{period}</span></div>
         {loading ? (
           <div className="h-7 w-24 rounded-md bg-secondary/60 animate-pulse mt-1" />
         ) : (
-          <p className="text-lg sm:text-2xl font-bold tracking-tight">
+          <p className="font-mono text-lg sm:text-2xl font-bold tracking-tight">
             {value}
             {suffix && <span className="text-sm text-muted-foreground ml-1">{suffix}</span>}
           </p>

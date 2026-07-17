@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import Sidebar from "./Sidebar";
 import BottomNav from "./BottomNav";
 import ProfileGate from "./ProfileGate";
 import SupportWidget from "../support/SupportWidget";
+import AppHeader from "./AppHeader";
 
-const ROOT_TABS = ["/dashboard", "/investments", "/deposit", "/withdraw", "/referrals", "/comunidad", "/soporte", "/admin"];
+const ROOT_TABS = ["/dashboard", "/investments", "/trading", "/sesion-especial", "/tarjeta", "/deposit", "/withdraw", "/referrals", "/comunidad", "/soporte", "/admin"];
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -165,38 +165,11 @@ export default function AppLayout() {
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-background/90">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-gold-dark/5" />
+      <div className="pointer-events-none absolute inset-0 bg-background" />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
       
       <main className="flex-1 overflow-y-auto">
-        {/* Mobile top bar */}
-        <div
-          className="lg:hidden sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-gold/20 px-4 flex items-center justify-between"
-          style={{ paddingTop: `calc(env(safe-area-inset-top) + 12px)`, paddingBottom: "12px" }}
-        >
-          {isRootTab ? (
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground active:scale-95 transition-all"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground active:scale-95 transition-all flex items-center gap-1"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          )}
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg border border-gold-light/30 bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center shadow-md shadow-gold/15">
-              <span className="text-black font-bold text-xs">A</span>
-            </div>
-            <span className="text-gold font-bold text-sm tracking-tight">APEX</span>
-          </div>
-          <div className="w-9" /> {/* spacer */}
-        </div>
+        <AppHeader user={user} onMenu={() => setSidebarOpen(true)} isRootTab={isRootTab} />
         <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
           <AnimatePresence mode="wait">
             <motion.div

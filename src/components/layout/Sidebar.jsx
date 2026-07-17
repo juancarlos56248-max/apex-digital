@@ -10,9 +10,9 @@ import {
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/investments", label: "Inversiones", icon: TrendingUp },
-  { path: "/sesion-especial", label: "🚨 Sesión Especial", icon: Zap, highlight: true },
+  { path: "/sesion-especial", label: "Sesión Especial", icon: Zap, highlight: true },
   { path: "/trading", label: "Trading", icon: BarChart2 },
-  { path: "/tarjeta", label: "💳 Billetera Digital", icon: CreditCard },
+  { path: "/tarjeta", label: "Billetera Digital", icon: CreditCard },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
   { path: "/referrals", label: "Referidos", icon: Users },
@@ -55,8 +55,8 @@ export default function Sidebar({ open, onClose, user }) {
           {/* Logo */}
           <div className="p-6 flex items-center justify-between">
             <Link to="/dashboard" className="flex items-center gap-3" onClick={onClose}>
-              <div className="w-10 h-10 rounded-xl border border-gold-light/30 bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center shadow-lg shadow-gold/15">
-                <span className="text-black font-bold text-lg">A</span>
+              <div className="w-10 h-10 rounded-xl border border-primary/30 bg-primary flex items-center justify-center shadow-sm">
+                <span className="text-white font-bold text-lg">A</span>
               </div>
               <div>
                 <h1 className="text-gold font-bold text-lg tracking-tight">APEX</h1>
@@ -81,8 +81,8 @@ export default function Sidebar({ open, onClose, user }) {
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                     ${active 
-                      ? "bg-gradient-to-r from-gold/15 to-gold-dark/10 text-gold border border-gold/30 shadow-[inset_3px_0_0_hsl(var(--gold))]" 
-                      : item.highlight ? "text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 bg-amber-500/5 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      ? "bg-primary/10 text-primary border border-primary/20" 
+                      : item.highlight ? "text-primary hover:text-foreground hover:bg-primary/10 border border-primary/15 bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }
                   `}
                 >
@@ -108,7 +108,7 @@ export default function Sidebar({ open, onClose, user }) {
                       className={`
                         flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                         ${active 
-                          ? "bg-gradient-to-r from-gold/15 to-gold-dark/10 text-gold border border-gold/30 shadow-[inset_3px_0_0_hsl(var(--gold))]" 
+                          ? "bg-primary/10 text-primary border border-primary/20" 
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                         }
                       `}
@@ -125,8 +125,8 @@ export default function Sidebar({ open, onClose, user }) {
           {/* User section */}
           <div className="p-4 border-t border-sidebar-border space-y-2">
             <div className="flex items-center gap-3 px-3 py-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-                <span className="text-black text-xs font-bold">
+              <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center">
+                <span className="text-primary text-xs font-bold">
                   {user?.full_name?.charAt(0) || "U"}
                 </span>
               </div>

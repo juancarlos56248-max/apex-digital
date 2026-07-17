@@ -7,8 +7,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 const typeConfig = {
   deposit: { icon: ArrowDownToLine, label: "Depósito", color: "text-success" },
   withdrawal: { icon: ArrowUpFromLine, label: "Retiro", color: "text-destructive" },
-  dividend: { icon: DollarSign, label: "Dividendo", color: "text-gold" },
-  referral_bonus: { icon: Users, label: "Bono Referido", color: "text-blue-400" },
+  dividend: { icon: DollarSign, label: "Dividendo", color: "text-success" },
+  referral_bonus: { icon: Users, label: "Bono Referido", color: "text-success" },
 };
 
 const statusLabels = {
