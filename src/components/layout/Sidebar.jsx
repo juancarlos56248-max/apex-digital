@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { 
   LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
-  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2, BarChart2
+  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2, BarChart2, Zap
 } from "lucide-react";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/investments", label: "Inversiones", icon: TrendingUp },
+  { path: "/sesion-especial", label: "🚨 Sesión Especial", icon: Zap, highlight: true },
   { path: "/trading", label: "Trading", icon: BarChart2 },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
@@ -80,7 +81,7 @@ export default function Sidebar({ open, onClose, user }) {
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                     ${active 
                       ? "bg-gold/10 text-gold border border-gold/20" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      : item.highlight ? "text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20 bg-amber-500/5 animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }
                   `}
                 >

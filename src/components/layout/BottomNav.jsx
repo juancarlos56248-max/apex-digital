@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, BarChart2 } from "lucide-react";
+import { LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, Zap } from "lucide-react";
 
 const navItems = [
   { path: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { path: "/investments", label: "Nodos", icon: TrendingUp },
-  { path: "/trading", label: "Trading", icon: BarChart2 },
+  { path: "/sesion-especial", label: "🚨 Sesión", icon: Zap, highlight: true },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
 ];
@@ -22,7 +22,7 @@ export default function BottomNav() {
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all ${
-                active ? "text-gold" : "text-muted-foreground"
+                active ? "text-gold" : item.highlight ? "text-amber-400" : "text-muted-foreground"
               }`}
             >
               <item.icon className={`w-5 h-5 ${active ? "text-gold" : ""}`} />
