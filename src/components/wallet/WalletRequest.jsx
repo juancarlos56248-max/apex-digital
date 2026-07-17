@@ -1,15 +1,7 @@
-import { CheckCircle, Crown, Shield } from "lucide-react";
+import { Crown, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function WalletRequest({ requested, submitting, onSubmit }) {
-  if (requested) return (
-    <div className="rounded-2xl border border-success/30 bg-success/5 p-7 text-center">
-      <CheckCircle className="mx-auto h-10 w-10 text-success" />
-      <h2 className="mt-3 font-bold text-success">¡Tarjeta virtual activa!</h2>
-      <p className="mt-2 text-sm text-muted-foreground">Tu Tarjeta Virtual APEX ya está disponible para usar dentro de la plataforma.</p>
-    </div>
-  );
-
+export default function WalletRequest({ submitting, onSubmit }) {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-gold/25 bg-card p-5 md:p-6">
       <div className="absolute right-0 top-0 h-24 w-24 bg-gold/10 blur-3xl" />

@@ -81,7 +81,9 @@ export default function TarjetaApex() {
           </div>
         </motion.header>
 
-        <div className="grid items-start gap-6 lg:grid-cols-[1.15fr_.85fr]">
+        {!requested && <div className="mb-6"><WalletRequest submitting={submitting} onSubmit={handleRequest} /></div>}
+
+        <div>
           <div className="space-y-5">
             <motion.div initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }}>
               <CyberCard user={user} countryCode={getCountryCode(user?.phone)} cardNumber={requested ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
@@ -92,7 +94,6 @@ export default function TarjetaApex() {
             </div>
             <WalletActivity activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
-          <WalletRequest requested={requested} submitting={submitting} onSubmit={handleRequest} />
         </div>
       </div>
     </div>
