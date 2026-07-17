@@ -59,10 +59,24 @@ const TIERS = [
 ];
 
 export default function SesionEspecial() {
-  const { user, setUser } = useOutletContext();
+  const { user } = useOutletContext();
   const [amount, setAmount] = useState("");
   const [txid, setTxid] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [existingParticipation, setExistingParticipation] = useState(null);
+  const [loadingCheck, setLoadingCheck] = useState(true);
+
+  // Verificar si ya participó en esta sesión
+  useEffect(() => {
+    if (!user?.email) return;
+    base44.entities.Transaction.filter({ user_email: user.email, status: "pending" })
+      .then(txs => {
+        const sesion = txs.find(t => t.notes?.includes("SESIÓN ESPECIAL"));
+        if (sesion) setExistingParticipation(sesion);
+      })
+      .finally(() => setLoadingCheck(false));
+  }, [user?.email]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(WALLET_ADDRESS);
@@ -74,8 +88,15 @@ export default function SesionEspecial() {
     if (!amount || !txid) { toast.error("Completa todos los campos"); return; }
     if (amt < 50) { toast.error("Monto mínimo para esta sesión: $50 USDT"); return; }
 
+    // Verificar TXID duplicado
+    const existing = await base44.entities.Transaction.filter({ txid: txid.trim() });
+    if (existing.length > 0) {
+      toast.error("⚠️ Este TXID ya fue registrado. Verifica el hash de tu transacción.");
+      return;
+    }
+
     setSubmitting(true);
-    await base44.entities.Transaction.create({
+    const tx = await base44.entities.Transaction.create({
       user_email: user.email,
       type: "deposit",
       amount: amt,
@@ -85,12 +106,18 @@ export default function SesionEspecial() {
       notes: "SESIÓN ESPECIAL — Compra masiva detectada",
     });
     toast.success("✅ Participación registrada. Desembolso en 3 días.");
-    setAmount("");
-    setTxid("");
+    setExistingParticipation(tx);
+    setSubmitted(true);
     setSubmitting(false);
   };
 
   if (!user) return null;
+
+  if (loadingCheck) return (
+    <div className="flex items-center justify-center h-40">
+      <div className="w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+    </div>
+  );
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -170,75 +197,113 @@ export default function SesionEspecial() {
         ))}
       </motion.div>
 
-      {/* Formulario de depósito */}
+      {/* Formulario de depósito o estado de participación */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
         className="rounded-xl border border-border bg-card p-5 space-y-4"
       >
-        <h2 className="text-base font-bold flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-gold" /> Participar en la Sesión
-        </h2>
-
-        {/* Wallet */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Envía USDT (BEP20) a esta dirección:</Label>
-          <div className="mt-1.5 flex items-center gap-2">
-            <div className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2.5">
-              <p className="text-xs font-mono text-gold break-all">{WALLET_ADDRESS}</p>
+        {existingParticipation ? (
+          /* Ya participó — mostrar resumen de su participación */
+          <div className="space-y-4 text-center">
+            <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto">
+              <Zap className="w-6 h-6 text-emerald-400" />
             </div>
-            <Button variant="outline" size="icon" onClick={handleCopy} className="flex-shrink-0 border-border hover:border-gold/30 h-10 w-10">
-              <Copy className="w-4 h-4" />
+            <div>
+              <h2 className="text-base font-bold text-emerald-400">¡Ya estás participando!</h2>
+              <p className="text-sm text-muted-foreground mt-1">Tu participación en esta sesión está registrada y en proceso de verificación.</p>
+            </div>
+            <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 space-y-2 text-left">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Monto registrado</span>
+                <span className="font-mono font-bold text-emerald-400">${existingParticipation.amount?.toFixed(2)} USDT</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Ganancia mínima (10%)</span>
+                <span className="font-mono font-bold text-emerald-300">+${(existingParticipation.amount * 0.10).toFixed(2)} USDT</span>
+              </div>
+              <div className="flex justify-between text-sm border-t border-emerald-500/20 pt-2">
+                <span className="font-semibold">Total a recibir</span>
+                <span className="font-mono font-bold text-emerald-400">${(existingParticipation.amount * 1.10).toFixed(2)} USDT</span>
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground pt-1">
+                <span>Estado</span>
+                <span className="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-semibold">En verificación</span>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
+              <span>El capital más las ganancias serán desembolsados a tu balance en 3 días hábiles.</span>
+            </div>
+          </div>
+        ) : (
+          /* Formulario de participación */
+          <>
+            <h2 className="text-base font-bold flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-gold" /> Participar en la Sesión
+            </h2>
+
+            {/* Wallet */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Envía USDT (BEP20) a esta dirección:</Label>
+              <div className="mt-1.5 flex items-center gap-2">
+                <div className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2.5">
+                  <p className="text-xs font-mono text-gold break-all">{WALLET_ADDRESS}</p>
+                </div>
+                <Button variant="outline" size="icon" onClick={handleCopy} className="flex-shrink-0 border-border hover:border-gold/30 h-10 w-10">
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-[11px] text-yellow-500 mt-1 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" /> Usa únicamente red BNB Smart Chain (BEP20)
+              </p>
+            </div>
+
+            {/* Monto */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Monto enviado (USDT) — mínimo $50</Label>
+              <Input type="number" placeholder="Ej: 200" value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="mt-1.5 bg-secondary border-border font-mono" />
+            </div>
+
+            {/* TXID */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Hash / TXID de la transacción</Label>
+              <Input placeholder="Pega aquí el hash de tu transacción" value={txid}
+                onChange={(e) => setTxid(e.target.value)}
+                className="mt-1.5 bg-secondary border-border font-mono text-xs" />
+              <p className="text-[11px] text-muted-foreground mt-1">Lo encuentras en bscscan.com o el historial de tu wallet</p>
+            </div>
+
+            {/* Preview de ganancia */}
+            {Number(amount) >= 50 && (
+              <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs space-y-1">
+                <p className="text-emerald-400 font-semibold">Proyección estimada en 3 días:</p>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Inversión</span>
+                  <span className="font-mono text-foreground">${Number(amount).toFixed(2)} USDT</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Ganancia mínima (10%)</span>
+                  <span className="font-mono text-emerald-400">+${(Number(amount) * 0.10).toFixed(2)} USDT</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground border-t border-emerald-500/20 pt-1">
+                  <span className="font-semibold">Total mínimo a recibir</span>
+                  <span className="font-mono font-bold text-emerald-400">${(Number(amount) * 1.10).toFixed(2)} USDT</span>
+                </div>
+              </div>
+            )}
+
+            <Button onClick={handleSubmit} disabled={submitting || !amount || !txid}
+              className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-11 text-base">
+              {submitting ? "Registrando participación..." : "🚀 Confirmar Participación"}
             </Button>
-          </div>
-          <p className="text-[11px] text-yellow-500 mt-1 flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" /> Usa únicamente red BNB Smart Chain (BEP20)
-          </p>
-        </div>
 
-        {/* Monto */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Monto enviado (USDT) — mínimo $50</Label>
-          <Input type="number" placeholder="Ej: 200" value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="mt-1.5 bg-secondary border-border font-mono" />
-        </div>
-
-        {/* TXID */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Hash / TXID de la transacción</Label>
-          <Input placeholder="Pega aquí el hash de tu transacción" value={txid}
-            onChange={(e) => setTxid(e.target.value)}
-            className="mt-1.5 bg-secondary border-border font-mono text-xs" />
-          <p className="text-[11px] text-muted-foreground mt-1">Lo encuentras en bscscan.com o el historial de tu wallet</p>
-        </div>
-
-        {/* Preview de ganancia */}
-        {Number(amount) >= 50 && (
-          <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs space-y-1">
-            <p className="text-emerald-400 font-semibold">Proyección estimada en 3 días:</p>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Inversión</span>
-              <span className="font-mono text-foreground">${Number(amount).toFixed(2)} USDT</span>
+            <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
+              <span>El capital más las ganancias serán desembolsados directamente a tu balance en 3 días hábiles tras confirmar la sesión.</span>
             </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Ganancia mínima (10%)</span>
-              <span className="font-mono text-emerald-400">+${(Number(amount) * 0.10).toFixed(2)} USDT</span>
-            </div>
-            <div className="flex justify-between text-muted-foreground border-t border-emerald-500/20 pt-1">
-              <span className="font-semibold">Total mínimo a recibir</span>
-              <span className="font-mono font-bold text-emerald-400">${(Number(amount) * 1.10).toFixed(2)} USDT</span>
-            </div>
-          </div>
+          </>
         )}
-
-        <Button onClick={handleSubmit} disabled={submitting || !amount || !txid}
-          className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-11 text-base">
-          {submitting ? "Registrando participación..." : "🚀 Confirmar Participación"}
-        </Button>
-
-        <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
-          <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-          <span>El capital más las ganancias serán desembolsados directamente a tu balance en 3 días hábiles tras confirmar la sesión.</span>
-        </div>
       </motion.div>
     </div>
   );
