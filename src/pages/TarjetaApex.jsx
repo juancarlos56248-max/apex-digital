@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const BENEFITS = [
+  "🎁 5% de Cashback en todas tus compras, acreditado en USDT",
   "Compras en línea con saldo USDT directamente",
   "Aceptada en miles de comercios internacionales",
   "Sin comisiones en compras hasta $500/mes",
@@ -130,7 +131,7 @@ export default function TarjetaApex() {
           <h1 className="text-2xl font-bold">Tarjeta APEX</h1>
           <span className="text-[10px] bg-gold/20 text-gold border border-gold/30 rounded-full px-2 py-0.5 font-bold uppercase tracking-wider">Exclusiva</span>
         </div>
-        <p className="text-sm text-muted-foreground">Solicita tu tarjeta y úsala en miles de comercios</p>
+        <p className="text-sm text-muted-foreground">Solicita tu tarjeta · <span className="text-gold font-semibold">5% cashback</span> en cada compra</p>
       </motion.div>
 
       {/* Card visual */}
