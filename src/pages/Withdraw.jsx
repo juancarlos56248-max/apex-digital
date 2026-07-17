@@ -170,7 +170,7 @@ export default function Withdraw() {
 
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="mx-auto max-w-3xl space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Retiro de Fondos</h1>
         <p className="text-sm text-muted-foreground mt-1">

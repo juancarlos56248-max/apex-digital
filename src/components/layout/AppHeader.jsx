@@ -10,12 +10,12 @@ export default function AppHeader({ user, onMenu, isRootTab }) {
   const navigate = useNavigate();
   const [title, description] = pages[location.pathname] || ["APEX", "Plataforma financiera"];
   return (
-    <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-md md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-md sm:px-6 lg:px-8">
       <div className="flex items-center gap-3">
         <button onClick={isRootTab ? onMenu : () => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-secondary text-muted-foreground lg:hidden">{isRootTab ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}</button>
         <div><h1 className="text-sm font-semibold md:text-base">{title}</h1><p className="hidden text-xs text-muted-foreground sm:block">{description}</p></div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <select aria-label="Idioma" defaultValue="es" className="h-9 rounded-lg border border-border bg-secondary px-2 text-xs text-muted-foreground outline-none focus:border-primary/50"><option value="es">ES</option></select>
         <NotificationMenu />
         <UserMenu user={user} />

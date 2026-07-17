@@ -164,19 +164,17 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-background/90">
-      <div className="pointer-events-none absolute inset-0 bg-background" />
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
-      
-      <main className="flex-1 overflow-y-auto">
+      <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <AppHeader user={user} onMenu={() => setSidebarOpen(true)} isRootTab={isRootTab} />
-        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
+        <div className="mx-auto w-full max-w-7xl px-4 py-5 pb-24 sm:px-6 sm:py-6 lg:px-8 lg:pb-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, x: 18 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -18 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
             >
               <Outlet context={{ user, setUser }} />

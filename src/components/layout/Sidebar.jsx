@@ -46,7 +46,7 @@ export default function Sidebar({ open, onClose, user }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full z-50 w-72 bg-sidebar/90 backdrop-blur-xl border-r border-gold/15
+        fixed top-0 left-0 h-full z-50 w-72 shrink-0 bg-sidebar/95 backdrop-blur-xl border-r border-sidebar-border
         transition-transform duration-300 ease-out
         lg:translate-x-0 lg:static lg:z-auto
         ${open ? "translate-x-0" : "-translate-x-full"}
@@ -56,7 +56,7 @@ export default function Sidebar({ open, onClose, user }) {
           <div className="p-6 flex items-center justify-between">
             <Link to="/dashboard" className="flex items-center gap-3" onClick={onClose}>
               <div className="w-10 h-10 rounded-xl border border-primary/30 bg-primary flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-lg">A</span>
+                <span className="text-black font-bold text-lg">A</span>
               </div>
               <div>
                 <h1 className="text-gold font-bold text-lg tracking-tight">APEX</h1>
@@ -69,7 +69,7 @@ export default function Sidebar({ open, onClose, user }) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 space-y-1">
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-4 pb-4">
             <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground px-3 mb-3">Principal</p>
             {navItems.map((item) => {
               const active = location.pathname === item.path;

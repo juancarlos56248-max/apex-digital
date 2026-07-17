@@ -702,7 +702,7 @@ export default function Trading() {
   }
 
   return (
-    <div className="space-y-5 max-w-2xl pb-10">
+    <div className="mx-auto max-w-4xl space-y-5 pb-10">
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">

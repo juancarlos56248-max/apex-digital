@@ -69,9 +69,13 @@ export default function Deposit() {
   if (!user) return null;
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <BonoDepositoBanner />
-      {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
+    <div className="mx-auto max-w-3xl space-y-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-2xl font-bold">Depósito de Fondos</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Transfiere USDT a nuestra wallet corporativa y registra el hash de transacción
+        </p>
+      </motion.div>
 
       {user?.role === "admin" && (
         <div className="flex justify-end">
@@ -93,13 +97,6 @@ export default function Deposit() {
           </Button>
         </div>
       )}
-
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold">Depósito de Fondos</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Transfiere USDT a nuestra wallet corporativa y registra el hash de transacción
-        </p>
-      </motion.div>
 
       {/* Steps */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
@@ -176,6 +173,12 @@ export default function Deposit() {
           <span>Tu depósito será revisado y acreditado en tu cuenta en menos de 24 horas.</span>
         </div>
       </motion.div>
+
+      <section className="space-y-4 border-t border-border pt-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Beneficios y promociones</p>
+        <BonoDepositoBanner />
+        {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
+      </section>
     </div>
   );
 }

@@ -135,12 +135,6 @@ export default function Dashboard() {
         return null;
       })()}
 
-      {/* Banner promo bono depósito */}
-      <BonoDepositoBanner />
-
-      {/* Banner sorteo Fiestas Patrias */}
-      <SorteoBanner />
-
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatsCard icon={Wallet} label="Balance disponible" value={`$${(user?.balance || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} delay={0} loading={!user} />
@@ -172,6 +166,12 @@ export default function Dashboard() {
           ))}
         </div>
       </motion.div>
+
+      <section className="space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Novedades</p>
+        <BonoDepositoBanner />
+        <SorteoBanner />
+      </section>
 
       {/* Earnings history chart — real user data */}
       {user?.email && <EarningsChart userEmail={user.email} />}
