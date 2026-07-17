@@ -46,7 +46,7 @@ export default function Sidebar({ open, onClose, user }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full z-50 w-72 shrink-0 bg-sidebar/95 backdrop-blur-xl border-r border-sidebar-border
+        fixed top-0 left-0 h-full z-50 w-72 shrink-0 bg-sidebar/95 backdrop-blur-2xl border-r border-sidebar-border shadow-2xl shadow-black/30
         transition-transform duration-300 ease-out
         lg:translate-x-0 lg:static lg:z-auto
         ${open ? "translate-x-0" : "-translate-x-full"}
@@ -79,7 +79,7 @@ export default function Sidebar({ open, onClose, user }) {
                   to={item.path}
                   onClick={onClose}
                   className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+                    flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200
                     ${active 
                       ? "bg-primary/10 text-primary border border-primary/20" 
                       : item.highlight ? "text-primary hover:text-foreground hover:bg-primary/10 border border-primary/15 bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -106,7 +106,7 @@ export default function Sidebar({ open, onClose, user }) {
                       to={item.path}
                       onClick={onClose}
                       className={`
-                        flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+                        flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200
                         ${active 
                           ? "bg-primary/10 text-primary border border-primary/20" 
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary"

@@ -164,7 +164,7 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-background/90">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
       <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <AppHeader user={user} onMenu={() => setSidebarOpen(true)} isRootTab={isRootTab} />

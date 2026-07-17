@@ -160,11 +160,10 @@ function GranSorteo() {
   const { days, hours, minutes, seconds } = useCountdown(GRAN_SORTEO_DATE);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #0f0505 0%, #1c0606 35%, #150404 65%, #0a0202 100%)" }}>
+    <div className="relative overflow-hidden rounded-2xl border border-gold/80 bg-card shadow-2xl shadow-black/30">
       {/* Franjas rojas */}
-      <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: "linear-gradient(180deg, transparent, #dc2626, #dc2626, transparent)" }} />
-      <div className="absolute right-0 top-0 bottom-0 w-1" style={{ background: "linear-gradient(180deg, transparent, #dc2626, #dc2626, transparent)" }} />
+      <div className="absolute inset-y-0 left-0 w-px bg-gold" />
+      <div className="absolute inset-y-0 right-0 w-px bg-gold" />
       {/* Glows */}
       <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-20 blur-3xl pointer-events-none"
         style={{ background: "radial-gradient(circle, #dc2626, transparent 70%)" }} />
@@ -178,7 +177,7 @@ function GranSorteo() {
 
       <div className="h-px w-full" style={{ background: "linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.3) 30%, rgba(251,191,36,0.6) 50%, rgba(251,191,36,0.3) 70%, transparent 100%)" }} />
 
-      <div className="relative z-10 px-5 py-5 sm:px-6 sm:py-6">
+      <div className="relative z-10 px-6 py-6 sm:px-8 sm:py-8">
         {/* Badge ESPECIAL */}
         <div className="flex items-center justify-between mb-4">
           <motion.div animate={{ opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }}
@@ -203,8 +202,7 @@ function GranSorteo() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
           <motion.div animate={{ rotate: [-3, 3, -3] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             className="flex-shrink-0 hidden sm:block">
-            <div className="relative w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-900/50"
-              style={{ background: "linear-gradient(145deg, #991b1b, #dc2626, #ef4444)" }}>
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-red-600 shadow-2xl shadow-red-600/30">
               <Trophy className="w-10 h-10 text-white drop-shadow-lg" />
               <div className="absolute top-2 left-2 w-6 h-6 rounded-full opacity-20"
                 style={{ background: "radial-gradient(circle, white, transparent)" }} />
@@ -256,8 +254,7 @@ function GranSorteo() {
             </div>
             <Link to="/deposit" className="w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button className="w-full sm:w-auto font-black text-sm h-11 px-6 gap-2 rounded-xl shadow-xl shadow-red-900/40"
-                  style={{ background: "linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #ef4444 100%)", color: "white", border: "1px solid rgba(239,68,68,0.4)" }}>
+                <Button className="h-11 w-full gap-2 rounded-xl border border-gold bg-gold px-6 text-sm font-black text-background shadow-xl shadow-gold/20 hover:bg-gold-light sm:w-auto">
                   Participar ahora
                   <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -297,7 +294,7 @@ export default function SorteoBanner() {
       </AnimatePresence>
 
       {/* Dots de navegación */}
-      <div className="flex items-center justify-center gap-2 mt-2.5">
+      <div className="hidden items-center justify-center gap-2 mt-2.5">
         {banners.map((_, i) => (
           <button key={i} onClick={() => setCurrent(i)}
             className={`w-1.5 h-1.5 rounded-full transition-all ${i === current ? "bg-gold w-4" : "bg-border"}`}
@@ -307,11 +304,11 @@ export default function SorteoBanner() {
 
       {/* Flechas */}
       <button onClick={() => setCurrent(c => (c - 1 + 2) % 2)}
-        className="absolute left-2 top-1/2 -translate-y-5 w-7 h-7 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">
+        className="hidden">
         <ChevronLeft className="w-4 h-4" />
       </button>
       <button onClick={() => setCurrent(c => (c + 1) % 2)}
-        className="absolute right-2 top-1/2 -translate-y-5 w-7 h-7 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">
+        className="hidden">
         <ChevronRight className="w-4 h-4" />
       </button>
     </div>
