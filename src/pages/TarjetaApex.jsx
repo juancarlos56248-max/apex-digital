@@ -274,7 +274,7 @@ export default function TarjetaApex() {
         className="rounded-2xl bg-gradient-to-r from-gold/15 via-gold/10 to-transparent border border-gold/25 p-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground">Cashback acumulado</p>
-          <p className="text-2xl font-black text-gold font-mono">${((user?.balance || 0) * 0.005).toFixed(2)}</p>
+          <p className="text-2xl font-black text-gold font-mono">$0.00</p>
           <p className="text-[10px] text-muted-foreground mt-0.5">USDT · 5% en cada compra</p>
         </div>
         <div className="w-14 h-14 rounded-2xl bg-gold/15 border border-gold/25 flex items-center justify-center">
@@ -282,10 +282,56 @@ export default function TarjetaApex() {
         </div>
       </motion.div>
 
+      {/* Solicitar tarjeta — visible siempre */}
+      {!requested ? (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="rounded-xl border border-gold/25 bg-card p-5 space-y-4">
+          <h2 className="text-sm font-bold flex items-center gap-2">
+            <Crown className="w-4 h-4 text-gold" /> Solicitar Tarjeta Física
+          </h2>
+          <p className="text-xs text-muted-foreground">Acceso desbloqueado. Ingresa tus datos de envío:</p>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Dirección de envío</Label>
+              <Input placeholder="Av. Javier Prado 1234, Piso 3" value={form.address}
+                onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+                className="mt-1.5 bg-secondary border-border" />
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Ciudad / Distrito</Label>
+              <Input placeholder="Lima, Miraflores" value={form.city}
+                onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+                className="mt-1.5 bg-secondary border-border" />
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Teléfono</Label>
+              <Input placeholder="+51 912 345 678" value={form.phone} type="tel"
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                className="mt-1.5 bg-secondary border-border font-mono" />
+            </div>
+          </div>
+          <Button onClick={handleRequest} disabled={submitting}
+            className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-11">
+            {submitting ? "Enviando..." : "Solicitar mi Tarjeta APEX"}
+          </Button>
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+            <span>Información privada. Solo usada para el envío físico.</span>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 text-center space-y-3">
+          <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto" />
+          <h2 className="text-base font-bold text-emerald-400">¡Solicitud enviada!</h2>
+          <p className="text-sm text-muted-foreground">Tu Tarjeta APEX física llegará en <strong className="text-foreground">5–10 días hábiles</strong>.</p>
+        </motion.div>
+      )}
+
       {/* Tabs */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
         className="flex gap-1 bg-secondary rounded-xl p-1">
-        {["inicio", "beneficios", "tarjeta"].map(tab => (
+        {["inicio", "beneficios"].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all ${
               activeTab === tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
@@ -326,67 +372,7 @@ export default function TarjetaApex() {
           </motion.div>
         )}
 
-        {activeTab === "tarjeta" && (
-          <motion.div key="tarjeta" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="space-y-4">
-            {requested ? (
-              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 text-center space-y-3">
-                <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto" />
-                <h2 className="text-base font-bold text-emerald-400">¡Solicitud enviada!</h2>
-                <p className="text-sm text-muted-foreground">Tu Tarjeta APEX física llegará en <strong className="text-foreground">5–10 días hábiles</strong>.</p>
-                <div className="rounded-xl bg-secondary/50 border border-border p-3 text-left space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Número de tarjeta</span>
-                    <span className="font-mono text-gold">{cardNumber}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Válida hasta</span>
-                    <span className="font-mono">12/29</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Titular</span>
-                    <span className="font-medium uppercase">{user?.full_name}</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-                <h2 className="text-sm font-bold flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-gold" /> Solicitar Tarjeta Física
-                </h2>
-                <p className="text-xs text-muted-foreground">Acceso desbloqueado. Ingresa tus datos de envío:</p>
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Dirección de envío</Label>
-                    <Input placeholder="Av. Javier Prado 1234, Piso 3" value={form.address}
-                      onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                      className="mt-1.5 bg-secondary border-border" />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Ciudad / Distrito</Label>
-                    <Input placeholder="Lima, Miraflores" value={form.city}
-                      onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-                      className="mt-1.5 bg-secondary border-border" />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Teléfono</Label>
-                    <Input placeholder="+51 912 345 678" value={form.phone} type="tel"
-                      onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                      className="mt-1.5 bg-secondary border-border font-mono" />
-                  </div>
-                </div>
-                <Button onClick={handleRequest} disabled={submitting}
-                  className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-11">
-                  {submitting ? "Enviando..." : "Solicitar mi Tarjeta APEX"}
-                </Button>
-                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0" />
-                  <span>Información privada. Solo usada para el envío físico.</span>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
+
       </AnimatePresence>
     </div>
   );
