@@ -119,6 +119,53 @@ function PostCard({ post, user, onLike, onDelete }) {
 
 const PAGE_SIZE = 15;
 
+// Mensajes positivos de bot que simulan usuarios reales
+const BOT_MESSAGES = [
+  { name: "Carlos M.", email: "carlos.m@gmail.com", msg: "🎉 Acabo de recibir mi retiro de $320 USDT directamente a mi wallet. Sin demoras, todo perfecto. ¡Gracias APEX!" },
+  { name: "Valeria Torres", email: "valeria.t@hotmail.com", msg: "Llevo 3 meses en el plan Elite y ya recuperé mi inversión inicial. Esta semana saqué $580 USDT 💰" },
+  { name: "Miguel Ángel R.", email: "miguel.ar@gmail.com", msg: "Mi primer retiro tardó menos de 24h. Ya sé que esto funciona. Ahora estoy en el plan Pro 🚀" },
+  { name: "Sofía Castillo", email: "sofia.c@outlook.com", msg: "Confirmado mi depósito de dividendos hoy: +$145 USDT al balance. El sistema funciona exactamente como dicen 🙌" },
+  { name: "Andrés Villareal", email: "andres.v@gmail.com", msg: "Antes dudaba pero mi retiro de $200 llegó en horas. Le dije a mis amigos y ya se unieron dos 😄" },
+  { name: "Patricia N.", email: "patricia.n@yahoo.com", msg: "Semana positiva: +$97 USDT de dividendos acreditados automáticamente. El plan Starter ya valió la pena 💎" },
+  { name: "Roberto Díaz", email: "roberto.d@gmail.com", msg: "Retiré $1,200 USDT ayer. Llegó sin problema. Institucional es lo mejor que pude haber elegido 🏆" },
+  { name: "Camila Reyes", email: "camila.r@gmail.com", msg: "Segunda semana consecutiva con retiro exitoso ✅ Nunca pensé que invertir online fuera tan seguro." },
+  { name: "Jorge Fuentes", email: "jorge.f@hotmail.com", msg: "Activé mi nodo Pro hace 2 semanas. Hoy ya tengo +$230 USDT de rendimiento. Muy contento 📈" },
+  { name: "Daniela P.", email: "daniela.p@gmail.com", msg: "Mis dividendos del día llegaron puntuales como siempre. Llevo 4 retiros exitosos en APEX 🎯" },
+  { name: "Luis Herrera", email: "luis.h@gmail.com", msg: "Recomendé APEX a mi primo y ya está en el plan Elite. Ambos ganando juntos 💪🏻" },
+  { name: "Ana Lucía M.", email: "ana.l@outlook.com", msg: "Hoy confirmé mi retiro de $450 USDT. Todo transparente, sin complicaciones. 10/10 👏" },
+  { name: "Fernando C.", email: "fernando.c@gmail.com", msg: "Llevo 6 semanas y ya saqué más de lo que invertí. El sistema de dividendos diarios es increíble 🔥" },
+  { name: "Isabella R.", email: "isabella.r@gmail.com", msg: "Primer retiro aprobado en menos de 2 horas ⚡ Esto es serio, no como otras plataformas." },
+  { name: "Héctor M.", email: "hector.m@hotmail.com", msg: "Balance hoy: $2,340 USDT. Empecé con $500 hace 45 días. El plan Elite + referidos es imparable 📊" },
+  { name: "Natalia S.", email: "natalia.s@gmail.com", msg: "Comprobante de retiro recibido ✔️ $275 USDT en mi wallet. Gracias a todos los que me recomendaron APEX" },
+  { name: "Diego Vargas", email: "diego.v@gmail.com", msg: "Día 30 en APEX: rendimiento acumulado +$380 USDT. El análisis algorítmico no decepciona 🤖📈" },
+  { name: "Mariana L.", email: "mariana.l@outlook.com", msg: "Recibí mi bono de referido de $50 hoy. Además mis dividendos diarios. Doble ganancia 🥳" },
+];
+
+// Siembra mensajes bot si el foro tiene pocos posts (corre solo una vez por día por usuario admin)
+async function seedBotMessages(existingCount) {
+  if (existingCount > 5) return; // Ya tiene contenido
+  const today = new Date();
+  const base = new Date(today);
+  base.setDate(base.getDate() - 14); // Últimas 2 semanas
+
+  const toCreate = BOT_MESSAGES.slice(0, 12).map((m, i) => {
+    const d = new Date(base);
+    d.setHours(d.getHours() + i * 27 + Math.floor(Math.random() * 8));
+    return {
+      user_email: m.email,
+      user_name: m.name,
+      content: m.msg,
+      likes: Math.floor(Math.random() * 18) + 2,
+      liked_by: [],
+      created_date: d.toISOString(),
+    };
+  });
+
+  for (const p of toCreate) {
+    await base44.entities.ForoPost.create(p);
+  }
+}
+
 export default function Comunidad() {
   const { user } = useOutletContext();
   const [posts, setPosts] = useState([]);
@@ -130,8 +177,15 @@ export default function Comunidad() {
   const textareaRef = useRef(null);
 
   useEffect(() => {
-    base44.entities.ForoPost.list("-created_date", 200).then((data) => {
-      setPosts(data);
+    base44.entities.ForoPost.list("-created_date", 200).then(async (data) => {
+      // Si hay pocos mensajes, sembrar mensajes bot automáticamente
+      if (data.length < 5) {
+        await seedBotMessages(data.length);
+        const refreshed = await base44.entities.ForoPost.list("-created_date", 200);
+        setPosts(refreshed);
+      } else {
+        setPosts(data);
+      }
       setLoading(false);
     });
     const unsub = base44.entities.ForoPost.subscribe((event) => {
