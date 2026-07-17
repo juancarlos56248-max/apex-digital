@@ -254,20 +254,7 @@ export default function TarjetaApex() {
         />
       </motion.div>
 
-      {/* Quick actions */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="grid grid-cols-4 gap-2">
-        {QUICK_ACTIONS.map(({ icon: Icon, label, color, bg }) => (
-          <button key={label}
-            onClick={() => toast.info(`${label}: próximamente disponible`)}
-            className={`flex flex-col items-center gap-2 p-3 rounded-2xl border ${bg} transition-all active:scale-95`}>
-            <div className={`w-8 h-8 rounded-xl ${bg} flex items-center justify-center`}>
-              <Icon className={`w-4 h-4 ${color}`} />
-            </div>
-            <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
-          </button>
-        ))}
-      </motion.div>
+
 
       {/* Cashback banner */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
