@@ -247,9 +247,9 @@ function PositionCard({ pos, stock }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-2xl border ${stock.border} bg-card overflow-hidden`}
+      className={`min-w-0 max-w-full rounded-2xl border ${stock.border} bg-card overflow-hidden`}
     >
-      <button onClick={() => setExpanded(v => !v)} className="w-full text-left p-4">
+      <button onClick={() => setExpanded(v => !v)} className="w-full min-w-0 overflow-hidden p-4 text-left">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl ${stock.logoBg} border ${stock.border} flex items-center justify-center overflow-hidden p-1`}>
@@ -442,7 +442,7 @@ function CandlestickChart({ stock }) {
 
         <div
           ref={scrollRef2}
-          className="overflow-x-auto scrollbar-none"
+          className="max-w-full overflow-x-auto overscroll-x-contain scrollbar-none"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
         >
           <svg width={totalW} height={H} style={{ display: 'block', minWidth: totalW }}>
@@ -702,7 +702,7 @@ export default function Trading() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-5 pb-10">
+    <div className="mx-auto w-full min-w-0 max-w-4xl overflow-x-hidden space-y-5 pb-10">
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">
