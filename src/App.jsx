@@ -20,6 +20,7 @@ const Comunidad = lazy(() => import('./pages/Comunidad'));
 const Soporte = lazy(() => import('./pages/Soporte'));
 const Trading = lazy(() => import('./pages/Trading'));
 const SesionEspecial = lazy(() => import('./pages/SesionEspecial'));
+const TarjetaApex = lazy(() => import('./pages/TarjetaApex'));
 
 const PageSkeleton = () => (
   <div className="space-y-4 p-4">
@@ -77,6 +78,7 @@ const AuthenticatedApp = () => {
         <Route path="/soporte" element={<Suspense fallback={<PageSkeleton />}><Soporte /></Suspense>} />
         <Route path="/trading" element={<Suspense fallback={<PageSkeleton />}><Trading /></Suspense>} />
         <Route path="/sesion-especial" element={<Suspense fallback={<PageSkeleton />}><SesionEspecial /></Suspense>} />
+        <Route path="/tarjeta" element={<Suspense fallback={<PageSkeleton />}><TarjetaApex /></Suspense>} />
         <Route path="/admin" element={<Suspense fallback={<PageSkeleton />}><AdminPanel /></Suspense>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { 
   LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
-  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2, BarChart2, Zap
+  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2, BarChart2, Zap, CreditCard
 } from "lucide-react";
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { path: "/investments", label: "Inversiones", icon: TrendingUp },
   { path: "/sesion-especial", label: "🚨 Sesión Especial", icon: Zap, highlight: true },
   { path: "/trading", label: "Trading", icon: BarChart2 },
+  { path: "/tarjeta", label: "💳 Tarjeta APEX", icon: CreditCard },
   { path: "/deposit", label: "Depósito", icon: ArrowDownToLine },
   { path: "/withdraw", label: "Retiro", icon: ArrowUpFromLine },
   { path: "/referrals", label: "Referidos", icon: Users },
