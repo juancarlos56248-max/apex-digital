@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import PullToRefresh from "../components/layout/PullToRefresh";
-import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, Users, Zap, ShieldCheck, ShieldX, Clock } from "lucide-react";
+import { Wallet, TrendingUp, DollarSign, Gift, ArrowRight, Users, Zap, ShieldX, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import StatsCard from "../components/dashboard/StatsCard";
@@ -95,16 +95,6 @@ export default function Dashboard() {
       {/* KYC Status Banner */}
       {user && (() => {
         const status = user.kyc_status;
-        if (status === "approved") return (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3">
-            <ShieldCheck className="w-5 h-5 text-green-400 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-green-400">Identidad Verificada ✅</p>
-              <p className="text-xs text-muted-foreground">Tu cuenta está verificada y tiene acceso completo a la plataforma.</p>
-            </div>
-          </motion.div>
-        );
         if (status === "rejected") return (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
