@@ -63,6 +63,7 @@ export default function SesionEspecial() {
   const [amount, setAmount] = useState("");
   const [txid, setTxid] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [existingParticipation, setExistingParticipation] = useState(null);
   const [loadingCheck, setLoadingCheck] = useState(true);
@@ -85,8 +86,9 @@ export default function SesionEspecial() {
 
   const handleSubmit = async () => {
     const amt = Number(amount);
-    if (!amount || !txid) { toast.error("Completa todos los campos"); return; }
-    if (amt < 50) { toast.error("Monto mínimo para esta oportunidad: $50 USDT"); return; }
+    if (!amount || !txid) { setFormError("Completa todos los campos"); return; }
+    if (amt < 50) { setFormError("El monto mínimo para participar es $50 USDT"); return; }
+    setFormError("");
 
     // Verificar TXID duplicado
     const existing = await base44.entities.Transaction.filter({ txid: txid.trim() });
@@ -261,8 +263,9 @@ export default function SesionEspecial() {
             <div>
               <Label className="text-xs text-muted-foreground">Monto enviado (USDT) — mínimo $50</Label>
               <Input type="number" placeholder="Ej: 200" value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => { setAmount(e.target.value); setFormError(""); }}
                 className="mt-1.5 bg-secondary border-border font-mono" />
+              {formError && <p className="mt-2 text-xs font-semibold text-destructive">{formError}</p>}
             </div>
 
             {/* TXID */}
