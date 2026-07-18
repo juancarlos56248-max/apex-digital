@@ -8,6 +8,7 @@ import { es } from "date-fns/locale";
 
 export default function SupportManager() {
   const [tickets, setTickets] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [replyText, setReplyText] = useState("");
@@ -16,8 +17,12 @@ export default function SupportManager() {
 
   useEffect(() => {
     const load = async () => {
-      const all = await base44.entities.SupportTicket.list("-created_date", 200);
+      const [all, usersResponse] = await Promise.all([
+        base44.entities.SupportTicket.list("-created_date", 200),
+        base44.functions.invoke("adminListarUsuarios", {}),
+      ]);
       setTickets(all);
+      setUsers((usersResponse.data?.users || []).filter(user => user.role !== "admin"));
       setLoading(false);
     };
     load();
@@ -40,12 +45,21 @@ export default function SupportManager() {
     return acc;
   }, {});
 
-  const conversations = Object.values(byUser).map(u => ({
-    ...u,
-    messages: u.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)),
-    lastMessage: u.messages[u.messages.length - 1],
-    unread: u.messages.filter(t => t.status === "open" && !t.reply).length,
-  })).sort((a, b) => new Date(b.lastMessage?.created_date) - new Date(a.lastMessage?.created_date));
+  users.forEach(user => {
+    if (!byUser[user.email]) {
+      byUser[user.email] = { email: user.email, name: user.full_name || user.email, messages: [] };
+    }
+  });
+
+  const conversations = Object.values(byUser).map(u => {
+    const messages = u.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+    return {
+      ...u,
+      messages,
+      lastMessage: messages[messages.length - 1],
+      unread: messages.filter(t => t.status === "open" && !t.reply).length,
+    };
+  }).sort((a, b) => new Date(b.lastMessage?.created_date || 0) - new Date(a.lastMessage?.created_date || 0));
 
   const currentConv = selectedUser ? byUser[selectedUser] : null;
   const currentMessages = currentConv?.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)) || [];
@@ -111,11 +125,15 @@ export default function SupportManager() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1">
                     <p className="text-sm font-medium truncate">{conv.name}</p>
-                    <p className="text-[10px] text-muted-foreground flex-shrink-0">
-                      {formatDistanceToNow(new Date(conv.lastMessage?.created_date || Date.now()), { locale: es })}
-                    </p>
+                    {conv.lastMessage && (
+                      <p className="text-[10px] text-muted-foreground flex-shrink-0">
+                        {formatDistanceToNow(new Date(conv.lastMessage.created_date), { locale: es })}
+                      </p>
+                    )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground truncate">{conv.lastMessage?.message}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {conv.lastMessage ? (conv.lastMessage.reply || conv.lastMessage.message) : "Iniciar conversación"}
+                  </p>
                   {conv.unread > 0 && (
                     <div className="flex items-center gap-1 mt-0.5">
                       <Circle className="w-2 h-2 fill-gold text-gold" />
