@@ -77,14 +77,7 @@ export default function Withdraw() {
       });
   }, [user?.email]);
 
-  const isWeekend = () => {
-    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' }));
-    const day = now.getDay(); // 0=Sunday, 6=Saturday
-    return day === 0 || day === 6;
-  };
-
-  const canWithdraw = () => !isWeekend() && todayWithdrawals < MAX_DAILY;
-  const getTimeRemaining = () => null;
+  const canWithdraw = () => todayWithdrawals < MAX_DAILY;
 
   const refreshTodayWithdrawals = async () => {
     const now = new Date();
@@ -164,7 +157,6 @@ export default function Withdraw() {
 
   if (!user) return null;
 
-  const timeRemaining = getTimeRemaining();
   const withdrawAllowed = canWithdraw();
 
 
@@ -188,22 +180,7 @@ export default function Withdraw() {
           {todayWithdrawals} / {MAX_DAILY}
         </span>
       </motion.div>
-      {isWeekend() && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 flex gap-3"
-        >
-          <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-yellow-500">Retiros no disponibles los fines de semana</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Los retiros están suspendidos sábados y domingos. Vuelve el lunes.
-            </p>
-          </div>
-        </motion.div>
-      )}
-      {!isWeekend() && !withdrawAllowed && (
+      {!withdrawAllowed && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
