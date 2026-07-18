@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowDownToLine, ArrowUpFromLine, DollarSign, Users, History, ChevronRight } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, DollarSign, Users, History, ChevronRight, Zap } from "lucide-react";
 import moment from "moment";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -9,6 +9,7 @@ const typeConfig = {
   withdrawal: { icon: ArrowUpFromLine, label: "Retiro", color: "text-destructive" },
   dividend: { icon: DollarSign, label: "Dividendo", color: "text-success" },
   referral_bonus: { icon: Users, label: "Bono Referido", color: "text-success" },
+  opportunity: { icon: Zap, label: "Oportunidad Activa", color: "text-gold" },
 };
 
 const statusLabels = {
@@ -33,7 +34,7 @@ function TxRow({ tx }) {
       </div>
       <div className="text-right">
         <p className={`text-sm font-mono font-medium ${config.color}`}>
-          {tx.type === "withdrawal" ? "-" : "+"}${tx.amount.toLocaleString()}
+          {tx.type === "withdrawal" || tx.type === "opportunity" ? "-" : "+"}${tx.amount.toLocaleString()}
         </p>
         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${status.cls}`}>
           {status.label}

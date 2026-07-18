@@ -12,7 +12,8 @@
         "deposit",
         "withdrawal",
         "dividend",
-        "referral_bonus"
+        "referral_bonus",
+        "opportunity"
       ],
       "description": "Transaction type"
     },

@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { TrendingUp, Zap, Clock, Shield, Copy, AlertTriangle, Lock, Star } from "lucide-react";
-
-const WALLET_ADDRESS = "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4";
+import { TrendingUp, Zap, Clock, Shield, Lock, Star } from "lucide-react";
 
 const SESSION_END = new Date("2026-07-20T23:59:59-05:00"); // 3 días desde hoy en hora Perú
 
@@ -61,17 +59,15 @@ const TIERS = [
 export default function SesionEspecial() {
   const { user, setUser } = useOutletContext();
   const [amount, setAmount] = useState("");
-  const [txid, setTxid] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [existingParticipation, setExistingParticipation] = useState(null);
   const [loadingCheck, setLoadingCheck] = useState(true);
 
   // Verificar si ya participó en esta sesión
   useEffect(() => {
     if (!user?.email) return;
-    base44.entities.Transaction.filter({ user_email: user.email, status: "pending" })
+    base44.entities.Transaction.filter({ user_email: user.email })
       .then(txs => {
         const sesion = txs.find(t => t.notes?.includes("SESIÓN ESPECIAL") || t.notes?.includes("OPORTUNIDAD ACTIVA"));
         if (sesion) setExistingParticipation(sesion);
@@ -79,24 +75,11 @@ export default function SesionEspecial() {
       .finally(() => setLoadingCheck(false));
   }, [user?.email]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(WALLET_ADDRESS);
-    toast.success("Dirección copiada");
-  };
-
   const handleSubmit = async () => {
     const amt = Number(amount);
-    if (!amount || !txid) { setFormError("Completa todos los campos"); return; }
+    if (!amount) { setFormError("Ingresa el monto que deseas activar"); return; }
     if (amt < 50) { setFormError("El monto mínimo para participar es $50 USDT"); return; }
     setFormError("");
-
-    // Verificar TXID duplicado
-    const existing = await base44.entities.Transaction.filter({ txid: txid.trim() });
-    if (existing.length > 0) {
-      toast.error("⚠️ Este TXID ya fue registrado. Verifica el hash de tu transacción.");
-      return;
-    }
-
     setSubmitting(true);
     const userRecords = await base44.entities.User.filter({ email: user.email });
     const userRecord = userRecords[0];
@@ -115,16 +98,13 @@ export default function SesionEspecial() {
 
     const tx = await base44.entities.Transaction.create({
       user_email: user.email,
-      type: "deposit",
+      type: "opportunity",
       amount: amt,
-      status: "pending",
-      txid: txid.trim(),
-      network: "BEP20",
-      notes: "OPORTUNIDAD ACTIVA — Compra masiva detectada — SALDO DESCONTADO",
+      status: "completed",
+      notes: "OPORTUNIDAD ACTIVA — Activada con balance interno — SALDO DESCONTADO",
     });
-    toast.success("✅ Participación registrada y saldo descontado. Desembolso en 3 días.");
+    toast.success("✅ Oportunidad activada y saldo descontado. Desembolso en 3 días.");
     setExistingParticipation(tx);
-    setSubmitted(true);
     setSubmitting(false);
   };
 
@@ -226,7 +206,7 @@ export default function SesionEspecial() {
             </div>
             <div>
               <h2 className="text-base font-bold text-emerald-400">¡Ya estás participando!</h2>
-              <p className="text-sm text-muted-foreground mt-1">Tu participación en Oportunidad Activa está registrada y en proceso de verificación.</p>
+              <p className="text-sm text-muted-foreground mt-1">Tu inversión en Oportunidad Activa está registrada y activa.</p>
             </div>
             <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 space-y-2 text-left">
               <div className="flex justify-between text-sm">
@@ -243,7 +223,7 @@ export default function SesionEspecial() {
               </div>
               <div className="flex justify-between text-xs text-muted-foreground pt-1">
                 <span>Estado</span>
-                <span className="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-semibold">En verificación</span>
+                <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-semibold">Activa</span>
               </div>
             </div>
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
@@ -258,38 +238,18 @@ export default function SesionEspecial() {
               <TrendingUp className="w-4 h-4 text-gold" /> Participar en Oportunidad Activa
             </h2>
 
-            {/* Wallet */}
-            <div>
-              <Label className="text-xs text-muted-foreground">Envía USDT (BEP20) a esta dirección:</Label>
-              <div className="mt-1.5 flex items-center gap-2">
-                <div className="flex-1 bg-secondary border border-border rounded-lg px-3 py-2.5">
-                  <p className="text-xs font-mono text-gold break-all">{WALLET_ADDRESS}</p>
-                </div>
-                <Button variant="outline" size="icon" onClick={handleCopy} className="flex-shrink-0 border-border hover:border-gold/30 h-10 w-10">
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-              <p className="text-[11px] text-yellow-500 mt-1 flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3" /> Usa únicamente red BNB Smart Chain (BEP20)
-              </p>
+            <div className="rounded-lg border border-gold/20 bg-gold/5 p-3">
+              <p className="text-xs text-muted-foreground">Balance disponible</p>
+              <p className="mt-1 font-mono text-lg font-bold text-gold">${Number(user.balance || 0).toFixed(2)} USDT</p>
             </div>
 
             {/* Monto */}
             <div>
-              <Label className="text-xs text-muted-foreground">Monto enviado (USDT) — mínimo $50</Label>
+              <Label className="text-xs text-muted-foreground">Monto a activar desde tu balance — mínimo $50</Label>
               <Input type="number" placeholder="Ej: 200" value={amount}
                 onChange={(e) => { setAmount(e.target.value); setFormError(""); }}
                 className="mt-1.5 bg-secondary border-border font-mono" />
               {formError && <p className="mt-2 text-xs font-semibold text-destructive">{formError}</p>}
-            </div>
-
-            {/* TXID */}
-            <div>
-              <Label className="text-xs text-muted-foreground">Hash / TXID de la transacción</Label>
-              <Input placeholder="Pega aquí el hash de tu transacción" value={txid}
-                onChange={(e) => setTxid(e.target.value)}
-                className="mt-1.5 bg-secondary border-border font-mono text-xs" />
-              <p className="text-[11px] text-muted-foreground mt-1">Lo encuentras en bscscan.com o el historial de tu wallet</p>
             </div>
 
             {/* Preview de ganancia */}
@@ -311,9 +271,9 @@ export default function SesionEspecial() {
               </div>
             )}
 
-            <Button onClick={handleSubmit} disabled={submitting || !amount || !txid}
+            <Button onClick={handleSubmit} disabled={submitting || !amount}
               className="w-full bg-gold hover:bg-gold-dark text-black font-bold h-11 text-base">
-              {submitting ? "Registrando participación..." : "🚀 Confirmar Participación"}
+              {submitting ? "Activando oportunidad..." : "🚀 Activar con mi balance"}
             </Button>
 
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
