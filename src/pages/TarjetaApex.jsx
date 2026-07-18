@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import CyberCard from "@/components/wallet/CyberCard";
 import LockedWallet from "@/components/wallet/LockedWallet";
-import WalletActivity from "@/components/wallet/WalletActivity";
+import WalletActivity, { totalCashback } from "@/components/wallet/WalletActivity";
 import WalletRequest from "@/components/wallet/WalletRequest";
 
 const MIN_INVESTMENT = 1000;
@@ -98,7 +98,7 @@ export default function TarjetaApex() {
               <CyberCard user={user} countryCode={getCountryCode(user?.phone)} cardNumber={requested ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
             </motion.div>
             <div className="flex items-center justify-between rounded-2xl border border-gold-dark/25 bg-gradient-to-r from-gold-dark/10 to-gold/5 p-4">
-              <div><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Cashback acumulado</p><p className="mt-1 font-mono text-2xl font-black text-gold">$0.00</p><p className="text-[9px] text-muted-foreground">USDT · 5% en cada compra</p></div>
+              <div><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Cashback acumulado</p><p className="mt-1 font-mono text-2xl font-black text-gold">${totalCashback.toFixed(2)}</p><p className="text-[9px] text-muted-foreground">USDT · 5% en cada compra</p></div>
               <div className="rounded-2xl border border-gold/20 bg-gold/10 p-4"><Star className="h-6 w-6 fill-gold/20 text-gold" /></div>
             </div>
             <WalletActivity activeTab={activeTab} setActiveTab={setActiveTab} />
