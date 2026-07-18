@@ -27,8 +27,11 @@ export default function SupportManager() {
     };
     load();
     const unsub = base44.entities.SupportTicket.subscribe((event) => {
-      if (event.type === "create") setTickets(prev => [event.data, ...prev]);
-      else if (event.type === "update") setTickets(prev => prev.map(t => t.id === event.id ? event.data : t));
+      if (event.type === "create") {
+        setTickets(prev => prev.some(t => t.id === event.id) ? prev : [event.data, ...prev]);
+      } else if (event.type === "update") {
+        setTickets(prev => prev.map(t => t.id === event.id ? event.data : t));
+      }
     });
     return unsub;
   }, []);
@@ -68,13 +71,14 @@ export default function SupportManager() {
     if (!replyText.trim() || !selectedUser || sending) return;
     setSending(true);
     // Siempre crear un ticket nuevo para que aparezca al final de la conversación
-    await base44.entities.SupportTicket.create({
+    const created = await base44.entities.SupportTicket.create({
       user_email: selectedUser,
       user_name: currentConv?.name || selectedUser,
       message: "—",
       reply: replyText.trim(),
       status: "replied",
     });
+    setTickets(prev => prev.some(t => t.id === created.id) ? prev : [created, ...prev]);
     toast.success("Respuesta enviada");
     setReplyText("");
     setSending(false);
@@ -174,19 +178,21 @@ export default function SupportManager() {
                 {currentMessages.map((tk) => (
                   <div key={tk.id} className="space-y-2">
                     {/* User message — izquierda */}
-                    <div className="flex gap-2 justify-start">
-                      <div className="w-6 h-6 rounded-full bg-secondary border border-border flex items-center justify-center flex-shrink-0 mt-0.5 text-[9px] font-bold text-muted-foreground">
-                        {getInitials(currentConv?.name)}
-                      </div>
-                      <div className="max-w-[75%] space-y-1">
-                        <div className="bg-secondary border border-border rounded-2xl rounded-tl-sm px-3 py-2">
-                          <p className="text-xs text-foreground leading-relaxed">{tk.message}</p>
+                    {tk.message !== "—" && (
+                      <div className="flex gap-2 justify-start">
+                        <div className="w-6 h-6 rounded-full bg-secondary border border-border flex items-center justify-center flex-shrink-0 mt-0.5 text-[9px] font-bold text-muted-foreground">
+                          {getInitials(currentConv?.name)}
                         </div>
-                        <p className="text-[10px] text-muted-foreground px-1">
-                          {formatDistanceToNow(new Date(tk.created_date), { addSuffix: true, locale: es })}
-                        </p>
+                        <div className="max-w-[75%] space-y-1">
+                          <div className="bg-secondary border border-border rounded-2xl rounded-tl-sm px-3 py-2">
+                            <p className="text-xs text-foreground leading-relaxed">{tk.message}</p>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground px-1">
+                            {formatDistanceToNow(new Date(tk.created_date), { addSuffix: true, locale: es })}
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     {/* Reply — derecha (admin) */}
                     {tk.reply && (
                       <div className="flex justify-end gap-2">
