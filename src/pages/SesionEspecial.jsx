@@ -59,7 +59,7 @@ const TIERS = [
 ];
 
 export default function SesionEspecial() {
-  const { user } = useOutletContext();
+  const { user, setUser } = useOutletContext();
   const [amount, setAmount] = useState("");
   const [txid, setTxid] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -98,6 +98,21 @@ export default function SesionEspecial() {
     }
 
     setSubmitting(true);
+    const userRecords = await base44.entities.User.filter({ email: user.email });
+    const userRecord = userRecords[0];
+    const currentBalance = Number(userRecord?.balance || 0);
+
+    if (!userRecord || currentBalance < amt) {
+      setFormError(`Saldo insuficiente. Tienes $${currentBalance.toFixed(2)} USDT disponibles.`);
+      setSubmitting(false);
+      return;
+    }
+
+    const newBalance = parseFloat((currentBalance - amt).toFixed(2));
+    await base44.entities.User.update(userRecord.id, { balance: newBalance });
+    await base44.auth.updateMe({ balance: newBalance });
+    setUser(prev => ({ ...prev, balance: newBalance }));
+
     const tx = await base44.entities.Transaction.create({
       user_email: user.email,
       type: "deposit",
@@ -105,9 +120,9 @@ export default function SesionEspecial() {
       status: "pending",
       txid: txid.trim(),
       network: "BEP20",
-      notes: "OPORTUNIDAD ACTIVA — Compra masiva detectada",
+      notes: "OPORTUNIDAD ACTIVA — Compra masiva detectada — SALDO DESCONTADO",
     });
-    toast.success("✅ Participación registrada. Desembolso en 3 días.");
+    toast.success("✅ Participación registrada y saldo descontado. Desembolso en 3 días.");
     setExistingParticipation(tx);
     setSubmitted(true);
     setSubmitting(false);
