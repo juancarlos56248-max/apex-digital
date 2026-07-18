@@ -55,11 +55,13 @@ Deno.serve(async (req) => {
 
     await Promise.all(activeInvestments.map(async (inv) => {
       const dailyRate = DAILY_RATES[inv.tier] || 0.10;
-      const lastDate = inv.last_dividend_date ? new Date(inv.last_dividend_date) : new Date(inv.created_date);
-      const hoursElapsed = (now - lastDate) / (1000 * 60 * 60);
+      const startedAt = new Date(inv.created_date);
+      const lastDate = inv.last_dividend_date ? new Date(inv.last_dividend_date) : startedAt;
       const durationDays = PLAN_DURATION_DAYS[inv.tier] || 30;
-      const daysElapsed = (now - new Date(inv.created_date)) / (1000 * 60 * 60 * 24);
-      const isExpired = daysElapsed >= durationDays;
+      const expiresAt = new Date(startedAt.getTime() + durationDays * 24 * 60 * 60 * 1000);
+      const creditUntil = now < expiresAt ? now : expiresAt;
+      const hoursElapsed = Math.max(0, (creditUntil - lastDate) / (1000 * 60 * 60));
+      const isExpired = now >= expiresAt;
 
       // Verificar si el usuario tiene rango mínimo personalizado y no lo cumple
       const userRecords = await base44.asServiceRole.entities.User.filter({ email: inv.user_email });
@@ -73,12 +75,13 @@ Deno.serve(async (req) => {
       if (hoursElapsed >= 24) {
         const cycles = Math.floor(hoursElapsed / 24);
         const dividend = parseFloat((inv.amount * dailyRate * cycles).toFixed(4));
+        const creditedThrough = new Date(lastDate.getTime() + cycles * 24 * 60 * 60 * 1000);
 
         if (dividend > 0) {
           await Promise.all([
             base44.asServiceRole.entities.Investment.update(inv.id, {
               total_earned: parseFloat(((inv.total_earned || 0) + dividend).toFixed(4)),
-              last_dividend_date: now.toISOString(),
+              last_dividend_date: creditedThrough.toISOString(),
               ...(isExpired ? { status: "completed" } : {}),
             }),
             base44.asServiceRole.entities.Transaction.create({
