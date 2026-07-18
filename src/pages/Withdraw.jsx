@@ -77,7 +77,12 @@ export default function Withdraw() {
       });
   }, [user?.email]);
 
-  const canWithdraw = () => todayWithdrawals < MAX_DAILY;
+  const isWeekend = () => {
+    const limaNow = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Lima" }));
+    return limaNow.getDay() === 0 || limaNow.getDay() === 6;
+  };
+
+  const canWithdraw = () => !isWeekend() && todayWithdrawals < MAX_DAILY;
 
   const refreshTodayWithdrawals = async () => {
     const now = new Date();
@@ -95,7 +100,11 @@ export default function Withdraw() {
   };
 
   const handleSubmit = async () => {
-    if (!canWithdraw()) {
+    if (isWeekend()) {
+      toast.error("Los retiros solo están disponibles de lunes a viernes.");
+      return;
+    }
+    if (todayWithdrawals >= MAX_DAILY) {
       toast.error(`Límite diario alcanzado (${todayWithdrawals}/${MAX_DAILY}). El contador se reinicia a medianoche hora Perú.`);
       return;
     }
@@ -180,7 +189,20 @@ export default function Withdraw() {
           {todayWithdrawals} / {MAX_DAILY}
         </span>
       </motion.div>
-      {!withdrawAllowed && (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 flex gap-3"
+      >
+        <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-medium text-yellow-500">Retiros de lunes a viernes</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Los sábados y domingos no se procesan solicitudes de retiro.
+          </p>
+        </div>
+      </motion.div>
+      {!isWeekend() && !withdrawAllowed && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
