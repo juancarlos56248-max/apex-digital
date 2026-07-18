@@ -85,31 +85,18 @@ export default function SesionEspecial() {
     if (amt < 50) { setFormError("El monto mínimo para participar es $50 USDT"); return; }
     setFormError("");
     setSubmitting(true);
-    const userRecords = await base44.entities.User.filter({ email: user.email });
-    const userRecord = userRecords[0];
-    const currentBalance = Number(userRecord?.balance || 0);
 
-    if (!userRecord || currentBalance < amt) {
-      setFormError(`Saldo insuficiente. Tienes $${currentBalance.toFixed(2)} USDT disponibles.`);
+    try {
+      const response = await base44.functions.invoke("activarOportunidad", { amount: amt });
+      const { transaction, newBalance } = response.data;
+      setUser(prev => ({ ...prev, balance: newBalance }));
+      setExistingParticipation(transaction);
+      toast.success("✅ Oportunidad activada y saldo descontado. Desembolso en 3 días.");
+    } catch (error) {
+      setFormError(error?.response?.data?.error || error.message || "No se pudo activar la oportunidad");
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    const newBalance = parseFloat((currentBalance - amt).toFixed(2));
-    await base44.entities.User.update(userRecord.id, { balance: newBalance });
-    await base44.auth.updateMe({ balance: newBalance });
-    setUser(prev => ({ ...prev, balance: newBalance }));
-
-    const tx = await base44.entities.Transaction.create({
-      user_email: user.email,
-      type: "opportunity",
-      amount: amt,
-      status: "completed",
-      notes: "OPORTUNIDAD ACTIVA — Activada con balance interno — SALDO DESCONTADO",
-    });
-    toast.success("✅ Oportunidad activada y saldo descontado. Desembolso en 3 días.");
-    setExistingParticipation(tx);
-    setSubmitting(false);
   };
 
   if (!user) return null;
