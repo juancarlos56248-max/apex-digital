@@ -75,6 +75,10 @@ export default function SesionEspecial() {
       .finally(() => setLoadingCheck(false));
   }, [user?.email]);
 
+  useEffect(() => {
+    if (existingParticipation) window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [existingParticipation]);
+
   const handleSubmit = async () => {
     const amt = Number(amount);
     if (!amount) { setFormError("Ingresa el monto que deseas activar"); return; }
@@ -117,7 +121,7 @@ export default function SesionEspecial() {
   );
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="flex max-w-2xl flex-col gap-6">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl bg-gradient-to-br from-gold/10 via-amber-500/5 to-transparent border border-gold/30 p-6 text-center relative overflow-hidden"
@@ -196,7 +200,7 @@ export default function SesionEspecial() {
 
       {/* Formulario de depósito o estado de participación */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-        className="rounded-xl border border-border bg-card p-5 space-y-4"
+        className={`rounded-xl border border-border bg-card p-5 space-y-4 ${existingParticipation ? "order-first" : ""}`}
       >
         {existingParticipation ? (
           /* Ya participó — mostrar resumen de su participación */
