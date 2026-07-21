@@ -49,9 +49,9 @@ export default function Withdraw() {
   const netAmount = amtNum - commission;
 
   const totalBalance = user?.balance || 0;
-  const lockedBonus = 0;
-  const withdrawableBalance = totalBalance;
-  const hasOnlyBonus = false;
+  const lockedBonus = Math.min(WELCOME_BONUS, totalBalance);
+  const withdrawableBalance = Math.max(0, totalBalance - lockedBonus);
+  const hasOnlyBonus = totalBalance > 0 && withdrawableBalance === 0;
 
   const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
 
@@ -122,7 +122,7 @@ export default function Withdraw() {
       return;
     }
     if (hasOnlyBonus) {
-      toast.error("Los $5 del plan prueba se liberan al completar los 3 días. Espera a que finalice el ciclo.");
+      toast.error("El bono de bienvenida de $5 no es retirable; solo puede utilizarse para invertir.");
       return;
     }
     if (amt > withdrawableBalance) {
