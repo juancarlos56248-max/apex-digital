@@ -14,6 +14,16 @@ export const CASHBACK_RATE = 0.05;
 export const cardMovements = [
   [Smartphone, "Netflix", 16.39],
   [ShoppingBag, "Compra en Infiniti", 248],
+  [ShoppingBag, "Supermercado Wong", 86.45],
+  [Globe, "LATAM Airlines", 219.90],
+  [Smartphone, "Spotify Premium", 11.99],
+  [ShoppingBag, "Zara", 74.50],
+  [Zap, "Primax", 42.80],
+  [Globe, "Booking.com", 156.25],
+  [ShoppingBag, "Starbucks", 13.70],
+  [Smartphone, "Uber", 18.60],
+  [ShoppingBag, "Falabella", 129.99],
+  [Globe, "Amazon", 64.35],
 ];
 
 export const totalCashback = cardMovements.reduce(
