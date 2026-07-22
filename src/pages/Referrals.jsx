@@ -301,6 +301,14 @@ export default function Referrals() {
               ))}
             </div>
 
+            {/* Explicación código bono */}
+            <div className="rounded-lg border border-gold/20 bg-gold/5 p-4 space-y-1.5">
+              <p className="text-xs font-semibold text-gold">¿Cómo obtener el código de bono?</p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                El código de bono es entregado <span className="text-foreground font-medium">exclusivamente por el administrador de APEX</span> a usuarios seleccionados que han demostrado compromiso con la plataforma. Una vez que cumplas los requisitos de depósito y referidos, comunícate con soporte para solicitarlo. El código es de un solo uso y válido únicamente para tu cuenta.
+              </p>
+            </div>
+
             {/* Input código */}
             <div className="flex gap-2">
               <Input
