@@ -93,6 +93,19 @@ export default function Deposit() {
         </p>
       </motion.div>
 
+      {/* Ruleta — se muestra si hay giros disponibles */}
+      {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+        className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-3 flex items-center gap-2"
+      >
+        <span className="text-lg">🎰</span>
+        <p className="text-xs text-yellow-400 font-medium">
+          Realiza un depósito mayor a <span className="font-bold">$100</span> y activa tu ruleta — <span className="font-bold">1 giro por cada depósito aprobado</span> con más probabilidades de ganar.
+        </p>
+      </motion.div>
+
       {user?.role === "admin" && (
         <div className="flex justify-end">
           <Button
@@ -193,7 +206,6 @@ export default function Deposit() {
       <section className="space-y-4 border-t border-border pt-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Beneficios y promociones</p>
         <BonoDepositoBanner />
-        {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
       </section>
     </div>
   );
