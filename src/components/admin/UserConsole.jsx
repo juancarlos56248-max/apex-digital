@@ -32,6 +32,17 @@ export default function UserConsole() {
     loadUsers();
   };
 
+  const handleDeleteUser = async (u) => {
+    if (!window.confirm(`¿Eliminar a ${u.full_name || u.email}? Esta acción es irreversible.`)) return;
+    try {
+      await base44.entities.User.delete(u.id);
+      toast.success("Usuario eliminado");
+      setUsers(prev => prev.filter(x => x.id !== u.id));
+    } catch {
+      toast.error("No se pudo eliminar el usuario");
+    }
+  };
+
   const handleDeleteInactive = async () => {
     if (!window.confirm("¿Eliminar todos los usuarios sin actividad (balance $0, sin transacciones ni inversiones)? Esta acción es irreversible.")) return;
 
@@ -113,6 +124,7 @@ export default function UserConsole() {
               <th className="px-4 py-3 text-left">Ganado</th>
               <th className="px-4 py-3 text-left">Registro</th>
               <th className="px-4 py-3 text-left">Nivel</th>
+              <th className="px-4 py-3 text-left"></th>
             </tr>
           </thead>
           <tbody>
@@ -152,6 +164,18 @@ export default function UserConsole() {
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
+                </td>
+                <td className="px-4 py-3">
+                  {u.role !== "admin" && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDeleteUser(u)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}
