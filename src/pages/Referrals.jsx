@@ -57,52 +57,53 @@ export default function Referrals() {
 
   const totalEarned = referrals.reduce((s, r) => s + (r.bonus_amount || 0), 0);
 
+  const CODIGO_BONO = "APEX1000S";
+  const MONTO_BONO = 1000;
+  const MIN_DEPOSITO = 300;
+  const MIN_REFERIDOS = 3;
+
   const handleActivarBono = async () => {
     if (!codigoBono.trim()) return toast.error("Ingresa el código de bono");
+
+    if (codigoBono.trim().toUpperCase() !== CODIGO_BONO) {
+      toast.error("Código inválido");
+      return;
+    }
+
+    if (user.bono_codigo_activado) {
+      toast.error("Este bono ya fue activado en tu cuenta");
+      return;
+    }
+
+    const refsCreditados = referrals.filter(r => r.status === "credited").length;
+    if (depositoTotal < MIN_DEPOSITO) {
+      toast.error(`Necesitas depositar al menos $${MIN_DEPOSITO} USDT para activar este bono`);
+      return;
+    }
+    if (refsCreditados < MIN_REFERIDOS) {
+      toast.error(`Necesitas ${MIN_REFERIDOS} referidos activos. Tienes ${refsCreditados}.`);
+      return;
+    }
+
     setActivandoBono(true);
     try {
-      const [bonos] = await Promise.all([
-        base44.entities.BonoCodigo.filter({ codigo: codigoBono.trim().toUpperCase(), status: "activo" })
-      ]);
-      if (!bonos || bonos.length === 0) {
-        toast.error("Código inválido o ya utilizado");
-        setActivandoBono(false);
-        return;
-      }
-      const bono = bonos[0];
-
-      // Verificar requisitos
-      const refsCreditados = referrals.filter(r => r.status === "credited").length;
-      if (depositoTotal < bono.min_deposito) {
-        toast.error(`Necesitas depositar al menos $${bono.min_deposito} para activar este bono`);
-        setActivandoBono(false);
-        return;
-      }
-      if (refsCreditados < bono.min_referidos) {
-        toast.error(`Necesitas ${bono.min_referidos} referidos activos. Tienes ${refsCreditados}.`);
-        setActivandoBono(false);
-        return;
-      }
-
-      // Acreditar bono
       await Promise.all([
-        base44.entities.BonoCodigo.update(bono.id, { status: "usado", usado_por: user.email }),
         base44.entities.User.update(user.id, {
-          balance: (user.balance || 0) + bono.monto_bono,
+          balance: (user.balance || 0) + MONTO_BONO,
           bono_codigo_activado: true,
         }),
         base44.entities.Transaction.create({
           user_email: user.email,
           type: "dividend",
-          amount: bono.monto_bono,
+          amount: MONTO_BONO,
           status: "completed",
-          notes: `Bono código ${bono.codigo}`,
+          notes: `Bono código ${CODIGO_BONO}`,
         }),
       ]);
 
       setBonoActivado(true);
-      setBonoRequisitos(bono);
-      toast.success(`¡Bono de $${bono.monto_bono} acreditado exitosamente! 🎉`);
+      setBonoRequisitos({ monto_bono: MONTO_BONO });
+      toast.success(`¡Bono de $${MONTO_BONO} acreditado exitosamente! 🎉`);
     } catch {
       toast.error("Error al activar el bono");
     }
@@ -305,7 +306,7 @@ export default function Referrals() {
               <Input
                 value={codigoBono}
                 onChange={e => setCodigoBono(e.target.value.toUpperCase())}
-                placeholder="APEX-XXXXXX"
+                placeholder="Ej: APEX1000S"
                 className="h-9 text-xs font-mono bg-secondary border-border flex-1"
               />
               <Button
