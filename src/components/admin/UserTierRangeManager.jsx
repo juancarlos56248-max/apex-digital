@@ -63,8 +63,7 @@ export default function UserTierRangeManager() {
     u.full_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const getDraft = (userId, currentRanges) => {
-    if (drafts[userId]) return drafts[userId];
+  const buildDraft = (currentRanges) => {
     const base = {};
     TIERS.forEach(t => {
       base[t.key] = {
@@ -75,13 +74,25 @@ export default function UserTierRangeManager() {
     return base;
   };
 
+  const toggleExpand = (u) => {
+    if (expanded === u.id) {
+      setExpanded(null);
+    } else {
+      // Initialize draft from saved ranges when opening
+      if (!drafts[u.id]) {
+        setDrafts(prev => ({ ...prev, [u.id]: buildDraft(u.tier_ranges) }));
+      }
+      setExpanded(u.id);
+    }
+  };
+
   const handleChange = (userId, tierKey, field, val) => {
     setDrafts(prev => ({
       ...prev,
       [userId]: {
-        ...getDraft(userId, users.find(u => u.id === userId)?.tier_ranges),
+        ...(prev[userId] || {}),
         [tierKey]: {
-          ...getDraft(userId, users.find(u => u.id === userId)?.tier_ranges)[tierKey],
+          ...(prev[userId]?.[tierKey] || {}),
           [field]: val === "" ? null : parseFloat(val),
         },
       },
@@ -96,7 +107,7 @@ export default function UserTierRangeManager() {
 
   const handleSave = async (user) => {
     setSaving(user.id);
-    const ranges = drafts[user.id] || getDraft(user.id, user.tier_ranges);
+    const ranges = drafts[user.id] || buildDraft(user.tier_ranges);
     await base44.entities.User.update(user.id, { tier_ranges: ranges });
     setUsers(prev => prev.map(u => u.id === user.id ? { ...u, tier_ranges: ranges } : u));
     toast.success(`Rangos actualizados para ${user.full_name || user.email}`);
@@ -124,13 +135,13 @@ export default function UserTierRangeManager() {
       <div className="space-y-2">
         {filtered.map((u) => {
           const isOpen = expanded === u.id;
-          const draft = getDraft(u.id, u.tier_ranges);
+          const draft = drafts[u.id] || buildDraft(u.tier_ranges);
           const hasCustom = !!u.tier_ranges;
 
           return (
             <div key={u.id} className="rounded-xl border border-border bg-card overflow-hidden">
               <button
-                onClick={() => setExpanded(isOpen ? null : u.id)}
+                onClick={() => toggleExpand(u)}
                 className="w-full flex items-center justify-between px-4 py-3 hover:bg-secondary/40 transition-colors"
               >
                 <div className="flex items-center gap-3 text-left">
