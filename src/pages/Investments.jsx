@@ -53,8 +53,8 @@ export default function Investments() {
   ];
 
   // Rangos personalizados por plan para este usuario (guardados en tier_ranges)
-  const getOverrideMin = (tier) => user?.tier_ranges?.[tier]?.min ?? undefined;
-  const getOverrideMax = (tier) => user?.tier_ranges?.[tier]?.max ?? undefined;
+  const getOverrideMin = (tier) => user?.tier_ranges?.[tier]?.min;
+  const getOverrideMax = (tier) => user?.tier_ranges?.[tier]?.max;
 
   const handleSubscribe = (tier, deposit, config) => {
     setSelectedTier(tier);
