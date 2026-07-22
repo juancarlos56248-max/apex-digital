@@ -31,9 +31,6 @@
     "referred_by": {
       "type": "string"
     },
-    "ruleta_ultima_fecha": {
-      "type": "string"
-    },
     "two_fa_pin": {
       "type": "string"
     },
@@ -43,6 +40,31 @@
     "tier_ranges": {
       "type": "object",
       "description": "Rangos personalizados por plan: { starter: { min, max }, advance: { min, max }, ... }"
+    },
+    "dni": {
+      "type": "string",
+      "description": "Documento de identidad"
+    },
+    "phone": {
+      "type": "string",
+      "description": "N\u00famero de tel\u00e9fono"
+    },
+    "kyc_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "description": "Estado de verificaci\u00f3n KYC"
+    },
+    "dni_photo_uri": {
+      "type": "string",
+      "description": "URI privada de la foto del DNI"
+    },
+    "kyc_selfie_uri": {
+      "type": "string",
+      "description": "URI privada de la selfie con DNI"
     }
   },
   "name": "User"
