@@ -82,10 +82,11 @@ export default function BalanceManager() {
     if (newVal === null) { toast.error("Ingresa un monto válido"); return; }
     setSaving(true);
     await base44.asServiceRole.entities.User.update(editModal.user.id, { [editModal.field]: newVal });
-    toast.success(`${FIELDS.find(f => f.key === editModal.field)?.label} actualizado a $${newVal.toFixed(2)}`);
+    // Update local state instantly
+    setUsers(prev => prev.map(u => u.id === editModal.user.id ? { ...u, [editModal.field]: newVal } : u));
+    toast.success(`${FIELDS.find(f => f.key === editModal.field)?.label} → $${newVal.toFixed(2)}`);
     setSaving(false);
     setEditModal(null);
-    load();
   };
 
   const activateNode = async (user) => {
@@ -96,7 +97,7 @@ export default function BalanceManager() {
     if (!amount || isNaN(amount) || amount <= 0) { toast.error("Monto inválido"); return; }
     setActivating(user.id);
     try {
-      await base44.asServiceRole.entities.Investment.create({
+      const newInv = await base44.asServiceRole.entities.Investment.create({
         user_email: user.email,
         tier,
         amount,
@@ -104,9 +105,14 @@ export default function BalanceManager() {
         total_earned: 0,
         last_dividend_date: new Date().toISOString(),
       });
-      toast.success(`Nodo ${tier.toUpperCase()} activado para ${user.full_name || user.email}`);
+      // Update local state instantly — no full reload
+      setInvestments(prev => ({
+        ...prev,
+        [user.email]: [...(prev[user.email] || []), newInv],
+      }));
       setExpanded(null);
-      load();
+      setNodeForm(prev => ({ ...prev, [user.id]: {} }));
+      toast.success(`Nodo ${tier.toUpperCase()} activado ✓`);
     } catch {
       toast.error("Error al activar nodo");
     }
