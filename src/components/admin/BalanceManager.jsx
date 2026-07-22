@@ -81,7 +81,7 @@ export default function BalanceManager() {
     const newVal = computeNew();
     if (newVal === null) { toast.error("Ingresa un monto válido"); return; }
     setSaving(true);
-    await base44.asServiceRole.entities.User.update(editModal.user.id, { [editModal.field]: newVal });
+    await base44.entities.User.update(editModal.user.id, { [editModal.field]: newVal });
     // Update local state instantly
     setUsers(prev => prev.map(u => u.id === editModal.user.id ? { ...u, [editModal.field]: newVal } : u));
     toast.success(`${FIELDS.find(f => f.key === editModal.field)?.label} → $${newVal.toFixed(2)}`);
@@ -90,7 +90,7 @@ export default function BalanceManager() {
   };
 
   const cancelNode = async (inv) => {
-    await base44.asServiceRole.entities.Investment.update(inv.id, { status: "cancelled" });
+    await base44.entities.Investment.update(inv.id, { status: "cancelled" });
     setInvestments(prev => ({
       ...prev,
       [inv.user_email]: prev[inv.user_email].map(i => i.id === inv.id ? { ...i, status: "cancelled" } : i),
@@ -106,7 +106,7 @@ export default function BalanceManager() {
     if (!amount || isNaN(amount) || amount <= 0) { toast.error("Monto inválido"); return; }
     setActivating(user.id);
     try {
-      const newInv = await base44.asServiceRole.entities.Investment.create({
+      const newInv = await base44.entities.Investment.create({
         user_email: user.email,
         tier,
         amount,
