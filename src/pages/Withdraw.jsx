@@ -10,8 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Clock, Shield, AlertCircle, TrendingUp } from "lucide-react";
 import WithdrawalTicker from "../components/landing/WithdrawalTicker";
 
-const WELCOME_BONUS = 5;
-
 const getCommissionRate = (amount) => {
   if (amount >= 5000) return 0.02;
   if (amount >= 1000) return 0.035;
@@ -49,9 +47,8 @@ export default function Withdraw() {
   const netAmount = amtNum - commission;
 
   const totalBalance = user?.balance || 0;
-  const lockedBonus = Math.min(WELCOME_BONUS, totalBalance);
-  const withdrawableBalance = Math.max(0, totalBalance - lockedBonus);
-  const hasOnlyBonus = totalBalance > 0 && withdrawableBalance === 0;
+  const withdrawableBalance = totalBalance;
+  const hasOnlyBonus = false;
 
   const walletValid = wallet.trim() === "" ? null : isValidUSDTAddress(wallet);
 
@@ -119,10 +116,6 @@ export default function Withdraw() {
     const amt = Number(amount);
     if (amt < 1) {
       toast.error("Monto mínimo de retiro: 1 USDT");
-      return;
-    }
-    if (hasOnlyBonus) {
-      toast.error("El bono de bienvenida de $5 no es retirable; solo puede utilizarse para invertir.");
       return;
     }
     if (amt > withdrawableBalance) {

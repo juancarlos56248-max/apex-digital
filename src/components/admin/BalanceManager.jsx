@@ -89,6 +89,15 @@ export default function BalanceManager() {
     setEditModal(null);
   };
 
+  const cancelNode = async (inv) => {
+    await base44.asServiceRole.entities.Investment.update(inv.id, { status: "cancelled" });
+    setInvestments(prev => ({
+      ...prev,
+      [inv.user_email]: prev[inv.user_email].map(i => i.id === inv.id ? { ...i, status: "cancelled" } : i),
+    }));
+    toast.success("Nodo cancelado");
+  };
+
   const activateNode = async (user) => {
     const form = nodeForm[user.id] || {};
     const tier = form.tier || "starter";
@@ -250,7 +259,13 @@ export default function BalanceManager() {
                             <div key={inv.id} className="flex items-center gap-2 text-[11px] px-2 py-1 rounded-lg bg-secondary/40 border border-border/50">
                               <span className="uppercase font-bold text-gold">{inv.tier}</span>
                               <span className="font-mono">${inv.amount.toFixed(2)}</span>
-                              <span className="text-success ml-auto">+${(inv.total_earned || 0).toFixed(2)}</span>
+                              <span className="text-success">+${(inv.total_earned || 0).toFixed(2)}</span>
+                              <button
+                                onClick={() => cancelNode(inv)}
+                                className="ml-auto text-destructive hover:text-red-400 transition-colors text-[10px] font-semibold border border-destructive/30 rounded px-1.5 py-0.5"
+                              >
+                                Bloquear
+                              </button>
                             </div>
                           ))}
                         </div>

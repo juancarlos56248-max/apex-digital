@@ -2,12 +2,25 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Check, X, ExternalLink, RefreshCcw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Check, X, RefreshCcw, Settings } from "lucide-react";
 import moment from "moment";
+
+const RANGE_KEY = "apex_deposit_range";
 
 export default function DepositManager() {
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [rangeMin, setRangeMin] = useState(() => localStorage.getItem(RANGE_KEY + "_min") || "10");
+  const [rangeMax, setRangeMax] = useState(() => localStorage.getItem(RANGE_KEY + "_max") || "50000");
+  const [showRange, setShowRange] = useState(false);
+
+  const saveRange = () => {
+    localStorage.setItem(RANGE_KEY + "_min", rangeMin);
+    localStorage.setItem(RANGE_KEY + "_max", rangeMax);
+    toast.success(`Rango actualizado: $${rangeMin} – $${rangeMax}`);
+    setShowRange(false);
+  };
 
   const loadDeposits = async () => {
     setLoading(true);
@@ -60,10 +73,31 @@ export default function DepositManager() {
     <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between p-4 border-b border-border">
         <h3 className="text-sm font-semibold">Monitor de Depósitos</h3>
-        <Button variant="ghost" size="sm" onClick={loadDeposits} className="gap-1.5 text-xs">
-          <RefreshCcw className="w-3 h-3" /> Refrescar
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setShowRange(v => !v)} className="gap-1.5 text-xs text-gold">
+            <Settings className="w-3 h-3" /> Rango
+          </Button>
+          <Button variant="ghost" size="sm" onClick={loadDeposits} className="gap-1.5 text-xs">
+            <RefreshCcw className="w-3 h-3" /> Refrescar
+          </Button>
+        </div>
       </div>
+
+      {showRange && (
+        <div className="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-border bg-secondary/30">
+          <span className="text-xs text-muted-foreground font-medium">Rango de depósito permitido:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Mín $</span>
+            <Input type="number" value={rangeMin} onChange={e => setRangeMin(e.target.value)} className="h-7 w-24 text-xs font-mono bg-secondary border-border" />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Máx $</span>
+            <Input type="number" value={rangeMax} onChange={e => setRangeMax(e.target.value)} className="h-7 w-28 text-xs font-mono bg-secondary border-border" />
+          </div>
+          <Button size="sm" onClick={saveRange} className="h-7 text-xs bg-gold hover:bg-gold-dark text-black">Guardar</Button>
+          <span className="text-[11px] text-muted-foreground">Actual: <span className="text-gold font-mono">${rangeMin} – ${rangeMax}</span></span>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

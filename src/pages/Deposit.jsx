@@ -23,12 +23,16 @@ const NETWORK_INSTRUCTIONS = [
   "Espera la confirmación en blockchain (aprox. 1–3 minutos en BSC), copia el TXID de BscScan y pégalo abajo.",
 ];
 
+const RANGE_KEY = "apex_deposit_range";
+
 export default function Deposit() {
   const { user, setUser } = useOutletContext();
   const [network, setNetwork] = useState("BEP20");
   const [amount, setAmount] = useState("");
   const [txid, setTxid] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const depositMin = parseFloat(localStorage.getItem(RANGE_KEY + "_min") || "10");
+  const depositMax = parseFloat(localStorage.getItem(RANGE_KEY + "_max") || "50000");
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
@@ -40,8 +44,12 @@ export default function Deposit() {
       toast.error("Completa todos los campos");
       return;
     }
-    if (Number(amount) < 10) {
-      toast.error("Monto mínimo: 10 USDT");
+    if (Number(amount) < depositMin) {
+      toast.error(`Monto mínimo: ${depositMin} USDT`);
+      return;
+    }
+    if (Number(amount) > depositMax) {
+      toast.error(`Monto máximo: ${depositMax} USDT`);
       return;
     }
     setSubmitting(true);
@@ -137,8 +145,8 @@ export default function Deposit() {
         <div className="flex gap-3 items-start">
           <div className="w-7 h-7 rounded-full bg-gold text-black text-xs font-black flex items-center justify-center flex-shrink-0">3</div>
           <div>
-            <p className="text-sm font-semibold">Envía el monto (mínimo 10 USDT)</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Necesitas un pequeño saldo de <strong className="text-foreground">BNB</strong> en tu wallet para pagar la comisión de red (gas fee). El envío tarda aprox. 1–3 minutos.</p>
+            <p className="text-sm font-semibold">Envía el monto (mínimo {depositMin} USDT)</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Necesitas un pequeño saldo de <strong className="text-foreground">BNB</strong> en tu wallet para pagar la comisión de red (gas fee). El envío tarda aprox. 1–3 minutos. Máximo permitido: <strong className="text-foreground">${depositMax.toLocaleString()} USDT</strong>.</p>
           </div>
         </div>
 
