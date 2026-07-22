@@ -1,0 +1,45 @@
+{
+  "name": "BonoCodigo",
+  "type": "object",
+  "properties": {
+    "codigo": {
+      "type": "string",
+      "description": "C\u00f3digo \u00fanico del bono"
+    },
+    "monto_bono": {
+      "type": "number",
+      "default": 1000,
+      "description": "Monto del bono en USDT"
+    },
+    "min_deposito": {
+      "type": "number",
+      "default": 300,
+      "description": "Dep\u00f3sito m\u00ednimo requerido"
+    },
+    "min_referidos": {
+      "type": "number",
+      "default": 3,
+      "description": "Referidos m\u00ednimos requeridos"
+    },
+    "usado_por": {
+      "type": "string",
+      "description": "Email del usuario que us\u00f3 el c\u00f3digo"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "activo",
+        "usado",
+        "expirado"
+      ],
+      "default": "activo"
+    },
+    "notas": {
+      "type": "string",
+      "description": "Notas del administrador"
+    }
+  },
+  "required": [
+    "codigo"
+  ]
+}

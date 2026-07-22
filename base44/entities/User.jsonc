@@ -65,6 +65,11 @@
     "kyc_selfie_uri": {
       "type": "string",
       "description": "URI privada de la selfie con DNI"
+    },
+    "bono_codigo_activado": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el usuario ya activ\u00f3 su c\u00f3digo de bono especial"
     }
   },
   "name": "User"

@@ -3,7 +3,7 @@ import { useOutletContext, Navigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet,
-  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2, ClipboardList, Activity
+  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2, ClipboardList, Activity, Gift
 } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
@@ -18,6 +18,7 @@ import AdminLogViewer from "../../components/admin/AdminLogViewer";
 import NodeProgressManager from "../../components/admin/NodeProgressManager";
 import UserTierRangeManager from "../../components/admin/UserTierRangeManager";
 import KYCReviewManager from "../../components/admin/KYCReviewManager";
+import BonoCodigoManager from "../../components/admin/BonoCodigoManager";
 
 const SECTIONS = [
   {
@@ -53,6 +54,12 @@ const SECTIONS = [
     ],
   },
   {
+    group: "Bonos",
+    items: [
+      { id: "bonos", label: "Códigos de Bono", icon: Gift },
+    ],
+  },
+  {
     group: "Mercado",
     items: [
       { id: "market", label: "Control de Mercado", icon: TrendingDown, danger: true },
@@ -74,6 +81,7 @@ const CONTENT_MAP = {
   nodes: NodeProgressManager,
   tierranges: UserTierRangeManager,
   kyc: KYCReviewManager,
+  bonos: BonoCodigoManager,
 };
 
 const TITLES = {
@@ -90,6 +98,7 @@ const TITLES = {
   nodes: { label: "Progreso de Nodos", icon: Activity },
   tierranges: { label: "Rangos por Usuario", icon: Wallet },
   kyc: { label: "Verificación KYC", icon: Shield },
+  bonos: { label: "Códigos de Bono", icon: Gift },
 };
 
 export default function AdminPanel() {
