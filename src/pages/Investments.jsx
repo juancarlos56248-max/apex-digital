@@ -172,9 +172,17 @@ export default function Investments() {
     const allInvs = await base44.entities.Investment.filter({ user_email: user.email, status: "active" });
     const realTotalInvested = allInvs.reduce((sum, i) => sum + (i.amount || 0), 0);
 
+    // Si activó un nodo Starter, actualizar rango automáticamente a 100-499
+    const extraUpdate = selectedTier === "starter" ? {
+      tier_ranges: {
+        ...(userRecord.tier_ranges || {}),
+        starter: { min: 100, max: 499 },
+      }
+    } : {};
+
     // Actualizar total_invested y sincronizar auth profile
     await Promise.all([
-      base44.entities.User.update(userRecord.id, { total_invested: realTotalInvested }),
+      base44.entities.User.update(userRecord.id, { total_invested: realTotalInvested, ...extraUpdate }),
       base44.auth.updateMe({ balance: newBalance, total_invested: realTotalInvested }),
     ]);
 
