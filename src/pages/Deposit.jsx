@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import RuletaSuerte from "@/components/dashboard/RuletaSuerte";
 import { base44 } from "@/api/base44Client";
@@ -23,16 +23,24 @@ const NETWORK_INSTRUCTIONS = [
   "Espera la confirmación en blockchain (aprox. 1–3 minutos en BSC), copia el TXID de BscScan y pégalo abajo.",
 ];
 
-const RANGE_KEY = "apex_deposit_range";
-
 export default function Deposit() {
   const { user, setUser } = useOutletContext();
   const [network, setNetwork] = useState("BEP20");
   const [amount, setAmount] = useState("");
   const [txid, setTxid] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const depositMin = parseFloat(localStorage.getItem(RANGE_KEY + "_min") || "10");
-  const depositMax = parseFloat(localStorage.getItem(RANGE_KEY + "_max") || "50000");
+  const [depositMin, setDepositMin] = useState(10);
+  const [depositMax, setDepositMax] = useState(50000);
+
+  useEffect(() => {
+    base44.entities.AppConfig.filter({ key: "deposit_range" }).then(configs => {
+      if (configs.length > 0) {
+        const val = JSON.parse(configs[0].value);
+        setDepositMin(val.min);
+        setDepositMax(val.max);
+      }
+    });
+  }, []);
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);

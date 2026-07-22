@@ -6,19 +6,34 @@ import { Input } from "@/components/ui/input";
 import { Check, X, RefreshCcw, Settings } from "lucide-react";
 import moment from "moment";
 
-const RANGE_KEY = "apex_deposit_range";
-
 export default function DepositManager() {
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [rangeMin, setRangeMin] = useState(() => localStorage.getItem(RANGE_KEY + "_min") || "10");
-  const [rangeMax, setRangeMax] = useState(() => localStorage.getItem(RANGE_KEY + "_max") || "50000");
+  const [rangeMin, setRangeMin] = useState("10");
+  const [rangeMax, setRangeMax] = useState("50000");
   const [showRange, setShowRange] = useState(false);
+  const [savingRange, setSavingRange] = useState(false);
 
-  const saveRange = () => {
-    localStorage.setItem(RANGE_KEY + "_min", rangeMin);
-    localStorage.setItem(RANGE_KEY + "_max", rangeMax);
-    toast.success(`Rango actualizado: $${rangeMin} – $${rangeMax}`);
+  const loadRange = async () => {
+    const configs = await base44.entities.AppConfig.filter({ key: "deposit_range" });
+    if (configs.length > 0) {
+      const val = JSON.parse(configs[0].value);
+      setRangeMin(String(val.min));
+      setRangeMax(String(val.max));
+    }
+  };
+
+  const saveRange = async () => {
+    setSavingRange(true);
+    const configs = await base44.entities.AppConfig.filter({ key: "deposit_range" });
+    const payload = { key: "deposit_range", value: JSON.stringify({ min: Number(rangeMin), max: Number(rangeMax) }) };
+    if (configs.length > 0) {
+      await base44.entities.AppConfig.update(configs[0].id, payload);
+    } else {
+      await base44.entities.AppConfig.create(payload);
+    }
+    setSavingRange(false);
+    toast.success(`Rango guardado: $${rangeMin} – $${rangeMax}`);
     setShowRange(false);
   };
 
@@ -29,7 +44,7 @@ export default function DepositManager() {
     setLoading(false);
   };
 
-  useEffect(() => { loadDeposits(); }, []);
+  useEffect(() => { loadDeposits(); loadRange(); }, []);
 
   const handleApprove = async (deposit) => {
     await base44.entities.Transaction.update(deposit.id, { status: "approved" });
@@ -94,7 +109,7 @@ export default function DepositManager() {
             <span className="text-xs text-muted-foreground">Máx $</span>
             <Input type="number" value={rangeMax} onChange={e => setRangeMax(e.target.value)} className="h-7 w-28 text-xs font-mono bg-secondary border-border" />
           </div>
-          <Button size="sm" onClick={saveRange} className="h-7 text-xs bg-gold hover:bg-gold-dark text-black">Guardar</Button>
+          <Button size="sm" onClick={saveRange} disabled={savingRange} className="h-7 text-xs bg-gold hover:bg-gold-dark text-black">{savingRange ? "Guardando..." : "Guardar"}</Button>
           <span className="text-[11px] text-muted-foreground">Actual: <span className="text-gold font-mono">${rangeMin} – ${rangeMax}</span></span>
         </div>
       )}
