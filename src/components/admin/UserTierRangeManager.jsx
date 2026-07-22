@@ -78,10 +78,8 @@ export default function UserTierRangeManager() {
     if (expanded === u.id) {
       setExpanded(null);
     } else {
-      // Initialize draft from saved ranges when opening
-      if (!drafts[u.id]) {
-        setDrafts(prev => ({ ...prev, [u.id]: buildDraft(u.tier_ranges) }));
-      }
+      // Always reinitialize draft from current user data when opening
+      setDrafts(prev => ({ ...prev, [u.id]: buildDraft(u.tier_ranges) }));
       setExpanded(u.id);
     }
   };
