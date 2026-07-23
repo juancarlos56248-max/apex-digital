@@ -15,7 +15,7 @@ export default function SpecialCodeForm({ code, setCode, loading, activated, res
     <div className="space-y-5 rounded-xl border border-gold/25 bg-card p-6">
       <div className="flex items-center gap-3"><div className="rounded-xl bg-gold/10 p-3"><KeyRound className="h-5 w-5 text-gold" /></div><div><h2 className="font-semibold">Ingresa tu código</h2><p className="text-xs text-muted-foreground">Debe haber sido entregado por administración.</p></div></div>
       <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Ej: APEXXXXXXX" className="font-mono uppercase tracking-widest" />
-      <CodeRequirements code={result} deposits={stats.deposits} referrals={stats.referrals} />
+      <CodeRequirements code={result} nodeAmount={stats.nodeAmount} referrals={stats.referrals} />
       <Button onClick={onSubmit} disabled={loading || !code.trim()} className="w-full gap-2">
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
         {loading ? "Verificando..." : "Activar código"}

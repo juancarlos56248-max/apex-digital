@@ -1,9 +1,9 @@
 import { CheckCircle2, Circle } from "lucide-react";
 
-export default function CodeRequirements({ code, deposits, referrals }) {
+export default function CodeRequirements({ code, nodeAmount, referrals }) {
   if (!code) return null;
   const items = [
-    { label: `Depósito mínimo: $${code.min_deposito} USDT`, value: `Tienes $${deposits.toFixed(2)}`, done: deposits >= code.min_deposito },
+    { label: `Nodo activo mínimo: $${code.min_node} USDT`, value: nodeAmount ? `Tu nodo activo: $${nodeAmount.toFixed(2)}` : "No tienes un nodo activo elegible", done: nodeAmount >= code.min_node },
     { label: `Referidos activos: ${code.min_referidos}`, value: `Tienes ${referrals}`, done: referrals >= code.min_referidos },
   ];
   return (
