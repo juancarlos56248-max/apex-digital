@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { TrendingUp, Zap, Clock, Shield, Lock, Star } from "lucide-react";
 
-const SESSION_END = new Date("2026-07-24T23:59:59-05:00"); // Nueva sesión — 24 horas desde hoy
+const SESSION_END = new Date("2026-07-26T23:59:59-05:00"); // Nueva sesión — 3 días
 
 function Countdown({ target }) {
   const [time, setTime] = useState({ d: 0, h: 0, m: 0, s: 0 });
@@ -91,7 +91,7 @@ export default function SesionEspecial() {
       const { transaction, newBalance } = response.data;
       setUser(prev => ({ ...prev, balance: newBalance }));
       setExistingParticipation(transaction);
-      toast.success("✅ Oportunidad activada y saldo descontado. Desembolso en 3 días.");
+      toast.success("✅ Oportunidad activada y saldo descontado. Desembolso en 3 días hábiles.");
     } catch (error) {
       setFormError(error?.response?.data?.error || error.message || "No se pudo activar la oportunidad");
     } finally {
@@ -124,13 +124,13 @@ export default function SesionEspecial() {
             💰 Ganancias Acreditadas Hoy
           </h1>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            El desembolso de la sesión anterior ya fue procesado. Revisa tu balance actualizado. Ahora abrimos una <strong className="text-foreground">nueva oportunidad por solo 24 horas</strong>.
+            El desembolso de la sesión anterior ya fue procesado. Revisa tu balance actualizado. Ahora abrimos una <strong className="text-foreground">nueva oportunidad por 3 días</strong>.
           </p>
 
           {/* Nueva sesión badge */}
           <div className="mt-3 inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-3 py-1">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">🚨 Nueva Sesión Abierta — Solo 24 Horas</span>
+            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">🚨 Nueva Sesión Abierta — 3 Días</span>
           </div>
         </div>
       </motion.div>
@@ -145,7 +145,7 @@ export default function SesionEspecial() {
         </div>
         <Countdown target={SESSION_END.getTime()} />
         <p className="text-[11px] text-muted-foreground">
-          Cierre: <strong className="text-foreground">24 de julio, 2026 — 11:59 PM</strong> · Desembolso en <strong className="text-gold">24 horas</strong>
+          Cierre: <strong className="text-foreground">26 de julio, 2026 — 11:59 PM</strong> · Desembolso en <strong className="text-gold">3 días hábiles</strong>
         </p>
       </motion.div>
 
@@ -181,7 +181,7 @@ export default function SesionEspecial() {
       >
         {[
           { icon: Zap, label: "Retorno", val: "10% – 50%" },
-          { icon: Clock, label: "Plazo", val: "24 horas" },
+          { icon: Clock, label: "Plazo", val: "3 días" },
           { icon: Lock, label: "Mínimo", val: "$50 USDT" },
         ].map(({ icon: Icon, label, val }) => (
           <div key={label} className="rounded-xl border border-border bg-secondary/30 p-3 text-center">
@@ -226,7 +226,7 @@ export default function SesionEspecial() {
             </div>
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
               <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-              <span>El capital más las ganancias serán desembolsados a tu balance en las próximas 24 horas.</span>
+              <span>El capital más las ganancias serán desembolsados a tu balance en 3 días hábiles.</span>
             </div>
           </div>
         ) : (
@@ -253,7 +253,7 @@ export default function SesionEspecial() {
             {/* Preview de ganancia */}
             {Number(amount) >= 50 && (
               <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs space-y-1">
-                <p className="text-emerald-400 font-semibold">Proyección estimada en 24 horas:</p>
+                <p className="text-emerald-400 font-semibold">Proyección estimada en 3 días:</p>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Inversión</span>
                   <span className="font-mono text-foreground">${Number(amount).toFixed(2)} USDT</span>
@@ -276,7 +276,7 @@ export default function SesionEspecial() {
 
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
               <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-              <span>El capital más las ganancias serán desembolsados directamente a tu balance en las próximas <strong className="text-gold">24 horas</strong> tras confirmar la oportunidad.</span>
+              <span>El capital más las ganancias serán desembolsados directamente a tu balance en <strong className="text-gold">3 días hábiles</strong> tras confirmar la oportunidad.</span>
             </div>
           </>
         )}
