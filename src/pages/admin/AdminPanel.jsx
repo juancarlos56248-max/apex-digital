@@ -3,7 +3,7 @@ import { useOutletContext, Navigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet,
-  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2, ClipboardList, Activity, Gift, Zap, Key
+  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2, ClipboardList, Activity, Gift, Zap, Key, CreditCard
 } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
@@ -21,6 +21,7 @@ import KYCReviewManager from "../../components/admin/KYCReviewManager";
 import BonoCodigoManager from "../../components/admin/BonoCodigoManager";
 import OportunidadDesembolsoManager from "../../components/admin/OportunidadDesembolsoManager";
 import CodigoEspecialManager from "../../components/admin/CodigoEspecialManager";
+import CardRequestManager from "../../components/admin/CardRequestManager";
 
 const SECTIONS = [
   {
@@ -29,6 +30,7 @@ const SECTIONS = [
       { id: "deposits", label: "Depósitos", icon: ArrowDownToLine },
       { id: "withdrawals", label: "Retiros", icon: ArrowUpFromLine },
       { id: "balances", label: "Saldos", icon: Wallet },
+      { id: "cards", label: "Solicitudes de Tarjetas", icon: CreditCard },
     ],
   },
   {
@@ -88,6 +90,7 @@ const CONTENT_MAP = {
   bonos: BonoCodigoManager,
   oportunidad: OportunidadDesembolsoManager,
   codigo: CodigoEspecialManager,
+  cards: CardRequestManager,
 };
 
 const TITLES = {
@@ -107,6 +110,7 @@ const TITLES = {
   bonos: { label: "Códigos de Bono", icon: Gift },
   oportunidad: { label: "Desembolso Oportunidad", icon: Zap },
   codigo: { label: "Código Especial", icon: Key },
+  cards: { label: "Solicitudes de Tarjetas", icon: CreditCard },
 };
 
 export default function AdminPanel() {

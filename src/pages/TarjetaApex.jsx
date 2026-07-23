@@ -29,7 +29,7 @@ export default function TarjetaApex() {
   const { user } = useOutletContext();
   const [totalInvested, setTotalInvested] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [requested, setRequested] = useState(false);
+  const [cardStatus, setCardStatus] = useState("none");
   const [submitting, setSubmitting] = useState(false);
   const [hideBalance, setHideBalance] = useState(false);
   const [activeTab, setActiveTab] = useState("inicio");
@@ -38,30 +38,43 @@ export default function TarjetaApex() {
     if (!user?.email) return;
     Promise.all([
       base44.entities.Investment.filter({ user_email: user.email, status: "active" }),
-      base44.entities.Transaction.filter({
-        user_email: user.email,
-        type: "deposit",
-        status: "completed",
-        notes: "ACTIVACIÓN TARJETA VIRTUAL APEX",
-      }),
-    ]).then(([investments, cardActivations]) => {
+      base44.entities.Transaction.filter({ user_email: user.email, type: "deposit" }, "-created_date"),
+    ]).then(([investments, transactions]) => {
+      const cardRequests = transactions.filter(item => item.notes === "SOLICITUD TARJETA VIRTUAL APEX" || item.notes === "ACTIVACIÓN TARJETA VIRTUAL APEX");
+      const approved = cardRequests.some(item => item.status === "approved" || item.status === "completed");
+      const pending = cardRequests.some(item => item.status === "pending");
       setTotalInvested(investments.reduce((sum, item) => sum + (item.amount || 0), 0));
-      setRequested(cardActivations.length > 0);
+      setCardStatus(approved ? "approved" : pending ? "pending" : cardRequests.length ? "rejected" : "none");
     }).finally(() => setLoading(false));
+  }, [user?.email]);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    return base44.entities.Transaction.subscribe((event) => {
+      const item = event.data;
+      if (item?.user_email !== user.email || item.notes !== "SOLICITUD TARJETA VIRTUAL APEX") return;
+      if (item.status === "approved" || item.status === "completed") setCardStatus("approved");
+      if (item.status === "rejected") setCardStatus("rejected");
+    });
   }, [user?.email]);
 
   const handleRequest = async () => {
     setSubmitting(true);
-    await base44.entities.Transaction.create({
-      user_email: user.email,
-      type: "deposit",
-      amount: 0,
-      status: "completed",
-      notes: "ACTIVACIÓN TARJETA VIRTUAL APEX",
-    });
-    toast.success("Tu Tarjeta Virtual APEX está activa.");
-    setRequested(true);
-    setSubmitting(false);
+    try {
+      await base44.entities.Transaction.create({
+        user_email: user.email,
+        type: "deposit",
+        amount: 0,
+        status: "pending",
+        notes: "SOLICITUD TARJETA VIRTUAL APEX",
+      });
+      toast.success("Solicitud enviada para aprobación.");
+      setCardStatus("pending");
+    } catch (error) {
+      toast.error(error.message || "No se pudo enviar la solicitud.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <div className="flex h-40 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-gold/20 border-t-gold" /></div>;
@@ -84,18 +97,18 @@ export default function TarjetaApex() {
             <h1 className="mt-2 text-2xl font-black md:text-3xl">Billetera Digital</h1>
             <p className="mt-1 text-xs text-muted-foreground">Infraestructura financiera con cashback del 5%</p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-success/25 bg-success/10 px-3 py-1.5">
-            <Activity className="h-3.5 w-3.5 text-success" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-success">Activa</span>
+          <div className={`flex items-center gap-2 rounded-full border px-3 py-1.5 ${cardStatus === "approved" ? "border-success/25 bg-success/10 text-success" : cardStatus === "pending" ? "border-warning/25 bg-warning/10 text-warning" : "border-gold/25 bg-gold/10 text-gold"}`}>
+            <Activity className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">{cardStatus === "approved" ? "Activa" : cardStatus === "pending" ? "En revisión" : "Disponible"}</span>
           </div>
         </motion.header>
 
-        {!requested && <div className="mb-6"><WalletRequest submitting={submitting} onSubmit={handleRequest} /></div>}
+        {cardStatus !== "approved" && <div className="mb-6"><WalletRequest status={cardStatus} submitting={submitting} onSubmit={handleRequest} /></div>}
 
         <div>
           <div className="space-y-5">
             <motion.div initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }}>
-              <CyberCard user={user} countryCode={getCountryCode(user?.phone)} cardNumber={requested ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
+              <CyberCard user={user} countryCode={getCountryCode(user?.phone)} cardNumber={cardStatus === "approved" ? cardNumber : null} balance={user?.balance || 0} hideBalance={hideBalance} onToggleBalance={() => setHideBalance(value => !value)} />
             </motion.div>
             <div className="flex items-center justify-between rounded-2xl border border-gold-dark/25 bg-gradient-to-r from-gold-dark/10 to-gold/5 p-4">
               <div><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Cashback acumulado</p><p className="mt-1 font-mono text-2xl font-black text-gold">${totalCashback.toFixed(2)}</p><p className="text-[9px] text-muted-foreground">USDT · 5% en cada compra</p></div>
