@@ -13,7 +13,10 @@ Deno.serve(async (req) => {
     }
 
     const transactions = await base44.asServiceRole.entities.Transaction.filter({ user_email: user.email });
-    const existing = transactions.find((item) => String(item.notes || '').includes('OPORTUNIDAD ACTIVA'));
+    const existing = transactions.find((item) => {
+      const notes = String(item.notes || '');
+      return notes.includes('OPORTUNIDAD ACTIVA') && !notes.includes('DESEMBOLSADO');
+    });
     if (existing) {
       return Response.json({ error: 'Ya tienes una participación activa.' }, { status: 409 });
     }

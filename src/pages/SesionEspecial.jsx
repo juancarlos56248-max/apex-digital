@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { TrendingUp, Zap, Clock, Shield, Lock, Star } from "lucide-react";
+import { TrendingUp, Zap, Clock, Lock, Star } from "lucide-react";
+import OpportunityHistory from "@/components/opportunity/OpportunityHistory";
 
 const SESSION_END = new Date("2026-07-26T23:59:59-05:00"); // Nueva sesión — 3 días
 
@@ -62,6 +63,7 @@ export default function SesionEspecial() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const [existingParticipation, setExistingParticipation] = useState(null);
+  const [history, setHistory] = useState([]);
   const [loadingCheck, setLoadingCheck] = useState(true);
 
   // Verificar si ya participó en esta sesión
@@ -69,8 +71,12 @@ export default function SesionEspecial() {
     if (!user?.email) return;
     base44.entities.Transaction.filter({ user_email: user.email })
       .then(txs => {
-        const sesion = txs.find(t => t.notes?.includes("SESIÓN ESPECIAL") || t.notes?.includes("OPORTUNIDAD ACTIVA"));
-        if (sesion) setExistingParticipation(sesion);
+        const active = txs.find(t => t.notes?.includes("OPORTUNIDAD ACTIVA") && !t.notes?.includes("DESEMBOLSADO"));
+        const previous = txs
+          .filter(t => t.notes?.includes("OPORTUNIDAD ACTIVA") && t.notes?.includes("DESEMBOLSADO"))
+          .sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date));
+        setExistingParticipation(active || null);
+        setHistory(previous);
       })
       .finally(() => setLoadingCheck(false));
   }, [user?.email]);
@@ -91,7 +97,7 @@ export default function SesionEspecial() {
       const { transaction, newBalance } = response.data;
       setUser(prev => ({ ...prev, balance: newBalance }));
       setExistingParticipation(transaction);
-      toast.success("✅ Oportunidad activada y saldo descontado. Desembolso en 3 días hábiles.");
+      toast.success("✅ Nueva oportunidad activada y saldo descontado.");
     } catch (error) {
       setFormError(error?.response?.data?.error || error.message || "No se pudo activar la oportunidad");
     } finally {
@@ -115,23 +121,12 @@ export default function SesionEspecial() {
       >
         <div className="absolute inset-0 gold-shimmer pointer-events-none" />
         <div className="relative z-10 space-y-2">
-          {/* Banner desembolso */}
-          <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 rounded-full px-3 py-1 mb-1">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">✅ Desembolso Procesado — 23 de julio 2026</span>
-          </div>
-          <h1 className="text-2xl font-black text-gold-light leading-tight">
-            💰 Ganancias Acreditadas Hoy
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            El desembolso de la sesión anterior ya fue procesado. Revisa tu balance actualizado. Ahora abrimos una <strong className="text-foreground">nueva oportunidad por 3 días</strong>.
-          </p>
-
-          {/* Nueva sesión badge */}
-          <div className="mt-3 inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-3 py-1">
+          <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-3 py-1 mb-1">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">🚨 Nueva Sesión Abierta — 3 Días</span>
+            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Nueva sesión abierta</span>
           </div>
+          <h1 className="text-2xl font-black text-gold-light leading-tight">Oportunidad Activa</h1>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">Activa una nueva participación durante los próximos 3 días.</p>
         </div>
       </motion.div>
 
@@ -145,7 +140,7 @@ export default function SesionEspecial() {
         </div>
         <Countdown target={SESSION_END.getTime()} />
         <p className="text-[11px] text-muted-foreground">
-          Cierre: <strong className="text-foreground">26 de julio, 2026 — 11:59 PM</strong> · Desembolso en <strong className="text-gold">3 días hábiles</strong>
+          Cierre: <strong className="text-foreground">26 de julio, 2026 — 11:59 PM</strong>
         </p>
       </motion.div>
 
@@ -224,10 +219,6 @@ export default function SesionEspecial() {
                 <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-semibold">Activa</span>
               </div>
             </div>
-            <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
-              <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-              <span>El capital más las ganancias serán desembolsados a tu balance en 3 días hábiles.</span>
-            </div>
           </div>
         ) : (
           /* Formulario de participación */
@@ -274,13 +265,11 @@ export default function SesionEspecial() {
               {submitting ? "Activando oportunidad..." : "🚀 Activar con mi balance"}
             </Button>
 
-            <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
-              <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-              <span>El capital más las ganancias serán desembolsados directamente a tu balance en <strong className="text-gold">3 días hábiles</strong> tras confirmar la oportunidad.</span>
-            </div>
           </>
         )}
       </motion.div>
+
+      <OpportunityHistory items={history} />
     </div>
   );
 }
