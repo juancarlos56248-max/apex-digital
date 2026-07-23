@@ -94,6 +94,9 @@ export default function Deposit() {
         </p>
       </motion.div>
 
+      {/* Banner cupos limitados */}
+      <BonoCuposLimitados />
+
       {/* Ruleta — se muestra si hay giros disponibles */}
       {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
 
@@ -206,7 +209,6 @@ export default function Deposit() {
 
       <section className="space-y-4 border-t border-border pt-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Beneficios y promociones</p>
-        <BonoCuposLimitados />
         <BonoDepositoBanner />
       </section>
     </div>
