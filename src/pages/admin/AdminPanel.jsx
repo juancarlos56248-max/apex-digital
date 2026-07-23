@@ -3,7 +3,7 @@ import { useOutletContext, Navigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowDownToLine, ArrowUpFromLine, Users, Wallet,
-  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2, ClipboardList, Activity, Gift, Zap
+  TrendingDown, Mail, Megaphone, ChevronRight, MessageCircle, X, BarChart2, ClipboardList, Activity, Gift, Zap, Key
 } from "lucide-react";
 import DepositManager from "../../components/admin/DepositManager";
 import WithdrawalManager from "../../components/admin/WithdrawalManager";
@@ -20,6 +20,7 @@ import UserTierRangeManager from "../../components/admin/UserTierRangeManager";
 import KYCReviewManager from "../../components/admin/KYCReviewManager";
 import BonoCodigoManager from "../../components/admin/BonoCodigoManager";
 import OportunidadDesembolsoManager from "../../components/admin/OportunidadDesembolsoManager";
+import CodigoEspecialManager from "../../components/admin/CodigoEspecialManager";
 
 const SECTIONS = [
   {
@@ -59,6 +60,7 @@ const SECTIONS = [
     items: [
       { id: "bonos", label: "Códigos de Bono", icon: Gift },
       { id: "oportunidad", label: "Desembolso Oportunidad", icon: Zap },
+      { id: "codigo", label: "Código Especial", icon: Key },
     ],
   },
   {
@@ -85,6 +87,7 @@ const CONTENT_MAP = {
   kyc: KYCReviewManager,
   bonos: BonoCodigoManager,
   oportunidad: OportunidadDesembolsoManager,
+  codigo: CodigoEspecialManager,
 };
 
 const TITLES = {
@@ -103,6 +106,7 @@ const TITLES = {
   kyc: { label: "Verificación KYC", icon: Shield },
   bonos: { label: "Códigos de Bono", icon: Gift },
   oportunidad: { label: "Desembolso Oportunidad", icon: Zap },
+  codigo: { label: "Código Especial", icon: Key },
 };
 
 export default function AdminPanel() {
