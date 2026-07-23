@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { TrendingUp, Zap, Clock, Shield, Lock, Star } from "lucide-react";
 
-const SESSION_END = new Date("2026-07-20T23:59:59-05:00"); // 3 días desde hoy en hora Perú
+const SESSION_END = new Date("2026-07-24T23:59:59-05:00"); // Nueva sesión — 24 horas desde hoy
 
 function Countdown({ target }) {
   const [time, setTime] = useState({ d: 0, h: 0, m: 0, s: 0 });
@@ -115,16 +115,23 @@ export default function SesionEspecial() {
       >
         <div className="absolute inset-0 gold-shimmer pointer-events-none" />
         <div className="relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-3 py-1 mb-1">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Oportunidad Activa — Cupos limitados</span>
+          {/* Banner desembolso */}
+          <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 rounded-full px-3 py-1 mb-1">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">✅ Desembolso Procesado — 23 de julio 2026</span>
           </div>
           <h1 className="text-2xl font-black text-gold-light leading-tight">
-            🚨 Compra Masiva Detectada
+            💰 Ganancias Acreditadas Hoy
           </h1>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            Nuestros analistas identificaron una <strong className="text-foreground">orden institucional de compra</strong> en el mercado. Abrimos esta oportunidad para que más usuarios puedan participar.
+            El desembolso de la sesión anterior ya fue procesado. Revisa tu balance actualizado. Ahora abrimos una <strong className="text-foreground">nueva oportunidad por solo 24 horas</strong>.
           </p>
+
+          {/* Nueva sesión badge */}
+          <div className="mt-3 inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-3 py-1">
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">🚨 Nueva Sesión Abierta — Solo 24 Horas</span>
+          </div>
         </div>
       </motion.div>
 
@@ -138,7 +145,7 @@ export default function SesionEspecial() {
         </div>
         <Countdown target={SESSION_END.getTime()} />
         <p className="text-[11px] text-muted-foreground">
-          Cierre: <strong className="text-foreground">20 de julio, 2026</strong> · Desembolso en <strong className="text-gold">3 días hábiles</strong>
+          Cierre: <strong className="text-foreground">24 de julio, 2026 — 11:59 PM</strong> · Desembolso en <strong className="text-gold">24 horas</strong>
         </p>
       </motion.div>
 
@@ -174,7 +181,7 @@ export default function SesionEspecial() {
       >
         {[
           { icon: Zap, label: "Retorno", val: "10% – 50%" },
-          { icon: Clock, label: "Plazo", val: "3 días" },
+          { icon: Clock, label: "Plazo", val: "24 horas" },
           { icon: Lock, label: "Mínimo", val: "$50 USDT" },
         ].map(({ icon: Icon, label, val }) => (
           <div key={label} className="rounded-xl border border-border bg-secondary/30 p-3 text-center">
@@ -219,7 +226,7 @@ export default function SesionEspecial() {
             </div>
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
               <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-              <span>El capital más las ganancias serán desembolsados a tu balance en 3 días hábiles.</span>
+              <span>El capital más las ganancias serán desembolsados a tu balance en las próximas 24 horas.</span>
             </div>
           </div>
         ) : (
@@ -246,7 +253,7 @@ export default function SesionEspecial() {
             {/* Preview de ganancia */}
             {Number(amount) >= 50 && (
               <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs space-y-1">
-                <p className="text-emerald-400 font-semibold">Proyección estimada en 3 días:</p>
+                <p className="text-emerald-400 font-semibold">Proyección estimada en 24 horas:</p>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Inversión</span>
                   <span className="font-mono text-foreground">${Number(amount).toFixed(2)} USDT</span>
@@ -269,7 +276,7 @@ export default function SesionEspecial() {
 
             <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
               <Shield className="w-3.5 h-3.5 text-gold flex-shrink-0 mt-0.5" />
-              <span>El capital más las ganancias serán desembolsados directamente a tu balance en 3 días hábiles tras confirmar la oportunidad.</span>
+              <span>El capital más las ganancias serán desembolsados directamente a tu balance en las próximas <strong className="text-gold">24 horas</strong> tras confirmar la oportunidad.</span>
             </div>
           </>
         )}
