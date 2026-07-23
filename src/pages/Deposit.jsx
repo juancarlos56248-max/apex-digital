@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Shield, AlertTriangle, RefreshCw } from "lucide-react";
 import BonoDepositoBanner from "@/components/promo/BonoDepositoBanner";
+import BonoCuposLimitados from "@/components/promo/BonoCuposLimitados";
 
 const WALLET_ADDRESSES = {
   BEP20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
@@ -205,6 +206,7 @@ export default function Deposit() {
 
       <section className="space-y-4 border-t border-border pt-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Beneficios y promociones</p>
+        <BonoCuposLimitados />
         <BonoDepositoBanner />
       </section>
     </div>
