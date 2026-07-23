@@ -7,8 +7,10 @@ import { toast } from "sonner";
 export default function EmailMasivoManager() {
   const [sending, setSending] = useState(false);
   const [sendingBienvenida, setSendingBienvenida] = useState(false);
+  const [sendingFeriado, setSendingFeriado] = useState(false);
   const [result, setResult] = useState(null);
   const [resultBienvenida, setResultBienvenida] = useState(null);
+  const [resultFeriado, setResultFeriado] = useState(null);
 
   const handleSend = async () => {
     setSending(true);
@@ -22,6 +24,20 @@ export default function EmailMasivoManager() {
       toast.error("Error al enviar los correos");
     }
     setSending(false);
+  };
+
+  const handleSendFeriado = async () => {
+    setSendingFeriado(true);
+    setResultFeriado(null);
+    const res = await base44.functions.invoke('emailFeriadoBono', {});
+    const data = res.data;
+    setResultFeriado(data);
+    if (data.success) {
+      toast.success(`🇵🇪 Bono Feriado enviado a ${data.sent} usuarios`);
+    } else {
+      toast.error("Error al enviar el correo de feriado");
+    }
+    setSendingFeriado(false);
   };
 
   const handleSendBienvenida = async () => {
@@ -82,6 +98,47 @@ export default function EmailMasivoManager() {
           <><Send className="w-4 h-4" /> Enviar Correo Masivo</>
         )}
       </Button>
+
+      {/* Feriado Bono */}
+      <div className="border-t border-border pt-5 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+            <span className="text-base">🇵🇪</span>
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold">Bono Feriado FAP — Hoy 23 Jul</h2>
+            <p className="text-xs text-muted-foreground">Deposita $300 → recibe $1,000 en nodos · solo hoy</p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gold/20 bg-gold/5 p-3 text-xs text-muted-foreground space-y-1">
+          <p className="text-foreground font-semibold">🎁 Bono por Día de la Fuerza Aérea del Perú</p>
+          <p>Deposita mínimo <strong className="text-gold">$300 USDT</strong> y recibe <strong className="text-gold">$1,000 USDT en nodos activos</strong>.</p>
+          <p className="text-destructive/80 font-semibold">⚡ Oferta válida solo el 23 de julio de 2026.</p>
+        </div>
+
+        {resultFeriado && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gold/10 border border-gold/20">
+            <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0" />
+            <div className="text-xs">
+              <p className="text-gold font-semibold">Envío completado</p>
+              <p className="text-muted-foreground">Enviados: {resultFeriado.sent} · Fallidos: {resultFeriado.failed} · Total: {resultFeriado.total}</p>
+            </div>
+          </div>
+        )}
+
+        <Button
+          onClick={handleSendFeriado}
+          disabled={sendingFeriado}
+          className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold gap-2"
+        >
+          {sendingFeriado ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Enviando bono feriado...</>
+          ) : (
+            <><Send className="w-4 h-4" /> 🇵🇪 Enviar Bono Feriado a Todos</>
+          )}
+        </Button>
+      </div>
 
       <div className="border-t border-border pt-5 space-y-4">
         <div className="flex items-center gap-3">
