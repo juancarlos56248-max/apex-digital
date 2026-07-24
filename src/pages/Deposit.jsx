@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Copy, Shield, AlertTriangle, RefreshCw } from "lucide-react";
 import BonoDepositoBanner from "@/components/promo/BonoDepositoBanner";
-import BonoCuposLimitados from "@/components/promo/BonoCuposLimitados";
 
 const WALLET_ADDRESSES = {
   BEP20: "0xbf4b66292c791d063ccdb8ce6506f5725bbf33a4",
@@ -93,9 +92,6 @@ export default function Deposit() {
           Transfiere USDT a nuestra wallet corporativa y registra el hash de transacción
         </p>
       </motion.div>
-
-      {/* Banner cupos limitados */}
-      <BonoCuposLimitados />
 
       {/* Ruleta — se muestra si hay giros disponibles */}
       {user && <RuletaSuerte user={user} onWin={() => base44.auth.me().then(setUser)} />}
