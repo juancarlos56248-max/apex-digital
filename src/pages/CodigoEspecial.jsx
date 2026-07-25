@@ -16,25 +16,15 @@ export default function CodigoEspecial() {
     if (user.bono_codigo_activado) return toast.error("Ya activaste un código especial");
     setLoading(true);
     try {
-      const value = code.trim().toUpperCase();
-      const bonus = { codigo: "APEX1000S", monto_bono: 1000, min_node: 300, min_referidos: 3 };
-      if (value !== bonus.codigo) return toast.error("Código inválido");
-      const [investments, referrals] = await Promise.all([
-        base44.entities.Investment.filter({ user_email: user.email, status: "active" }),
-        base44.entities.Referral.filter({ referrer_email: user.email, status: "credited" }),
-      ]);
-      const eligibleNode = investments.find((investment) => (investment.amount || 0) >= bonus.min_node);
-      const nextStats = { nodeAmount: eligibleNode?.amount || 0, referrals: referrals.length };
-      setResult(bonus); setStats(nextStats);
-      if (!eligibleNode || nextStats.referrals < bonus.min_referidos) return toast.error("Necesitas un nodo activo de $300 USDT y 3 referidos activos");
-      await Promise.all([
-        base44.auth.updateMe({ balance: (user.balance || 0) + bonus.monto_bono, bono_codigo_activado: true }),
-        base44.entities.Transaction.create({ user_email: user.email, type: "dividend", amount: bonus.monto_bono, status: "completed", notes: `Bono código ${bonus.codigo}` }),
-      ]);
+      const response = await base44.functions.invoke("activarCodigoEspecial", { code });
+      const { bonus, stats: nextStats, eligible } = response.data;
+      setResult(bonus);
+      setStats(nextStats);
+      if (!eligible) return toast.error("Necesitas un nodo activo de $300 USDT y 3 referidos con nodo activo");
       setActivated(true);
       toast.success(`Bono de $${bonus.monto_bono} USDT acreditado`);
-    } catch {
-      toast.error("No se pudo activar el código. Inténtalo nuevamente.");
+    } catch (error) {
+      toast.error(error.response?.data?.error || "No se pudo activar el código. Inténtalo nuevamente.");
     } finally {
       setLoading(false);
     }
