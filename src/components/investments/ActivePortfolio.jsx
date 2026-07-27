@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Activity, Zap, BarChart3, Building2, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, Zap, BarChart3, Building2, Clock, ChevronDown } from "lucide-react";
 
 const tierConfig = {
   starter: {
@@ -213,6 +213,7 @@ function useTotalLiveEarnings(investments) {
 }
 
 export default function ActivePortfolio({ investments }) {
+  const [expanded, setExpanded] = useState(false);
   const totalInvested = investments.reduce((s, i) => s + i.amount, 0);
   const totalEarned = useTotalLiveEarnings(investments);
   const totalChangePct = totalInvested > 0 ? (totalEarned / totalInvested) * 100 : 0;
@@ -224,7 +225,12 @@ export default function ActivePortfolio({ investments }) {
       className="rounded-2xl border border-emerald-500/20 bg-card overflow-hidden shadow-lg shadow-emerald-500/5"
     >
       {/* Header */}
-      <div className="px-5 py-4 border-b border-border bg-gradient-to-r from-emerald-500/5 to-transparent flex items-center justify-between">
+      <button
+        type="button"
+        onClick={() => setExpanded((value) => !value)}
+        aria-expanded={expanded}
+        className="flex w-full items-center justify-between bg-gradient-to-r from-emerald-500/5 to-transparent px-5 py-4 text-left"
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
             <Activity className="w-4 h-4 text-emerald-400" />
@@ -233,44 +239,34 @@ export default function ActivePortfolio({ investments }) {
             <span className="text-sm font-semibold">Mis Activos en Vivo</span>
             <div className="flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] text-emerald-400 font-medium">EN VIVO</span>
+              <span className="text-[10px] text-emerald-400 font-medium">{expanded ? "OCULTAR" : "TOCAR PARA VER"}</span>
             </div>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rendimiento acumulado</p>
-          <p className="text-lg font-bold font-mono text-emerald-400">+${totalEarned.toFixed(4)}</p>
-        </div>
-      </div>
-
-      {/* Summary row */}
-      <div className="grid grid-cols-3 divide-x divide-border border-b border-border bg-secondary/20">
-        <div className="px-4 py-3 text-center">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Capital</p>
-          <p className="text-sm font-mono font-bold">${totalInvested.toLocaleString()}</p>
-          <p className="text-[10px] text-muted-foreground">USDT</p>
-        </div>
-        <div className="px-4 py-3 text-center">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Rendimiento</p>
-          <p className="text-sm font-mono font-bold text-emerald-400">+${totalEarned.toFixed(4)}</p>
-          <p className="text-[10px] text-muted-foreground">USDT</p>
-        </div>
-        <div className="px-4 py-3 text-center">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Variación</p>
-          <div className="flex items-center gap-1 justify-center text-emerald-400">
-            <TrendingUp className="w-3 h-3" />
-            <span className="text-sm font-mono font-bold">+{totalChangePct.toFixed(3)}%</span>
+        <div className="flex items-center gap-2">
+          <div className="text-right">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rendimiento</p>
+            <p className="text-sm font-bold font-mono text-emerald-400">+${totalEarned.toFixed(4)}</p>
           </div>
-          <p className="text-[10px] text-muted-foreground">acumulado</p>
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
         </div>
-      </div>
+      </button>
 
-      {/* Individual investments */}
-      <div className="divide-y divide-border">
-        {investments.map((inv) => (
-          <InvestmentCard key={inv.id} inv={inv} />
-        ))}
-      </div>
+      {expanded && (
+        <>
+          {/* Summary row */}
+          <div className="grid grid-cols-3 divide-x divide-border border-y border-border bg-secondary/20">
+            <div className="px-4 py-3 text-center"><p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Capital</p><p className="font-mono text-sm font-bold">${totalInvested.toLocaleString()}</p><p className="text-[10px] text-muted-foreground">USDT</p></div>
+            <div className="px-4 py-3 text-center"><p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Rendimiento</p><p className="font-mono text-sm font-bold text-emerald-400">+${totalEarned.toFixed(4)}</p><p className="text-[10px] text-muted-foreground">USDT</p></div>
+            <div className="px-4 py-3 text-center"><p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Variación</p><div className="flex items-center justify-center gap-1 text-emerald-400"><TrendingUp className="h-3 w-3" /><span className="font-mono text-sm font-bold">+{totalChangePct.toFixed(3)}%</span></div><p className="text-[10px] text-muted-foreground">acumulado</p></div>
+          </div>
+
+          {/* Individual investments */}
+          <div className="divide-y divide-border">
+            {investments.map((inv) => <InvestmentCard key={inv.id} inv={inv} />)}
+          </div>
+        </>
+      )}
     </motion.div>
   );
 }

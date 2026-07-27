@@ -229,27 +229,24 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
           )}
         </Button>
 
-        {/* Benefits and details */}
-        <details className="group/details rounded-lg border border-border/40 bg-secondary/20">
-          <summary className="cursor-pointer list-none px-3 py-2.5 text-center text-xs font-semibold text-gold">
-            Ver beneficios y detalles
-          </summary>
-          <div className="space-y-2 border-t border-border/40 px-3 py-3">
-            {config.features.map((f, i) => (
-              <div key={i} className="flex items-start gap-2 text-[12px] text-muted-foreground">
-                <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
-                <span>{f}</span>
-              </div>
-            ))}
-            <div className="flex items-start gap-2 text-[12px] text-muted-foreground">
+        {/* Features */}
+        <div className="space-y-2 mb-5 flex-1">
+          {config.features.map((f, i) => (
+            <div key={i} className="flex items-start gap-2 text-[12px] text-muted-foreground">
               <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
-              <span>Duración del contrato: <span className="text-foreground font-medium">{config.duration}</span></span>
+              <span>{f}</span>
             </div>
-            <p className="pt-2 text-[10px] leading-relaxed text-muted-foreground/50">
-              * Rendimiento estimado. Los resultados pasados no garantizan resultados futuros. Toda inversión conlleva riesgo.
-            </p>
+          ))}
+          <div className="flex items-start gap-2 text-[12px] text-muted-foreground">
+            <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
+            <span>Duración del contrato: <span className="text-foreground font-medium">{config.duration}</span></span>
           </div>
-        </details>
+        </div>
+
+        {/* Disclaimer */}
+        <p className="text-[10px] text-muted-foreground/50 leading-relaxed">
+          * Rendimiento estimado. Los resultados pasados no garantizan resultados futuros. Toda inversión conlleva riesgo.
+        </p>
       </div>
     </motion.div>
   );
