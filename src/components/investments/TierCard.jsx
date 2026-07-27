@@ -207,29 +207,10 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
           </div>
         </div>
 
-        {/* Features */}
-        <div className="space-y-2 mb-5 flex-1">
-          {config.features.map((f, i) => (
-            <div key={i} className="flex items-start gap-2 text-[12px] text-muted-foreground">
-              <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
-              <span>{f}</span>
-            </div>
-          ))}
-          <div className="flex items-start gap-2 text-[12px] text-muted-foreground">
-            <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
-            <span>Duración del contrato: <span className="text-foreground font-medium">{config.duration}</span></span>
-          </div>
-        </div>
-
-        {/* Disclaimer */}
-        <p className="text-[10px] text-muted-foreground/50 leading-relaxed mb-3">
-          * Rendimiento estimado. Los resultados pasados no garantizan resultados futuros. Toda inversión conlleva riesgo.
-        </p>
-
         {/* CTA */}
         <Button
           onClick={() => onSubscribe(tier, effectiveMin, { ...config, minDeposit: effectiveMin, maxDeposit: effectiveMax })}
-          className={`w-full font-semibold h-10 transition-all duration-200 ${
+          className={`mb-5 h-10 w-full font-semibold transition-all duration-200 ${
             hasActive
               ? "bg-secondary text-muted-foreground cursor-not-allowed"
               : "bg-gold hover:bg-gold-dark text-black"
@@ -247,6 +228,25 @@ export default function TierCard({ tier, onSubscribe, delay = 0, hasActive, acti
             "Activar Contrato"
           )}
         </Button>
+
+        {/* Features */}
+        <div className="space-y-2 mb-5 flex-1">
+          {config.features.map((f, i) => (
+            <div key={i} className="flex items-start gap-2 text-[12px] text-muted-foreground">
+              <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
+              <span>{f}</span>
+            </div>
+          ))}
+          <div className="flex items-start gap-2 text-[12px] text-muted-foreground">
+            <Check className={`w-3.5 h-3.5 ${config.checkColor} flex-shrink-0 mt-0.5`} />
+            <span>Duración del contrato: <span className="text-foreground font-medium">{config.duration}</span></span>
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <p className="text-[10px] text-muted-foreground/50 leading-relaxed">
+          * Rendimiento estimado. Los resultados pasados no garantizan resultados futuros. Toda inversión conlleva riesgo.
+        </p>
       </div>
     </motion.div>
   );
