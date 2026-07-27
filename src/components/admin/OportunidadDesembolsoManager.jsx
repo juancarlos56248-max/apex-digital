@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, Loader2, Zap, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import OpportunityCountdown from "@/components/opportunity/OpportunityCountdown";
+import { OPPORTUNITY_PAYOUT_AT } from "@/lib/opportunitySchedule";
 
 export default function OportunidadDesembolsoManager() {
   const [profitPct, setProfitPct] = useState(30);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [payoutReady, setPayoutReady] = useState(Date.now() >= OPPORTUNITY_PAYOUT_AT);
 
   const handleDesembolsar = async () => {
     setLoading(true);
@@ -43,6 +46,13 @@ export default function OportunidadDesembolsoManager() {
           Acredita el capital + ganancia a todos los usuarios que participaron y aún no han sido desembolsados.
         </p>
       </div>
+
+      {!payoutReady && (
+        <div className="space-y-3 rounded-xl border border-border bg-card p-4 text-center">
+          <p className="text-sm text-muted-foreground">El desembolso se habilita al finalizar los 3 días de inversión:</p>
+          <OpportunityCountdown target={OPPORTUNITY_PAYOUT_AT} onComplete={() => setPayoutReady(true)} />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label className="text-xs text-muted-foreground">Porcentaje de ganancia (%)</Label>
@@ -103,7 +113,7 @@ export default function OportunidadDesembolsoManager() {
 
       <Button
         onClick={handleDesembolsar}
-        disabled={loading || !profitPct}
+        disabled={loading || !profitPct || !payoutReady}
         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 text-base gap-2"
       >
         {loading ? (

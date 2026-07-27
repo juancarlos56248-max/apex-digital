@@ -8,48 +8,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { TrendingUp, Zap, Clock, Lock, Star } from "lucide-react";
 import OpportunityHistory from "@/components/opportunity/OpportunityHistory";
-
-const SESSION_END = new Date("2026-07-26T23:59:59-05:00"); // Nueva sesión — 3 días
-
-function Countdown({ target }) {
-  const [time, setTime] = useState({ d: 0, h: 0, m: 0, s: 0 });
-
-  useEffect(() => {
-    const calc = () => {
-      const diff = Math.max(0, target - Date.now());
-      setTime({
-        d: Math.floor(diff / 86400000),
-        h: Math.floor((diff % 86400000) / 3600000),
-        m: Math.floor((diff % 3600000) / 60000),
-        s: Math.floor((diff % 60000) / 1000),
-      });
-    };
-    calc();
-    const id = setInterval(calc, 1000);
-    return () => clearInterval(id);
-  }, [target]);
-
-  const Unit = ({ val, label }) => (
-    <div className="flex flex-col items-center">
-      <div className="w-14 h-14 rounded-xl bg-black/40 border border-gold/30 flex items-center justify-center">
-        <span className="text-2xl font-black font-mono text-gold">{String(val).padStart(2, "0")}</span>
-      </div>
-      <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">{label}</span>
-    </div>
-  );
-
-  return (
-    <div className="flex gap-2 justify-center">
-      <Unit val={time.d} label="días" />
-      <div className="text-gold text-2xl font-black mt-3">:</div>
-      <Unit val={time.h} label="horas" />
-      <div className="text-gold text-2xl font-black mt-3">:</div>
-      <Unit val={time.m} label="min" />
-      <div className="text-gold text-2xl font-black mt-3">:</div>
-      <Unit val={time.s} label="seg" />
-    </div>
-  );
-}
+import OpportunityCountdown from "@/components/opportunity/OpportunityCountdown";
+import { OPPORTUNITY_CLOSE_AT, OPPORTUNITY_PAYOUT_AT } from "@/lib/opportunitySchedule";
 
 const TIERS = [
   { range: "$50 – $299",   profit: "10% – 20%", color: "from-blue-600/20 to-blue-500/10", border: "border-blue-500/30", badge: "bg-blue-500/20 text-blue-300" },
@@ -65,6 +25,9 @@ export default function SesionEspecial() {
   const [existingParticipation, setExistingParticipation] = useState(null);
   const [history, setHistory] = useState([]);
   const [loadingCheck, setLoadingCheck] = useState(true);
+  const [now, setNow] = useState(Date.now());
+  const collectionOpen = now < OPPORTUNITY_CLOSE_AT;
+  const investmentRunning = now >= OPPORTUNITY_CLOSE_AT && now < OPPORTUNITY_PAYOUT_AT;
 
   // Verificar si ya participó en esta sesión
   useEffect(() => {
@@ -123,10 +86,10 @@ export default function SesionEspecial() {
         <div className="relative z-10 space-y-2">
           <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-3 py-1 mb-1">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">Nueva sesión abierta</span>
+            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">{collectionOpen ? "Nueva sesión abierta" : investmentRunning ? "Inversión en curso" : "Ciclo finalizado"}</span>
           </div>
-          <h1 className="text-2xl font-black text-gold-light leading-tight">Oportunidad Activa</h1>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">Activa una nueva participación durante los próximos 3 días.</p>
+          <h1 className="text-2xl font-black text-gold-light leading-tight">{collectionOpen ? "Oportunidad Activa" : investmentRunning ? "Inversión por 3 días" : "Lista para desembolso"}</h1>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">{collectionOpen ? "Activa una participación antes del cierre de la recaudación." : investmentRunning ? "La recaudación terminó. Tu inversión está generando ganancias durante 3 días." : "El plazo terminó y administración definirá la ganancia para desembolsar."}</p>
         </div>
       </motion.div>
 
@@ -136,11 +99,11 @@ export default function SesionEspecial() {
       >
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Clock className="w-4 h-4 text-gold" />
-          <span>La oportunidad cierra en:</span>
+          <span>{collectionOpen ? "La recaudación cierra en:" : investmentRunning ? "La inversión finaliza en:" : "Periodo de inversión finalizado"}</span>
         </div>
-        <Countdown target={SESSION_END.getTime()} />
+        {(collectionOpen || investmentRunning) && <OpportunityCountdown target={collectionOpen ? OPPORTUNITY_CLOSE_AT : OPPORTUNITY_PAYOUT_AT} onComplete={() => setNow(Date.now())} />}
         <p className="text-[11px] text-muted-foreground">
-          Cierre: <strong className="text-foreground">26 de julio, 2026 — 11:59 PM</strong>
+          {collectionOpen ? "Cierre: " : "Finalización: "}<strong className="text-foreground">{collectionOpen ? "26 de julio, 2026 — 11:59 PM" : "29 de julio, 2026 — 11:59 PM"}</strong>
         </p>
       </motion.div>
 
@@ -220,7 +183,7 @@ export default function SesionEspecial() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : collectionOpen ? (
           /* Formulario de participación */
           <>
             <h2 className="text-base font-bold flex items-center gap-2">
@@ -266,6 +229,12 @@ export default function SesionEspecial() {
             </Button>
 
           </>
+        ) : (
+          <div className="py-5 text-center">
+            <Lock className="mx-auto mb-3 h-8 w-8 text-gold" />
+            <h2 className="font-bold">Recaudación cerrada</h2>
+            <p className="mt-1 text-sm text-muted-foreground">No se aceptan nuevas participaciones durante la fase de inversión.</p>
+          </div>
         )}
       </motion.div>
 

@@ -1,10 +1,14 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { OPPORTUNITY_PAYOUT_AT } from '../../shared/opportunitySchedule.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (user?.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+    if (Date.now() < OPPORTUNITY_PAYOUT_AT) {
+      return Response.json({ error: 'El periodo de inversión de 3 días aún no ha terminado.' }, { status: 400 });
+    }
 
     const { profit_pct = 30 } = await req.json().catch(() => ({}));
 

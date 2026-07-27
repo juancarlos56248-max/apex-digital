@@ -1,10 +1,14 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { OPPORTUNITY_CLOSE_AT } from '../../shared/opportunitySchedule.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Debes iniciar sesión.' }, { status: 401 });
+    if (Date.now() >= OPPORTUNITY_CLOSE_AT) {
+      return Response.json({ error: 'La recaudación ya cerró. La inversión de 3 días está en curso.' }, { status: 400 });
+    }
 
     const { amount } = await req.json();
     const investmentAmount = Number(amount);
