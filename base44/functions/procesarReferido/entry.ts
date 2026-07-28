@@ -3,21 +3,28 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 // Bono por tier del nodo activado
 const BONUS_MAP = { prueba: 0, starter: 5, advance: 25, elite: 50, institutional: 100 };
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Accepts both admin and authenticated user calls
-    const isAuthenticated = await base44.auth.isAuthenticated();
-    if (!isAuthenticated) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { referral_code, tier, referred_email } = await req.json();
-    if (!referral_code || !tier || !referred_email) {
+    const { referral_code, tier, referred_email: requestedEmail } = await req.json();
+    if (!referral_code || !tier || !requestedEmail) {
       return Response.json({ error: 'Missing params: referral_code, tier, referred_email required' }, { status: 400 });
     }
 
+    const referred_email = String(requestedEmail).trim().toLowerCase();
+    if (String(user.email || '').trim().toLowerCase() !== referred_email) {
+      return Response.json({ error: 'Forbidden: referred user identity mismatch' }, { status: 403 });
+    }
+    if (!Object.prototype.hasOwnProperty.call(BONUS_MAP, tier)) {
+      return Response.json({ error: 'Invalid investment tier' }, { status: 400 });
+    }
+
     // Skip zero-bonus tiers (prueba plan)
-    const bonus = BONUS_MAP[tier] ?? 5;
+    const bonus = BONUS_MAP[tier];
     if (bonus === 0) {
       return Response.json({ ok: false, reason: 'No bonus for this tier' });
     }
@@ -39,10 +46,18 @@ Deno.serve(async (req) => {
       return Response.json({ ok: false, reason: 'Self referral not allowed' });
     }
 
-    // Also verify the referred user actually exists
+    // Verify the referred user exists and owns an active investment for the claimed tier
     const referredUsers = await base44.asServiceRole.entities.User.filter({ email: referred_email });
     if (referredUsers.length === 0) {
       return Response.json({ ok: false, reason: 'Referred user not found' });
+    }
+    const activeInvestments = await base44.asServiceRole.entities.Investment.filter({
+      user_email: referred_email,
+      tier,
+      status: 'active',
+    });
+    if (activeInvestments.length === 0) {
+      return Response.json({ error: 'Active investment for the claimed tier not found' }, { status: 403 });
     }
 
     // Credit atomically
@@ -90,4 +105,4 @@ Deno.serve(async (req) => {
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}
