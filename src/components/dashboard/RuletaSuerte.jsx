@@ -185,7 +185,7 @@ export default function RuletaSuerte({ user, onWin }) {
         </div>
         <div className="flex-1">
           <p className="text-sm font-bold text-yellow-400">¡Ruleta de Depósito disponible!</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Tienes <span className="text-yellow-400 font-bold">1 giro</span> disponible. Premio de $1 USD.</p>
+          <p className="text-xs text-muted-foreground mt-0.5"><span className="text-yellow-400 font-bold">1 giro disponible</span></p>
         </div>
         <Button size="sm" className="flex-shrink-0 bg-yellow-500 hover:bg-yellow-400 text-black font-bold">
           Girar
