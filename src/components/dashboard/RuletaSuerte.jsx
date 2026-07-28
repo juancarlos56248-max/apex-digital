@@ -4,41 +4,21 @@ import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { Star, X } from "lucide-react";
 
-// Premios en la ruleta — más probabilidades de ganar montos altos
+// Valores visibles en la ruleta; el premio acreditado es siempre USD 1
 const PRIZES = [
-  { label: "$5",    amount: 5,    color: "#c9a84c", bg: "#1a1400" },
-  { label: "$50",   amount: 50,   color: "#34d399", bg: "#001a0d" },
-  { label: "$10",   amount: 10,   color: "#a78bfa", bg: "#12003a" },
-  { label: "$100",  amount: 100,  color: "#60a5fa", bg: "#001433" },
-  { label: "$25",   amount: 25,   color: "#fb923c", bg: "#1a0800" },
-  { label: "$500",  amount: 500,  color: "#f472b6", bg: "#1a001a" },
-  { label: "$15",   amount: 15,   color: "#fbbf24", bg: "#1a1000" },
-  { label: "$1000", amount: 1000, color: "#f87171", bg: "#1a0000" },
+  { label: "$1",     amount: 1,    color: "#c9a84c", bg: "#1a1400" },
+  { label: "$5",     amount: 5,    color: "#34d399", bg: "#001a0d" },
+  { label: "$10",    amount: 10,   color: "#a78bfa", bg: "#12003a" },
+  { label: "$50",    amount: 50,   color: "#60a5fa", bg: "#001433" },
+  { label: "$100",   amount: 100,  color: "#fb923c", bg: "#1a0800" },
+  { label: "$500",   amount: 500,  color: "#f472b6", bg: "#1a001a" },
+  { label: "$1,000", amount: 1000, color: "#f87171", bg: "#1a0000" },
 ];
 
 const SEGMENTS = PRIZES.length;
 const SEGMENT_ANGLE = 360 / SEGMENTS;
 const SPINS = 8;
-const WIN_SEGMENT_ADMIN = 7; // $1,000 para admins
-
-// Para usuarios normales: pesos por índice (mayor = más probable)
-const WEIGHTS = [15, 20, 20, 10, 15, 5, 10, 5]; // sum=100
-
-function getWeightedSegment() {
-  const total = WEIGHTS.reduce((a, b) => a + b, 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < WEIGHTS.length; i++) {
-    r -= WEIGHTS[i];
-    if (r <= 0) return i;
-  }
-  return 0;
-}
-
-// Devuelve true si el usuario ya usó su giro para el depósito dado
-// Se trackea por número de giros acumulados vs depósitos elegibles
-function countEligibleDeposits(deposits) {
-  return deposits.filter(d => d.amount >= 100 && d.status === "approved").length;
-}
+const WIN_SEGMENT = 0; // Todos los usuarios ganan USD 1
 
 function getFinalAngle(winSegment, currentRotation) {
   const base = (currentRotation % 360 + 360) % 360;
@@ -120,15 +100,13 @@ export default function RuletaSuerte({ user, onWin }) {
 
   const loadEligibility = () => {
     if (!user?.email) return;
-    Promise.all([
-      base44.entities.Transaction.filter({ user_email: user.email, type: "deposit", status: "approved" }),
-      base44.entities.Transaction.filter({ user_email: user.email, type: "dividend", status: "completed" }),
-    ]).then(([deposits, dividends]) => {
-      const eligible = countEligibleDeposits(deposits);
-      const used = dividends.filter(d => d.notes?.includes("Ruleta")).length;
-      setSpinsAvailable(Math.max(0, eligible - used));
-      setLoadingEligibility(false);
-    });
+    base44.entities.Transaction
+      .filter({ user_email: user.email, type: "dividend", status: "completed" })
+      .then((dividends) => {
+        const alreadyUsed = dividends.some(d => d.notes?.includes("Ruleta USD 1"));
+        setSpinsAvailable(alreadyUsed ? 0 : 1);
+        setLoadingEligibility(false);
+      });
   };
 
   useEffect(() => { loadEligibility(); }, [user?.email]);
@@ -142,7 +120,7 @@ export default function RuletaSuerte({ user, onWin }) {
     startAngleRef.current = rotation % 360;
     startTimeRef.current = null;
 
-    const winSegment = user?.role === "admin" ? WIN_SEGMENT_ADMIN : getWeightedSegment();
+    const winSegment = WIN_SEGMENT;
     const targetAngle = getFinalAngle(winSegment, rotation);
 
     const animate = (timestamp) => {
@@ -174,7 +152,7 @@ export default function RuletaSuerte({ user, onWin }) {
           type: "dividend",
           amount,
           status: "completed",
-          notes: `🎰 Premio Ruleta de Depósito — $${amount} USDT`,
+          notes: `🎰 Premio Ruleta USD 1 — $${amount} USDT`,
         }),
         base44.entities.User.filter({ email: user.email }).then(async ([u]) => {
           if (u) {
@@ -207,7 +185,7 @@ export default function RuletaSuerte({ user, onWin }) {
         </div>
         <div className="flex-1">
           <p className="text-sm font-bold text-yellow-400">¡Ruleta de Depósito disponible!</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Tienes <span className="text-yellow-400 font-bold">{spinsAvailable} giro{spinsAvailable > 1 ? "s" : ""}</span> disponible{spinsAvailable > 1 ? "s" : ""}. Premios hasta $1,000 USDT.</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Tienes <span className="text-yellow-400 font-bold">1 giro</span> disponible. Premio garantizado de $1 USD.</p>
         </div>
         <Button size="sm" className="flex-shrink-0 bg-yellow-500 hover:bg-yellow-400 text-black font-bold">
           Girar
@@ -232,7 +210,7 @@ export default function RuletaSuerte({ user, onWin }) {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-yellow-400" />
-                  <h2 className="text-base font-bold text-yellow-400">Ruleta Semanal</h2>
+                  <h2 className="text-base font-bold text-yellow-400">Ruleta de Premios</h2>
                 </div>
                 {!spinning && (
                   <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground">
@@ -277,7 +255,7 @@ export default function RuletaSuerte({ user, onWin }) {
               )}
 
               <p className="text-center text-[10px] text-muted-foreground mt-3">
-                1 giro por cada depósito ≥$100 aprobado · Premios de $5 hasta $1,000 USDT
+                Un único giro por usuario · Premio garantizado de $1 USD
               </p>
             </motion.div>
           </>
