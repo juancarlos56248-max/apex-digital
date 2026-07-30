@@ -130,6 +130,31 @@
   }
 }
 
+/* VIP Admin — premium visual layer across the authenticated platform */
+.vip-admin {
+  background:
+    radial-gradient(circle at 82% 8%, hsl(var(--gold) / 0.11), transparent 30%),
+    radial-gradient(circle at 18% 92%, hsl(var(--gold-dark) / 0.07), transparent 32%),
+    hsl(var(--background));
+}
+.vip-admin main {
+  background: linear-gradient(145deg, transparent 0%, hsl(var(--gold) / 0.025) 55%, transparent 100%);
+}
+.vip-admin header,
+.vip-admin aside,
+.vip-admin > nav {
+  border-color: hsl(var(--gold) / 0.22);
+  box-shadow: 0 8px 30px hsl(0 0% 0% / 0.28), inset 0 1px hsl(var(--gold) / 0.06);
+}
+.vip-admin .bg-card {
+  border-color: hsl(var(--gold) / 0.2);
+  background-image: linear-gradient(145deg, hsl(var(--gold) / 0.035), transparent 48%);
+  box-shadow: 0 12px 32px hsl(0 0% 0% / 0.3), inset 0 1px hsl(var(--gold) / 0.05);
+}
+.vip-admin .bg-card:hover {
+  border-color: hsl(var(--gold) / 0.35);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

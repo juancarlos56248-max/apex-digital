@@ -1,4 +1,4 @@
-import { ChevronLeft, Menu } from "lucide-react";
+import { ChevronLeft, Crown, Menu } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NotificationMenu from "@/components/layout/NotificationMenu";
 import UserMenu from "@/components/layout/UserMenu";
@@ -16,6 +16,11 @@ export default function AppHeader({ user, onMenu, isRootTab }) {
         <div><h1 className="text-sm font-semibold md:text-base">{title}</h1><p className="hidden text-xs text-muted-foreground sm:block">{description}</p></div>
       </div>
       <div className="flex min-w-0 items-center gap-2">
+        {user?.role === "admin" && (
+          <div className="hidden items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gold shadow-sm sm:flex">
+            <Crown className="h-3.5 w-3.5" /> VIP Admin
+          </div>
+        )}
         <select aria-label="Idioma" defaultValue="es" className="h-9 rounded-lg border border-border bg-secondary px-2 text-xs text-muted-foreground outline-none focus:border-primary/50"><option value="es">ES</option></select>
         <NotificationMenu />
         <UserMenu user={user} />

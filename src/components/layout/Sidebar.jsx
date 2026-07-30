@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { 
   LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, 
-  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2, BarChart2, Zap, CreditCard, KeyRound
+  Users, Shield, X, LogOut, ChevronRight, MessageSquare, Headphones, Trash2, BarChart2, Zap, CreditCard, KeyRound, Crown
 } from "lucide-react";
 
 const navItems = [
@@ -134,6 +134,11 @@ export default function Sidebar({ open, onClose, user }) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user?.full_name || "Usuario"}</p>
                 <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
+                {isAdmin && (
+                  <span className="mt-1 inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-gold">
+                    <Crown className="h-3 w-3" /> Miembro VIP
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => base44.auth.logout()}
