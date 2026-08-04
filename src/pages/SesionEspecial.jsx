@@ -88,8 +88,8 @@ export default function SesionEspecial() {
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             <span className="text-xs font-bold text-red-400 uppercase tracking-wider">{collectionOpen ? "Nueva sesión abierta" : investmentRunning ? "Inversión en curso" : "Ciclo finalizado"}</span>
           </div>
-          <h1 className="text-2xl font-black text-gold-light leading-tight">{collectionOpen ? "Oportunidad Activa" : investmentRunning ? "Inversión por 3 días" : "Lista para desembolso"}</h1>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">{collectionOpen ? "Activa una participación antes del cierre de la recaudación." : investmentRunning ? "La recaudación terminó. Tu inversión está generando ganancias durante 3 días." : "El plazo terminó y administración definirá la ganancia para desembolsar."}</p>
+          <h1 className="text-2xl font-black text-gold-light leading-tight">{collectionOpen ? "Oportunidad Activa" : investmentRunning ? "Inversión por 1 día" : "Lista para desembolso"}</h1>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">{collectionOpen ? "Activa una participación antes del cierre de la recaudación." : investmentRunning ? "La recaudación terminó. Tu inversión está generando ganancias durante 1 día." : "El plazo terminó y administración definirá la ganancia para desembolsar."}</p>
         </div>
       </motion.div>
 
@@ -103,7 +103,7 @@ export default function SesionEspecial() {
         </div>
         {(collectionOpen || investmentRunning) && <OpportunityCountdown target={collectionOpen ? OPPORTUNITY_CLOSE_AT : OPPORTUNITY_PAYOUT_AT} onComplete={() => setNow(Date.now())} />}
         <p className="text-[11px] text-muted-foreground">
-          {collectionOpen ? "Cierre: " : "Finalización: "}<strong className="text-foreground">{collectionOpen ? "26 de julio, 2026 — 11:59 PM" : "29 de julio, 2026 — 11:59 PM"}</strong>
+          {collectionOpen ? "Cierre: " : "Finalización: "}<strong className="text-foreground">{collectionOpen ? "5 de agosto, 2026 — 11:59 PM" : "6 de agosto, 2026 — 11:59 PM"}</strong>
         </p>
       </motion.div>
 
@@ -139,7 +139,7 @@ export default function SesionEspecial() {
       >
         {[
           { icon: Zap, label: "Retorno", val: "10% – 50%" },
-          { icon: Clock, label: "Plazo", val: "3 días" },
+          { icon: Clock, label: "Plazo", val: "1 día" },
           { icon: Lock, label: "Mínimo", val: "$50 USDT" },
         ].map(({ icon: Icon, label, val }) => (
           <div key={label} className="rounded-xl border border-border bg-secondary/30 p-3 text-center">
@@ -207,7 +207,7 @@ export default function SesionEspecial() {
             {/* Preview de ganancia */}
             {Number(amount) >= 50 && (
               <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs space-y-1">
-                <p className="text-emerald-400 font-semibold">Proyección estimada en 3 días:</p>
+                <p className="text-emerald-400 font-semibold">Proyección estimada en 1 día:</p>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Inversión</span>
                   <span className="font-mono text-foreground">${Number(amount).toFixed(2)} USDT</span>

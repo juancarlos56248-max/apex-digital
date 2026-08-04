@@ -49,7 +49,7 @@ export default function OportunidadDesembolsoManager() {
 
       {!payoutReady && (
         <div className="space-y-3 rounded-xl border border-border bg-card p-4 text-center">
-          <p className="text-sm text-muted-foreground">El desembolso se habilita al finalizar los 3 días de inversión:</p>
+          <p className="text-sm text-muted-foreground">El desembolso se habilita al finalizar el día de inversión:</p>
           <OpportunityCountdown target={OPPORTUNITY_PAYOUT_AT} onComplete={() => setPayoutReady(true)} />
         </div>
       )}

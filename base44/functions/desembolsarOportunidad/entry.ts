@@ -1,27 +1,27 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { OPPORTUNITY_PAYOUT_AT } from '../../shared/opportunitySchedule.ts';
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (user?.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
     if (Date.now() < OPPORTUNITY_PAYOUT_AT) {
-      return Response.json({ error: 'El periodo de inversión de 3 días aún no ha terminado.' }, { status: 400 });
+      return Response.json({ error: 'El periodo de inversión de 1 día aún no ha terminado.' }, { status: 400 });
     }
 
     const { profit_pct = 30 } = await req.json().catch(() => ({}));
 
     // Find all "OPORTUNIDAD ACTIVA" transactions with status completed
     const allTxs = await base44.asServiceRole.entities.Transaction.filter({ type: 'opportunity', status: 'completed' });
-    const activeTxs = allTxs.filter((t: any) => String(t.notes || '').includes('OPORTUNIDAD ACTIVA') && !String(t.notes || '').includes('DESEMBOLSADO'));
+    const activeTxs = allTxs.filter((t) => String(t.notes || '').includes('OPORTUNIDAD ACTIVA') && !String(t.notes || '').includes('DESEMBOLSADO'));
 
     if (activeTxs.length === 0) {
       return Response.json({ success: true, processed: 0, message: 'No hay participaciones pendientes de desembolso.' });
     }
 
     const results = await Promise.allSettled(
-      activeTxs.map(async (tx: any) => {
+      activeTxs.map(async (tx) => {
         const gain = Number((tx.amount * profit_pct / 100).toFixed(2));
         const total = Number((tx.amount + gain).toFixed(2));
 
@@ -54,8 +54,8 @@ Deno.serve(async (req) => {
       })
     );
 
-    const succeeded = results.filter(r => r.status === 'fulfilled').map(r => (r as any).value);
-    const failed = results.filter(r => r.status === 'rejected').map(r => (r as any).reason?.message);
+    const succeeded = results.filter(r => r.status === 'fulfilled').map(r => r.value);
+    const failed = results.filter(r => r.status === 'rejected').map(r => r.reason?.message);
 
     return Response.json({
       success: true,
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       details: succeeded,
       errors: failed,
     });
-  } catch (error: any) {
+  } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}

@@ -1,2 +1,2 @@
-export const OPPORTUNITY_CLOSE_AT = new Date('2026-07-26T23:59:59-05:00').getTime();
-export const OPPORTUNITY_PAYOUT_AT = OPPORTUNITY_CLOSE_AT + (3 * 24 * 60 * 60 * 1000);
+export const OPPORTUNITY_CLOSE_AT = new Date('2026-08-05T23:59:59-05:00').getTime();
+export const OPPORTUNITY_PAYOUT_AT = OPPORTUNITY_CLOSE_AT + (1 * 24 * 60 * 60 * 1000);
