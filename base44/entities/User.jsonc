@@ -25,6 +25,11 @@
       "type": "boolean",
       "default": false
     },
+    "deposit_bonus_claimed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el usuario ya recibi\u00f3 la bonificaci\u00f3n \u00fanica del 50% por dep\u00f3sito"
+    },
     "referral_code": {
       "type": "string"
     },
