@@ -8,7 +8,6 @@ import StatsCard from "../components/dashboard/StatsCard";
 import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActiveInvestments from "../components/dashboard/ActiveInvestments";
 import MarketAlerts from "../components/dashboard/MarketAlerts";
-import SorteoBanner from "../components/dashboard/SorteoBanner";
 import RuletaSuerte from "../components/dashboard/RuletaSuerte";
 import BonoDepositoBanner from "@/components/promo/BonoDepositoBanner";
 
@@ -131,7 +130,6 @@ export default function Dashboard() {
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Novedades</p>
         <RuletaSuerte user={user} onWin={handleRefresh} />
         <BonoDepositoBanner />
-        <SorteoBanner />
       </section>
 
       {/* Earnings history chart — real user data */}
