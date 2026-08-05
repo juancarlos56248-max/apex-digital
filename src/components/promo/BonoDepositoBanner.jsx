@@ -16,9 +16,9 @@ export default function BonoDepositoBanner() {
           <Gift className="h-6 w-6 text-gold" />
         </div>
         <div className="flex-1">
-          <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gold">Bono exclusivo</span>
+          <span className="rounded-full bg-gold/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gold">Bono en cada depósito</span>
           <h2 className="mt-2 text-lg font-black text-gold-light">¡Bonificación del 50% por depósito!</h2>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Deposita más de $100 USDT y obtén un bono del 50% adicional sobre tu depósito, válido una sola vez.</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Cada depósito aprobado recibe automáticamente un 50% adicional sobre el monto depositado.</p>
         </div>
         <Link to="/deposit" className="flex-shrink-0">
           <Button className="w-full font-bold sm:w-auto">Depositar ahora <ArrowRight className="h-4 w-4" /></Button>

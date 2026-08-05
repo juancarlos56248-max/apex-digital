@@ -51,25 +51,18 @@ export default function DepositManager() {
     const users = await base44.entities.User.filter({ email: deposit.user_email });
     if (users.length > 0) {
       const u = users[0];
-      const bonusEligible = deposit.amount > 100 && u.deposit_bonus_claimed !== true;
-      const bonusAmount = bonusEligible ? deposit.amount * 0.5 : 0;
+      const bonusAmount = deposit.amount * 0.5;
       await base44.entities.User.update(u.id, {
         balance: (u.balance || 0) + deposit.amount + bonusAmount,
-        ...(bonusEligible && { deposit_bonus_claimed: true }),
       });
-      if (bonusEligible) {
-        await base44.entities.Transaction.create({
-          user_email: deposit.user_email,
-          type: "deposit",
-          amount: bonusAmount,
-          status: "completed",
-          notes: "Bonificación única del 50% por depósito",
-        });
-      }
-      toast.success(bonusEligible
-        ? `Depósito de $${deposit.amount} + bono de $${bonusAmount} acreditados a ${deposit.user_email}`
-        : `Depósito de $${deposit.amount} acreditado a ${deposit.user_email}`
-      );
+      await base44.entities.Transaction.create({
+        user_email: deposit.user_email,
+        type: "deposit",
+        amount: bonusAmount,
+        status: "completed",
+        notes: "Bonificación del 50% por depósito",
+      });
+      toast.success(`Depósito de $${deposit.amount} + bono de $${bonusAmount} acreditados a ${deposit.user_email}`);
 
       // Procesar bono de referido si el usuario fue referido (idempotency handled server-side)
       if (u.referral_code_used) {
