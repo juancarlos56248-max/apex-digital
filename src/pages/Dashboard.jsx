@@ -9,7 +9,6 @@ import RecentTransactions from "../components/dashboard/RecentTransactions";
 import ActiveInvestments from "../components/dashboard/ActiveInvestments";
 import MarketAlerts from "../components/dashboard/MarketAlerts";
 import RuletaSuerte from "../components/dashboard/RuletaSuerte";
-import BonoDepositoBanner from "@/components/promo/BonoDepositoBanner";
 
 import { motion } from "framer-motion";
 
@@ -129,7 +128,6 @@ export default function Dashboard() {
       <section className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Novedades</p>
         <RuletaSuerte user={user} onWin={handleRefresh} />
-        <BonoDepositoBanner />
       </section>
 
       {/* Earnings history chart — real user data */}
