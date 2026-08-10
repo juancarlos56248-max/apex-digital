@@ -20,7 +20,7 @@ export default function CodigoEspecial() {
       const { bonus, stats: nextStats, eligible } = response.data;
       setResult(bonus);
       setStats(nextStats);
-      if (!eligible) return toast.error("Necesitas un nodo activo de $300 USDT y 3 referidos con nodo activo");
+      if (!eligible) return toast.error("Necesitas 3 referidos con inversión total de $1000 USDT, o un depósito mayor a $300 USDT");
       setActivated(true);
       toast.success(`Bono de $${bonus.monto_bono} USDT acreditado`);
     } catch (error) {
